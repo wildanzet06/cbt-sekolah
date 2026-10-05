@@ -16,13 +16,6 @@ ____
 - Font Arabic Calibri
 - Remove vendor folder
 
-## NOTE:
-Aplikasi ini tidak diperjual belikan alias gratis 100% dengan lisensi MIT yang artinya bebas untuk memodifikasi dengan syarat tetap mencantumkan sumber asal.
-
-Kami selaku pengembang aplikasi ini tidak bertanggung-jawab:
-- jika ada yang mengharuskan membayar untuk mendapatkan aplikasi ini,
-- adanya masalah dari aplikasi yang sudah dimodif atau dirubah fiturnya oleh pihak lain.
-____
 ## Download
 Harap download aplikasi dari tombol [<> Code] -> Download zip
 ----
