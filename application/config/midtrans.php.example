@@ -1,0 +1,24 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+/*
+| -------------------------------------------------------------------
+| KONFIGURASI MIDTRANS  (CONTOH)
+| -------------------------------------------------------------------
+| Salin file ini menjadi  application/config/midtrans.php  lalu isi kuncinya.
+| File midtrans.php yang asli TIDAK boleh diunggah ke GitHub (sudah di .gitignore).
+*/
+
+// Kunci dari dashboard Midtrans (Settings > Access Keys)
+// Sandbox  : diawali "SB-Mid-server-" dan "SB-Mid-client-"
+// Produksi : diawali "Mid-server-" dan "Mid-client-"
+$config['midtrans_server_key'] = 'ISI_SERVER_KEY';
+$config['midtrans_client_key'] = 'ISI_CLIENT_KEY';
+
+// FALSE = percobaan (sandbox), TRUE = uang sungguhan (produksi)
+// Kunci sandbox hanya bekerja jika FALSE, kunci produksi hanya jika TRUE.
+$config['midtrans_is_production'] = FALSE;
+
+// Alamat yang dipanggil Midtrans untuk memberi tahu status pembayaran.
+// Harus alamat publik (bukan localhost). Contoh: https://sekolah.example.sch.id/pembayaran/midtrans_notification
+$config['midtrans_notif_url'] = 'https://ALAMAT-SERVER-ANDA/pembayaran/midtrans_notification';

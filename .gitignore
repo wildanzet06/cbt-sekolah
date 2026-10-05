@@ -1,0 +1,71 @@
+*/config/development
+*/logs/log-*.php
+!*/logs/index.html
+*/cache/*
+!*/cache/index.html
+!*/cache/.htaccess
+
+user_guide_src/build/*
+user_guide_src/cilexer/build/*
+user_guide_src/cilexer/dist/*
+user_guide_src/cilexer/pycilexer.egg-info/*
+
+#codeigniter 3
+application/logs/*
+!application/logs/index.html
+!application/logs/.htaccess
+/backups/
+/orm/
+#/vendor/
+/nbproject/private/
+vendor/
+uploads/
+backups/
+.idea/
+# Editor
+.idea/
+*.iml
+.vscode/
+
+# Rahasia
+application/config/midtrans.php
+
+# Data pengguna dan cadangan
+backups/
+uploads/**
+!uploads/**/
+!uploads/**/index.html
+
+# Log dan cache
+application/logs/*
+!application/logs/index.html
+application/cache/*
+!application/cache/index.html
+
+# ===== Tambahkan di BAGIAN BAWAH file .gitignore yang sudah ada =====
+
+# Pengaturan editor
+.idea/
+*.iml
+.vscode/
+
+# Kunci rahasia (yang ikut hanya midtrans.php.example)
+application/config/midtrans.php
+
+# Cadangan database
+backups/
+
+# Berkas unggahan pengguna (foto siswa, bukti transfer, dll.)
+# Folder dan index.html pelindung tetap ikut
+uploads/**
+!uploads/**/
+!uploads/**/index.html
+
+# Log dan cache
+application/logs/*
+!application/logs/index.html
+application/cache/*
+!application/cache/index.html
+
+echo application/config/midtrans.php >> .gitignore
+git rm --cached application/config/midtrans.php
