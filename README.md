@@ -1,10 +1,6 @@
 # GarudaCBT
 ## Last version: 1.5.3  (FIXED)
 ____
-#### LAPORAN BUG SILAKAN KUNJUNGI GROUP TELEGRAM [DISINI](http://t.me/garudacbt)
-____
-Versi default: 1.5.3 BETA, untuk download v.1.5.2. [ada disini](https://github.com/garudacbt/cbt/tree/1.5.2-build-2024-05-17)
-____
 
 ### CHANGELOG:
 #### Added
@@ -20,40 +16,15 @@ ____
 - Font Arabic Calibri
 - Remove vendor folder
 
-#### Fixed
-- Zoom in/out soal siswa
-- Koreksi Ujian
-- Rekap ujian
-- Pengawas undefined
-- Jawaban isian singkat dianggap salah
-- Jawaban soal menjodohkan dianggap belum menjawab
-- Hasil export nilai Excel header tabel tidak pas ketika tidak ada soal PG
-- Nilai siswa ketika diulang
-- Tanda petik di header Kartu Ujian, Daftar Kehadiran dan Berita Acara
-- Nilai harian (eLearning)
-- Edit Materi (eLearning)
-- Some minor bugs
-
-___________
-
 ## NOTE:
 Aplikasi ini tidak diperjual belikan alias gratis 100% dengan lisensi MIT yang artinya bebas untuk memodifikasi dengan syarat tetap mencantumkan sumber asal.
 
 Kami selaku pengembang aplikasi ini tidak bertanggung-jawab:
 - jika ada yang mengharuskan membayar untuk mendapatkan aplikasi ini,
 - adanya masalah dari aplikasi yang sudah dimodif atau dirubah fiturnya oleh pihak lain.
-______________
-- [HOME](https://garudacbt.github.io/cbt)
-- [TUTORIAL INSTALL](https://github.com/garudacbt/cbt/wiki)
-
 ____
 ## Download
 Harap download aplikasi dari tombol [<> Code] -> Download zip
-
------
-## VIRTUAL BOX (VHD):
-https://github.com/origrata/garudacbt-vdi
-
 ----
 ## Install
 * Download Aplikasi dari menu **Code => Download ZIP**
@@ -70,6 +41,14 @@ ______
 ### MENU FITUR
 1. DATA MASTER
    * Beranda
+   * Keuangan
+      * Pembayaran SPP
+      * Daftar Tagihan
+      * Buat Tagihan
+      * Jenis Tagihan
+      * Keringanan Siswa
+      * Setting Nominal SPP
+      * Laporan SPP 
    * Data Umum
       * Tahun Pelajaran
       * Jurusan
@@ -96,11 +75,9 @@ ______
    * Pengumuman
 
 2. PELAKSANAAN
-   * Hasil E-Learning
-      * Nilai Harian
-      * Kehadiran Harian
-      * Kehadiran Bulanan
-      * Rekap Nilai
+   * presensi Kelas
+      * Isi Presensi
+      * Rekap Presensi
    * Pelaksanaan Ujian
       * Cetak
       * Status Siswa
@@ -108,13 +85,13 @@ ______
       * Analisis Soal
       * Rekap Nilai Ujian
 
-3. RAPOR
+4. RAPOR
    * Setting Rapor
    * Kumpulan Nilai Rapor
    * Buku Induk
    * Alumni
 
-4. PENGATURAN
+5. PENGATURAN
    * Profile Sekolah
    * User Management
       * Administrator
