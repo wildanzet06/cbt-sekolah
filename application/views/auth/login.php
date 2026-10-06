@@ -49,7 +49,7 @@
                             <div class="col-8">
                                 <div class="icheck-cyan">
                                     <input type='checkbox' id="cbt-only" name='cbt-only'
-                                           value='1' checked="checked"/>
+                                           value='1'/>
                                     <label for="cbt-only">Login CBT</label>
                                 </div>
                             </div>
