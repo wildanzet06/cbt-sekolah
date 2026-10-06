@@ -172,7 +172,9 @@ $rp = function ($n) { return 'Rp ' . number_format((float) $n, 0, ',', '.'); };
                 <div class="form-group">
                     <label>Metode pembayaran</label>
                     <div class="radio"><label><input type="radio" name="metode" value="manual" checked> Transfer manual (upload bukti)</label></div>
+                    <?php if (!isset($midtrans_aktif) || $midtrans_aktif): ?>
                     <div class="radio"><label><input type="radio" name="metode" value="midtrans"> Bayar online (Midtrans)</label></div>
+                    <?php endif; ?>
                 </div>
 
                 <div id="blok_manual">
