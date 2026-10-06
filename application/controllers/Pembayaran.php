@@ -17,7 +17,9 @@ class Pembayaran extends CI_Controller {
         $this->load->library(array('ion_auth', 'session'));
 
         // Kunci & pengaturan Midtrans dibaca dari application/config/midtrans.php
-        $this->config->load('midtrans');
+        // Berkas midtrans.php bersifat OPSIONAL: tanpa berkas itu, halaman keuangan tetap
+        // bisa dibuka dan pembayaran lewat transfer manual tetap jalan.
+        $this->config->load('midtrans', FALSE, TRUE);
 
         $method = $this->router->fetch_method();
         if (!in_array($method, $this->public_methods) && !$this->ion_auth->logged_in()) {
@@ -86,6 +88,15 @@ class Pembayaran extends CI_Controller {
      * Cek apakah siswa boleh membayar SPP bulan/tahun tersebut.
      * Mengisi flashdata 'error' dan mengembalikan FALSE jika tidak boleh.
      */
+    // Midtrans dianggap siap jika kunci server sudah diisi (bukan tulisan contoh)
+    // dan library Midtrans tersedia.
+    private function _midtrans_siap() {
+        $kunci = (string) $this->config->item('midtrans_server_key');
+        return $kunci !== ''
+            && strpos($kunci, 'ISI_') !== 0
+            && file_exists(APPPATH . 'third_party/midtrans/Midtrans.php');
+    }
+
     /**
      * Validasi pembayaran sebuah tagihan oleh siswa yang sedang login.
      * Mengembalikan array(tagihan, jumlah) jika boleh, atau FALSE (flashdata 'error' terisi).
@@ -324,6 +335,7 @@ class Pembayaran extends CI_Controller {
         $data['tagihan']     = $this->Tagihan_model->tagihan_siswa($siswa->id_siswa);
         $data['riwayat']     = $this->Pembayaran_model->get_riwayat_siswa($siswa->id_siswa);
         $data['min_cicilan'] = self::MIN_CICILAN;
+        $data['midtrans_aktif'] = $this->_midtrans_siap();
 
         $this->load->view('members/siswa/templates/header', $data);
         $this->load->view('pembayaran/bayar_spp', $data);
@@ -394,6 +406,12 @@ class Pembayaran extends CI_Controller {
         list($t, $jumlah) = $cek;
         list($bulan, $tahun) = $this->_periode_pembayaran($t);
 
+        if (!$this->_midtrans_siap()) {
+            $this->session->set_flashdata('error', 'Pembayaran online (Midtrans) belum diaktifkan. Silakan gunakan transfer manual.');
+            redirect('pembayaran/bayar_spp');
+            return;
+        }
+
         if (file_exists(APPPATH . 'third_party/midtrans/Midtrans.php')) {
             require_once APPPATH . 'third_party/midtrans/Midtrans.php';
 
@@ -458,6 +476,12 @@ class Pembayaran extends CI_Controller {
     }
 
     public function midtrans_notification() {
+        if (!$this->_midtrans_siap()) {
+            $this->output->set_status_header(503);
+            echo 'Midtrans belum dikonfigurasi';
+            return;
+        }
+
         if (file_exists(APPPATH . 'third_party/midtrans/Midtrans.php')) {
             require_once APPPATH . 'third_party/midtrans/Midtrans.php';
             $server_key = $this->config->item('midtrans_server_key');
