@@ -359,7 +359,12 @@ class Pembayaran extends CI_Controller {
         list($bulan, $tahun) = $this->_periode_pembayaran($t);
 
         $upload_path = './uploads/bukti_transfer/';
-        if (!file_exists($upload_path)) mkdir($upload_path, 0777, true);
+        if (!is_dir($upload_path) && !@mkdir($upload_path, 0750, true) && !is_dir($upload_path)) {
+            $this->session->set_flashdata('error', 'Folder bukti pembayaran tidak dapat disiapkan.');
+            redirect('pembayaran/bayar_spp');
+            return;
+        }
+        @chmod($upload_path, 0750);
 
         $config['upload_path']   = $upload_path;
         $config['allowed_types'] = 'jpg|jpeg|png|pdf';
