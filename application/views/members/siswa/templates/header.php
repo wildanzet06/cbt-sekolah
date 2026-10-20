@@ -101,6 +101,7 @@
             .navbar-siswa .judul-sub { font-size: .68rem; }
         }
     </style>
+    <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/blue-gray-theme.css">
 </head>
 
 <script type="text/javascript">
