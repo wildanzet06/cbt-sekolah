@@ -1,0 +1,226 @@
+:root {
+    --theme-blue: #2f6fbd;
+    --theme-blue-dark: #245b9e;
+    --theme-navy: #20364d;
+    --theme-navy-deep: #192c40;
+    --theme-surface: #ffffff;
+    --theme-page: #f1f5f9;
+    --theme-line: #dce4ed;
+    --theme-text: #26384a;
+    --theme-muted: #728196;
+}
+
+body {
+    color: var(--theme-text);
+}
+
+.content-wrapper {
+    background: linear-gradient(135deg, #f4f7fb 0%, var(--theme-page) 100%);
+}
+
+.main-header.navbar {
+    background: var(--theme-surface);
+    border-bottom: 1px solid var(--theme-line);
+    box-shadow: 0 2px 10px rgba(28, 49, 72, .045);
+}
+
+.main-header .nav-link,
+.main-header .navbar-nav .nav-link {
+    color: #52657a;
+}
+
+.main-sidebar,
+.main-sidebar.sidebar-light-teal {
+    background: var(--theme-navy);
+    box-shadow: 4px 0 18px rgba(24, 42, 62, .12);
+}
+
+.brand-link,
+.main-sidebar .brand-link.bg-white {
+    background: var(--theme-navy-deep) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, .1);
+    color: #fff;
+}
+
+.brand-link .brand-text,
+.main-sidebar .user-panel .info a,
+.main-sidebar .nav-sidebar .nav-link,
+.main-sidebar .nav-sidebar .nav-header {
+    color: #e5edf5;
+}
+
+.main-sidebar .user-panel {
+    border-bottom: 1px solid rgba(255, 255, 255, .12);
+    padding-bottom: .8rem;
+}
+
+.main-sidebar .user-panel .text-muted {
+    color: #aebdcd !important;
+}
+
+.main-sidebar .nav-sidebar .nav-link {
+    border-radius: 5px;
+    margin: 2px 8px;
+    transition: background-color .16s ease, color .16s ease;
+}
+
+.main-sidebar .nav-sidebar .nav-link:hover {
+    background: rgba(255, 255, 255, .09);
+    color: #fff;
+}
+
+.main-sidebar .nav-sidebar .nav-link.active,
+.main-sidebar .nav-sidebar .menu-open > .nav-link {
+    background: var(--theme-blue);
+    box-shadow: 0 3px 8px rgba(12, 30, 52, .2);
+    color: #fff;
+}
+
+.main-sidebar .nav-sidebar .nav-treeview .nav-link.active {
+    background: rgba(77, 145, 220, .22);
+    box-shadow: none;
+}
+
+.content-header {
+    padding-top: 1.35rem;
+    padding-bottom: .9rem;
+}
+
+.content-header h1 {
+    color: #263c52;
+    font-size: 1.35rem;
+    font-weight: 600;
+}
+
+.content-header .breadcrumb {
+    background: transparent;
+    color: var(--theme-muted);
+}
+
+.content .card,
+.card {
+    border: 1px solid var(--theme-line);
+    border-radius: 6px;
+    box-shadow: 0 3px 12px rgba(32, 54, 77, .045);
+}
+
+.card-header {
+    background: #fbfcfe;
+    border-bottom: 1px solid var(--theme-line);
+    color: #30475e;
+}
+
+.card-title {
+    font-weight: 600;
+}
+
+.main-footer {
+    background: var(--theme-surface);
+    border-top: 1px solid var(--theme-line);
+    color: var(--theme-muted);
+}
+
+.btn-primary,
+.bg-primary,
+.badge-primary {
+    background-color: var(--theme-blue) !important;
+    border-color: var(--theme-blue) !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--theme-blue-dark) !important;
+    border-color: var(--theme-blue-dark) !important;
+}
+
+.btn,
+.form-control,
+.custom-select,
+.select2-container--bootstrap4 .select2-selection {
+    border-radius: 5px;
+}
+
+.form-control,
+.custom-select,
+.select2-container--bootstrap4 .select2-selection {
+    border-color: #d4dee8;
+}
+
+.form-control:focus,
+.custom-select:focus {
+    border-color: #75a5dc;
+    box-shadow: 0 0 0 .18rem rgba(47, 111, 189, .14);
+}
+
+.table thead th {
+    background: #f3f6fa;
+    border-bottom-color: #d8e1eb;
+    color: #40566c;
+    font-weight: 600;
+}
+
+.table td,
+.table th {
+    border-color: #e5ebf1;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f4f8fc;
+}
+
+.page-link {
+    color: var(--theme-blue);
+}
+
+.page-item.active .page-link {
+    background-color: var(--theme-blue);
+    border-color: var(--theme-blue);
+}
+
+.dropdown-menu,
+.modal-content {
+    border: 1px solid var(--theme-line);
+    border-radius: 6px;
+    box-shadow: 0 8px 24px rgba(32, 54, 77, .12);
+}
+
+.navbar-siswa,
+.navbar-siswa.navbar-green,
+.navbar-green {
+    background: var(--theme-navy) !important;
+    border-bottom: 3px solid var(--theme-blue);
+}
+
+.navbar-siswa .navbar-nav .nav-link,
+.navbar-siswa .navbar-brand,
+.navbar-siswa .judul-app,
+.navbar-siswa .judul-sub {
+    color: #f4f7fb;
+}
+
+.small-box,
+.info-box {
+    border: 1px solid rgba(32, 54, 77, .08);
+    border-radius: 6px;
+    box-shadow: 0 3px 12px rgba(32, 54, 77, .05);
+}
+
+.login-page {
+    background: linear-gradient(135deg, #e8eef5 0%, #f5f7fa 52%, #e3ebf4 100%);
+}
+
+.login-box .card,
+.login-box .login-card-body {
+    border-radius: 7px;
+    box-shadow: 0 12px 36px rgba(32, 54, 77, .14);
+}
+
+@media (max-width: 767.98px) {
+    .content-header {
+        padding-top: 1rem;
+    }
+
+    .content-header h1 {
+        font-size: 1.2rem;
+    }
+}
