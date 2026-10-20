@@ -42,8 +42,7 @@ $config['cache_path'] = '';
 $config['cache_query_string'] = FALSE;
 
 //$config['encryption_key'] = '';
-// Set CBT_ENCRYPTION_KEY in the hosting environment; never store it in Git.
-$config['encryption_key'] = getenv('CBT_ENCRYPTION_KEY') ?: '';
+$config['encryption_key'] = '498f8140edc311eb94b9c83dd4416dc8';
 
 /*
 |--------------------------------------------------------------------------
@@ -122,8 +121,8 @@ $config['sess_regenerate_destroy'] = FALSE;
 $config['cookie_prefix']	= '';
 $config['cookie_domain']	= '';
 $config['cookie_path']		= '/';
-$config['cookie_secure']	= (ENVIRONMENT === 'production');
-$config['cookie_httponly'] 	= TRUE;
+$config['cookie_secure']	= FALSE;
+$config['cookie_httponly'] 	= FALSE;
 
 /*
 |--------------------------------------------------------------------------
@@ -187,8 +186,10 @@ $config['csrf_cookie_name'] = 'csrf_cookie';
 $config['csrf_expire'] = 9000;
 $config['csrf_regenerate'] = FALSE;
 $config['csrf_exclude_uris'] = array(
-    // Midtrans calls this server-to-server endpoint; signature verification remains required.
-    'pembayaran/midtrans_notification'
+    'kelasmateri/saveMateri',
+    'kelasmateri/uploadfile',
+    'kelasmateri/deletefile',
+	'pembayaran/midtrans_notification'
 );
 
 /*
