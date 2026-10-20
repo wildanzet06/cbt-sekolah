@@ -69,7 +69,3 @@ application/cache/*
 
 echo application/config/midtrans.php >> .gitignore
 git rm --cached application/config/midtrans.php
-
-# Keep Apache upload hardening while ignoring user-uploaded files.
-!uploads/
-!uploads/.htaccess
