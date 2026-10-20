@@ -109,6 +109,7 @@
             margin-top: .5rem;
         }
     </style>
+    <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/blue-gray-theme.css">
 </head>
 
 <script>
