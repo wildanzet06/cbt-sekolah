@@ -6,7 +6,7 @@
  * Time: 23:18
  */
 ?>
-<div class="content-wrapper cbt-exam-page" style="margin-top: -1px;">
+<div class="content-wrapper" style="margin-top: -1px;">
     <div class="sticky">
     </div>
     <section class="content overlap pt-4">

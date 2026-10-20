@@ -82,7 +82,6 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/mystyle.css">
     <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/font-material.css">
-    <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/modern-professional.css">
 
     <link rel="stylesheet" href="<?= base_url() ?>/assets/plugins/bootstrap-icon/bootstrap-icons.css">
     <link rel="stylesheet" type="text/css" href="<?= base_url() ?>/assets/plugins/pignose/css/pignose.calendar.css">

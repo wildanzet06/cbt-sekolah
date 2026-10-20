@@ -63,7 +63,6 @@
 
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/mystyle.css">
-    <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/modern-professional.css">
     <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/show.toast.css">
     <link rel="stylesheet" type="text/css" href="<?= base_url() ?>/assets/plugins/fields-linker/fieldsLinker.css">
 
