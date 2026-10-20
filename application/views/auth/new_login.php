@@ -17,7 +17,6 @@
 
     <link rel="stylesheet" href="<?= base_url() ?>/assets/adminlte/dist/css/adminlte.min.css">
     <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/mystyle.css">
-    <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/modern-professional.css">
 
     <title>Login #8</title>
 

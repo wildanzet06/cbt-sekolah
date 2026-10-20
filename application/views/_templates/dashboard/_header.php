@@ -77,7 +77,6 @@
     <!-- /texarea editor; -->
     <!-- Custom CSS -->
     <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/mystyle.css">
-    <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/modern-professional.css">
     <link rel="stylesheet" href="<?= base_url() ?>/assets/plugins/DualSelectList/css/bala.DualSelectList.css">
     <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/weekCalendar.css">
 
