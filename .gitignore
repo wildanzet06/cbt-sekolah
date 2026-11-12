@@ -19,7 +19,6 @@ application/logs/*
 #/vendor/
 /nbproject/private/
 vendor/
-uploads/
 backups/
 .idea/
 # Editor
@@ -67,5 +66,15 @@ application/logs/*
 application/cache/*
 !application/cache/index.html
 
-echo application/config/midtrans.php >> .gitignore
-git rm --cached application/config/midtrans.php
+# ===== Template import (bagian dari aplikasi, ikut repository) =====
+# Folder uploads tetap dipakai untuk berkas unggahan pengguna, tetapi folder
+# template import dikecualikan agar ikut ter-commit dan tidak hilang saat
+# pindah server. Hanya jenis file template di bawah ini yang diikutkan.
+uploads/*
+!uploads/import/
+uploads/import/*
+!uploads/import/format/
+uploads/import/format/*
+!uploads/import/format/*.xlsx
+!uploads/import/format/*.docx
+!uploads/import/format/*.pdf
