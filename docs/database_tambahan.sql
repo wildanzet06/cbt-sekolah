@@ -1,5 +1,6 @@
 -- =====================================================================
--- DATABASE TAMBAHAN: Keuangan (SPP & tagihan), Keringanan, Presensi
+-- DATABASE TAMBAHAN: Keuangan (SPP & tagihan), Keringanan, Presensi,
+-- Poin Pelanggaran Siswa
 -- =====================================================================
 -- Jalankan SEKALI SETELAH instalasi GarudaCBT selesai, pada database
 -- aplikasi (di contoh ini bernama "cbt").
@@ -184,10 +185,35 @@ CREATE TABLE IF NOT EXISTS cbt_presensi (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ---------------------------------------------------------------------
--- Pemeriksaan: harus tampil 8 tabel
+-- 6. Poin pelanggaran siswa (input manual oleh admin/guru)
+-- ---------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS cbt_pelanggaran_siswa (
+    id_pelanggaran     INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    id_siswa           INT          NOT NULL,
+    id_kelas           INT          NULL,
+    id_tp              INT          NOT NULL,
+    id_smt             INT          NOT NULL,
+    tanggal            DATE         NOT NULL,
+    jenis_pelanggaran  VARCHAR(150) NOT NULL,
+    keterangan         TEXT         NULL,
+    poin               INT          NOT NULL DEFAULT 0,
+    id_guru            INT          NULL,
+    dicatat_oleh       VARCHAR(100) NULL,
+    created_at         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at         TIMESTAMP    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_pelanggaran),
+    KEY idx_siswa (id_siswa),
+    KEY idx_kelas (id_kelas),
+    KEY idx_periode (id_tp, id_smt),
+    KEY idx_tanggal (tanggal)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ---------------------------------------------------------------------
+-- Pemeriksaan: harus tampil 9 tabel
 -- ---------------------------------------------------------------------
 SELECT TABLE_NAME FROM information_schema.TABLES
 WHERE TABLE_SCHEMA = DATABASE()
   AND TABLE_NAME IN ('cbt_pembayaran_spp','cbt_setting_spp','cbt_jenis_tagihan','cbt_tagihan',
-                     'cbt_keringanan','cbt_password_diganti','cbt_presensi_sesi','cbt_presensi')
+                     'cbt_keringanan','cbt_password_diganti','cbt_presensi_sesi','cbt_presensi',
+                     'cbt_pelanggaran_siswa')
 ORDER BY TABLE_NAME;
