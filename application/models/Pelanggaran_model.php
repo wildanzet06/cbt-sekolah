@@ -61,6 +61,23 @@ class Pelanggaran_model extends CI_Model {
                         ->get_where('master_siswa', array('id_siswa' => (int) $id))->row();
     }
 
+    // Dipakai halaman siswa: mengenali data siswa dari akun yang sedang login
+    public function siswa_by_username($username) {
+        return $this->db->select('id_siswa, nis, nama, username')
+                        ->get_where('master_siswa', array('username' => (string) $username))->row();
+    }
+
+    // Periode (tahun pelajaran + semester) yang sudah punya catatan untuk siswa ini
+    public function periode_siswa($id_siswa) {
+        $sql = "SELECT DISTINCT p.id_tp, p.id_smt, tp.tahun, smt.nama_smt
+                FROM cbt_pelanggaran_siswa p
+                JOIN master_tp tp ON tp.id_tp = p.id_tp
+                JOIN master_smt smt ON smt.id_smt = p.id_smt
+                WHERE p.id_siswa = ?
+                ORDER BY p.id_tp DESC, p.id_smt DESC";
+        return $this->db->query($sql, array((int) $id_siswa))->result();
+    }
+
     // Kelas siswa pada periode tertentu (snapshot kelas saat dicatat)
     public function kelas_siswa($id_siswa, $id_tp, $id_smt) {
         $sql = "SELECT ks.id_kelas, mk.nama_kelas

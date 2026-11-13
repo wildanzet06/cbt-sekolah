@@ -230,6 +230,9 @@ if ($tampil_tab) {
                     <a class="dropdown-item py-2" href="<?= base_url('akun/kehadiran'); ?>">
                         <i class="fas fa-user-check fa-fw mr-2 text-success"></i> Kehadiran Saya
                     </a>
+                    <a class="dropdown-item py-2" href="<?= base_url('akun/pelanggaran'); ?>">
+                        <i class="fas fa-exclamation-triangle fa-fw mr-2 text-warning"></i> Poin Pelanggaran Saya
+                    </a>
                     <a class="dropdown-item py-2" href="<?= base_url('akun/password'); ?>">
                         <i class="fas fa-key fa-fw mr-2 text-secondary"></i> Ganti Password
                     </a>

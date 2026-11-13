@@ -11,7 +11,8 @@ Fitur-fitur ini ditambahkan di atas GarudaCBT. Tidak ada tabel bawaan GarudaCBT 
 - **Poin pelanggaran siswa:** admin dan guru mencatat pelanggaran secara manual (tanggal, jenis, poin,
   keterangan). Tersedia rekap per siswa dan per kelas serta ekspor Excel (`.xlsx`).
   Data dipisah per tahun pelajaran & semester. Guru hanya dapat mengubah/menghapus catatan yang ia buat
-  sendiri; admin dapat mengubah semua catatan.
+  sendiri; admin dapat mengubah semua catatan. Siswa/orang tua melihat poin sendiri lewat menu
+  *Poin Pelanggaran* di dashboard siswa atau *Pengaturan → Poin Pelanggaran Saya*.
 - **Akun siswa:** ganti password sendiri, tampilan dashboard yang ramah HP.
 - **Keamanan:** penjaga akses (`application/hooks/Akses_hook.php`) agar siswa tidak bisa membuka halaman admin.
 

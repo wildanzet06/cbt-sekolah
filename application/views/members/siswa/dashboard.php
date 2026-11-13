@@ -34,6 +34,14 @@
                             </div>
                         </div>
                         <div class="card-body">
+                            <?php
+                            // Menu tambahan: siswa/orang tua dapat memantau poin pelanggaran sendiri
+                            $menu[] = (object) array(
+                                'title' => 'Poin Pelanggaran',
+                                'icon'  => 'ic_document.png',
+                                'link'  => 'akun/pelanggaran',
+                            );
+                            ?>
                             <div class="row menu-utama">
                                 <?php foreach ($menu as $m): ?>
                                     <div class="col-lg-2 col-sm-3 col-4 mb-3">

@@ -202,4 +202,68 @@ class Akun extends CI_Controller {
         $this->load->view('akun/kehadiran', $data);
         $this->load->view('members/siswa/templates/footer');
     }
+
+    // Halaman siswa/orang tua: melihat poin pelanggaran sendiri
+    public function pelanggaran() {
+        $this->load->model('Pelanggaran_model');
+
+        $user  = $this->ion_auth->user()->row();
+        $siswa = $this->Pelanggaran_model->siswa_by_username($user->username);
+
+        $data = $this->_data('Poin Pelanggaran Saya');
+        $periode = $siswa ? $this->Pelanggaran_model->periode_siswa($siswa->id_siswa) : array();
+
+        // Periode aktif menjadi pilihan awal
+        $id_tp  = (int) $data['tp_active']->id_tp;
+        $id_smt = (int) $data['smt_active']->id_smt;
+
+        // Pilihan periode dari siswa hanya diterima jika memang ada catatannya
+        $pilih = explode(':', (string) $this->input->get('periode'));
+        if (count($pilih) === 2) {
+            $pilih_tp  = (int) $pilih[0];
+            $pilih_smt = (int) $pilih[1];
+            foreach ($periode as $p) {
+                if ((int) $p->id_tp === $pilih_tp && (int) $p->id_smt === $pilih_smt) {
+                    $id_tp  = $pilih_tp;
+                    $id_smt = $pilih_smt;
+                    break;
+                }
+            }
+        }
+
+        $periode_aktif = null;
+        foreach ($periode as $p) {
+            if ((int) $p->id_tp === $id_tp && (int) $p->id_smt === $id_smt) {
+                $periode_aktif = $p;
+                break;
+            }
+        }
+        if (!$periode_aktif) {
+            $periode_aktif = (object) array(
+                'id_tp'    => $id_tp,
+                'id_smt'   => $id_smt,
+                'tahun'    => $data['tp_active']->tahun,
+                'nama_smt' => $data['smt_active']->nama_smt,
+            );
+        }
+
+        $riwayat = $siswa
+            ? $this->Pelanggaran_model->riwayat_siswa($siswa->id_siswa, $id_tp, $id_smt)
+            : array();
+
+        $total = 0;
+        foreach ($riwayat as $r) {
+            $total += (int) $r->poin;
+        }
+
+        $data['siswa']         = $siswa;
+        $data['periode']       = $periode;
+        $data['periode_aktif'] = $periode_aktif;
+        $data['riwayat']       = $riwayat;
+        $data['total_poin']    = $total;
+
+        $this->load->view('members/siswa/templates/header', $data);
+        $this->load->view('akun/pelanggaran', $data);
+        $this->load->view('members/siswa/templates/footer');
+    }
 }
