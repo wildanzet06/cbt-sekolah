@@ -196,7 +196,7 @@ class Pelanggaran_model extends CI_Model {
     }
 
     // Rekap per kelas (total poin seluruh siswa di kelas itu)
-    public function rekap_kelas($id_tp, $id_smt, $dari = '', $sampai = '') {
+    public function rekap_kelas($id_tp, $id_smt, $dari = '', $sampai = '', $id_kelas = 0) {
         $params = array();
 
         $join_tanggal = '';
@@ -212,6 +212,12 @@ class Pelanggaran_model extends CI_Model {
         $params[] = (int) $id_tp;
         $params[] = (int) $id_smt;
 
+        $where_kelas = '';
+        if ($id_kelas) {
+            $where_kelas = " AND mk.id_kelas = ?";
+            $params[] = (int) $id_kelas;
+        }
+
         $sql = "SELECT mk.id_kelas, mk.nama_kelas,
                        COUNT(DISTINCT ks.id_siswa) AS jumlah_siswa,
                        COUNT(DISTINCT CASE WHEN p.id_pelanggaran IS NOT NULL THEN ks.id_siswa END) AS siswa_terlibat,
@@ -221,7 +227,7 @@ class Pelanggaran_model extends CI_Model {
                 JOIN master_kelas mk ON mk.id_kelas = ks.id_kelas
                 LEFT JOIN cbt_pelanggaran_siswa p
                        ON p.id_siswa = ks.id_siswa AND p.id_tp = ks.id_tp AND p.id_smt = ks.id_smt" . $join_tanggal . "
-                WHERE ks.id_tp = ? AND ks.id_smt = ?
+                WHERE ks.id_tp = ? AND ks.id_smt = ?" . $where_kelas . "
                 GROUP BY mk.id_kelas, mk.nama_kelas
                 ORDER BY total_poin DESC, mk.nama_kelas ASC";
 

@@ -31,7 +31,9 @@ class Akses_hook {
         // Pengaturan dan akun
         'settings', 'useradmin', 'userguru', 'usersiswa', 'dbmanager', 'dbclear',
         // Keuangan sisi admin
-        'tagihan'
+        'tagihan',
+        // Poin pelanggaran (sisi admin/guru)
+        'pelanggaran'
     );
 
     // Pengecualian: method yang tetap boleh diakses siswa

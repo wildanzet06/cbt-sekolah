@@ -136,6 +136,13 @@
                         ]
                     },
                     {
+                        'name': 'Poin Pelanggaran', 'icon': 'fas fa-exclamation-triangle', 'cbt': '1',
+                        'submenu': [
+                            {'name': 'Input Pelanggaran', 'link': 'pelanggaran', 'icon': 'fas fa-edit'},
+                            {'name': 'Rekap Pelanggaran', 'link': 'pelanggaran/rekap', 'icon': 'fas fa-chart-bar'}
+                        ]
+                    },
+                    {
                         'name': 'Hasil E-Learning', 'icon': 'fas fa-microscope', 'cbt': '0',
                         'submenu': [
                             {'name': 'Nilai Harian', 'link':"kelasstatus", 'icon': 'far fa-clipboard'},

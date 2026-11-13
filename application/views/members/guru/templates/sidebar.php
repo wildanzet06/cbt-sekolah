@@ -46,6 +46,13 @@
                 {'name': 'Profile', 'link': 'guruview', 'icon': 'fas fa-user', 'cbt': '1'},
                 {'name': 'Pengumuman', 'link': 'pengumuman', 'icon': 'fas fa-bullhorn', 'cbt': '1'},
                 {
+                    'name': 'Poin Pelanggaran', 'icon': 'fas fa-exclamation-triangle', 'cbt': '1',
+                    'submenu': [
+                        {'name': 'Input Pelanggaran', 'link': 'pelanggaran', 'icon': 'fas fa-edit'},
+                        {'name': 'Rekap Pelanggaran', 'link': 'pelanggaran/rekap', 'icon': 'fas fa-chart-bar'}
+                    ]
+                },
+                {
                     'name': 'Wali Kelas', 'icon': 'fas fa-chart-pie', 'cbt': '1', 'wali': true,
                     'submenu': [
                         {'name': 'Siswa', 'link':"walisiswa", 'icon': 'fas fa-users'},
