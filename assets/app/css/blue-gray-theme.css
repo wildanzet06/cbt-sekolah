@@ -42,11 +42,19 @@ body {
     color: #fff;
 }
 
-.brand-link .brand-text,
-.main-sidebar .user-panel .info a,
-.main-sidebar .nav-sidebar .nav-link,
-.main-sidebar .nav-sidebar .nav-header {
-    color: #e5edf5;
+.main-sidebar.sidebar-light-teal .brand-link .brand-text {
+    color: #fff;
+    font-weight: 600;
+}
+
+.main-sidebar.sidebar-light-teal .user-panel .info a {
+    color: #eef5fc;
+    font-weight: 600;
+}
+
+.main-sidebar.sidebar-light-teal .user-panel .info a:hover,
+.main-sidebar.sidebar-light-teal .user-panel a:hover {
+    color: #fff;
 }
 
 .main-sidebar .user-panel {
@@ -54,31 +62,57 @@ body {
     padding-bottom: .8rem;
 }
 
-.main-sidebar .user-panel .text-muted {
-    color: #aebdcd !important;
+.main-sidebar.sidebar-light-teal .user-panel .text-muted {
+    color: #bccde0 !important;
 }
 
-.main-sidebar .nav-sidebar .nav-link {
+/*
+ * Sidebar readability.
+ * The aside still uses AdminLTE's "sidebar-light-teal" class, so AdminLTE's
+ * light-sidebar rules (dark text) otherwise win over the dark theme.
+ * Selectors below are explicit enough to override those rules.
+ */
+.main-sidebar.sidebar-light-teal .nav-sidebar .nav-link {
     border-radius: 5px;
+    color: #eef5fc;
+    font-weight: 500;
     margin: 2px 8px;
     transition: background-color .16s ease, color .16s ease;
 }
 
-.main-sidebar .nav-sidebar .nav-link:hover {
-    background: rgba(255, 255, 255, .09);
+.main-sidebar.sidebar-light-teal .nav-sidebar .nav-header {
+    color: #a8bed6;
+    font-weight: 700;
+    letter-spacing: .05em;
+}
+
+.main-sidebar.sidebar-light-teal .nav-sidebar .nav-treeview > .nav-item > .nav-link {
+    color: #cbdaea;
+    font-weight: 400;
+}
+
+.main-sidebar.sidebar-light-teal .nav-sidebar > .nav-item:hover > .nav-link,
+.main-sidebar.sidebar-light-teal .nav-sidebar > .nav-item > .nav-link:hover,
+.main-sidebar.sidebar-light-teal .nav-sidebar > .nav-item > .nav-link:focus,
+.main-sidebar.sidebar-light-teal .nav-sidebar > .nav-item > .nav-link:active,
+.main-sidebar.sidebar-light-teal .nav-sidebar .nav-treeview > .nav-item > .nav-link:hover {
+    background: rgba(255, 255, 255, .12);
     color: #fff;
 }
 
-.main-sidebar .nav-sidebar .nav-link.active,
-.main-sidebar .nav-sidebar .menu-open > .nav-link {
+.main-sidebar.sidebar-light-teal .nav-sidebar > .nav-item > .nav-link.active,
+.main-sidebar.sidebar-light-teal .nav-sidebar > .nav-item.menu-open > .nav-link {
     background: var(--theme-blue);
     box-shadow: 0 3px 8px rgba(12, 30, 52, .2);
     color: #fff;
 }
 
-.main-sidebar .nav-sidebar .nav-treeview .nav-link.active {
-    background: rgba(77, 145, 220, .22);
+.main-sidebar.sidebar-light-teal .nav-sidebar .nav-treeview > .nav-item > .nav-link.active,
+.main-sidebar.sidebar-light-teal .nav-sidebar .nav-treeview > .nav-item > .nav-link.active:hover {
+    background: rgba(77, 145, 220, .32);
     box-shadow: none;
+    color: #fff;
+    font-weight: 600;
 }
 
 .content-header {
