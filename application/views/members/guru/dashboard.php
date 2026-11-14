@@ -1,11 +1,11 @@
 <!-- Content Wrapper. Contains page content -->
-<div class="content-wrapper bg-light">
-    <section class="content-header p-0 d-flex align-items-end"
+<div class="content-wrapper bg-light dashboard-page">
+    <section class="content-header p-0 d-flex align-items-end dashboard-hero"
              style="height: 400px; background: url('<?= base_url('assets/img/wall2.png') ?>')">
         <div class="container-fluid pl-0 pr-0 pb-0 pt-4" style="background-color: rgba(255,255,255,0.7)">
             <div class="row m-0">
                 <?php foreach ($info_box as $info) : ?>
-                    <div class="col-md-2 col-3">
+                    <div class="col-6 col-sm-4 col-xl-2">
                         <div class="shadow small-box bg-<?= $info->box ?>">
                             <div class="inner">
                                 <h5 class="mb-0"><b><?= $info->total; ?></b></h5>
@@ -271,6 +271,7 @@
                     </div>
                 </div>
             </div>
+        </div>
     </section>
 </div>
 
