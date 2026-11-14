@@ -44,7 +44,7 @@ body {
 
 .main-sidebar.sidebar-light-teal .brand-link .brand-text {
     color: #fff;
-    font-weight: 600;
+    font-weight: 600 !important;
 }
 
 .main-sidebar.sidebar-light-teal .user-panel .info a {
