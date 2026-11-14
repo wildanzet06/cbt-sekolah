@@ -94,7 +94,7 @@ class Pembayaran extends CI_Controller {
         $kunci = (string) $this->config->item('midtrans_server_key');
         return $kunci !== ''
             && strpos($kunci, 'ISI_') !== 0
-            && file_exists(APPPATH . 'third_party/midtrans/Midtrans.php');
+            && file_exists(APPPATH . 'third_party/Midtrans/Midtrans.php');
     }
 
     /**
@@ -187,11 +187,34 @@ class Pembayaran extends CI_Controller {
     public function update_setting_spp() {
         if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak');
 
+        // Form dikirim lewat POST; tolak akses langsung via URL.
+        if ($this->input->method() !== 'post') {
+            redirect('pembayaran/setting_spp');
+            return;
+        }
+
+        $nominal = (int) str_replace(array('.', ','), '', (string) $this->input->post('nominal_spp'));
+        if ($nominal <= 0) {
+            $this->session->set_flashdata('error', 'Nominal SPP harus lebih besar dari 0.');
+            redirect('pembayaran/setting_spp');
+            return;
+        }
+
         $data = array(
-            'nominal_spp' => $this->input->post('nominal_spp'),
-            'keterangan'  => $this->input->post('keterangan')
+            'nominal_spp' => $nominal,
+            'keterangan'  => trim((string) $this->input->post('keterangan'))
         );
-        $this->db->update('cbt_setting_spp', $data);
+
+        // Tabel ini hanya berisi satu baris pengaturan. Update baris yang ada;
+        // jika belum ada (instalasi baru), buat barisnya.
+        $row = $this->db->get('cbt_setting_spp')->row();
+        if ($row) {
+            $this->db->where('id', $row->id);
+            $this->db->update('cbt_setting_spp', $data);
+        } else {
+            $this->db->insert('cbt_setting_spp', $data);
+        }
+
         $this->session->set_flashdata('success', 'Setting SPP berhasil diupdate');
         redirect('pembayaran/setting_spp');
     }
@@ -412,8 +435,8 @@ class Pembayaran extends CI_Controller {
             return;
         }
 
-        if (file_exists(APPPATH . 'third_party/midtrans/Midtrans.php')) {
-            require_once APPPATH . 'third_party/midtrans/Midtrans.php';
+        if (file_exists(APPPATH . 'third_party/Midtrans/Midtrans.php')) {
+            require_once APPPATH . 'third_party/Midtrans/Midtrans.php';
 
             \Midtrans\Config::$serverKey        = $this->config->item('midtrans_server_key');
             \Midtrans\Config::$isProduction     = $this->config->item('midtrans_is_production');
@@ -482,8 +505,8 @@ class Pembayaran extends CI_Controller {
             return;
         }
 
-        if (file_exists(APPPATH . 'third_party/midtrans/Midtrans.php')) {
-            require_once APPPATH . 'third_party/midtrans/Midtrans.php';
+        if (file_exists(APPPATH . 'third_party/Midtrans/Midtrans.php')) {
+            require_once APPPATH . 'third_party/Midtrans/Midtrans.php';
             $server_key = $this->config->item('midtrans_server_key');
             \Midtrans\Config::$serverKey    = $server_key;
             \Midtrans\Config::$isProduction = $this->config->item('midtrans_is_production');

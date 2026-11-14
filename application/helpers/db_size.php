@@ -11,12 +11,12 @@
  */
 function getDbSize() {
 
-    $CI=&get;_instance();
+    $CI =& get_instance();
     $CI->load->database();
 
     $dbName = $CI->db->database;
 
-    $dbName = $this->db->escape($dbName);
+    $dbName = $CI->db->escape($dbName);
 
     $sql = "SELECT table_schema AS db_name, sum( data_length + index_length ) / 1024 / 1024 AS db_size_mb
                 FROM information_schema.TABLES

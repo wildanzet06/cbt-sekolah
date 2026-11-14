@@ -72,7 +72,9 @@ class Pembayaran_model extends CI_Model {
         $this->db->where('tahun', $tahun);
         $this->db->where('status_pembayaran', 'success');
         $this->db->group_by('bulan');
-        $this->db->order_by('FIELD(bulan, "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember")');
+        // Parameter ketiga FALSE: jangan escape, karena ini ekspresi SQL
+        // (kalau di-escape, CI memecahnya per koma dan query jadi tidak valid).
+        $this->db->order_by('FIELD(bulan, "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember")', '', FALSE);
         return $this->db->get('cbt_pembayaran_spp')->result();
     }
     

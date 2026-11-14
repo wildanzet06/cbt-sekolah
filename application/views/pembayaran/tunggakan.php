@@ -16,7 +16,7 @@ $daftar_bulan = $this->Pembayaran_model->daftar_bulan;
                     <h1><i class="fas fa-exclamation-circle text-danger"></i> Tunggakan SPP</h1>
                 </div>
                 <div class="col-sm-4 text-right">
-                    <a href="<?= site_url('pembayaran/export_tunggakan?tahun=' . (int) $tahun . '&sampai=' . (int) $sampai); ?>"
+                    <a href="<?= site_url('pembayaran/export_tagihan?status=tunggakan&tahun=' . (int) $tahun); ?>"
                        class="btn btn-success btn-sm">
                         <i class="fas fa-file-excel"></i> Ekspor Excel
                     </a>
@@ -34,7 +34,8 @@ $daftar_bulan = $this->Pembayaran_model->daftar_bulan;
             <!-- Filter -->
             <div class="card card-outline card-primary">
                 <div class="card-body">
-                    <form method="get" action="<?= site_url('pembayaran/tunggakan'); ?>" class="form-inline">
+                    <form method="get" action="<?= site_url('tagihan'); ?>" class="form-inline">
+                        <input type="hidden" name="status" value="tunggakan">
                         <label class="mr-2">Tahun</label>
                         <input type="number" name="tahun" value="<?= (int) $tahun; ?>" min="2000" max="2100"
                                class="form-control form-control-sm mr-3" style="width: 100px">

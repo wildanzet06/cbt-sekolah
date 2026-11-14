@@ -213,9 +213,11 @@ class Akun extends CI_Controller {
         $data = $this->_data('Poin Pelanggaran Saya');
         $periode = $siswa ? $this->Pelanggaran_model->periode_siswa($siswa->id_siswa) : array();
 
-        // Periode aktif menjadi pilihan awal
-        $id_tp  = (int) $data['tp_active']->id_tp;
-        $id_smt = (int) $data['smt_active']->id_smt;
+        // Periode aktif menjadi pilihan awal (bisa kosong pada instalasi baru)
+        $tp_aktif  = isset($data['tp_active']) ? $data['tp_active'] : null;
+        $smt_aktif = isset($data['smt_active']) ? $data['smt_active'] : null;
+        $id_tp  = $tp_aktif ? (int) $tp_aktif->id_tp : 0;
+        $id_smt = $smt_aktif ? (int) $smt_aktif->id_smt : 0;
 
         // Pilihan periode dari siswa hanya diterima jika memang ada catatannya
         $pilih = explode(':', (string) $this->input->get('periode'));
@@ -242,8 +244,8 @@ class Akun extends CI_Controller {
             $periode_aktif = (object) array(
                 'id_tp'    => $id_tp,
                 'id_smt'   => $id_smt,
-                'tahun'    => $data['tp_active']->tahun,
-                'nama_smt' => $data['smt_active']->nama_smt,
+                'tahun'    => $tp_aktif ? $tp_aktif->tahun : '-',
+                'nama_smt' => $smt_aktif ? $smt_aktif->nama_smt : '-',
             );
         }
 
