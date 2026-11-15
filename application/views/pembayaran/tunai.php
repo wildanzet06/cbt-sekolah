@@ -119,12 +119,12 @@
                     </div>
                 </div>
                 <div class="card-footer">
-                    <div class="page-aksi page-aksi-tumpuk">
+                    <div class="page-aksi">
                         <button type="button" class="btn btn-success" id="btn-simpan">
-                            <i class="fas fa-save"></i> Simpan Pembayaran
+                            <i class="fas fa-save"></i> Simpan
                         </button>
                         <button type="button" class="btn btn-primary" id="btn-simpan-cetak">
-                            <i class="fas fa-print"></i> Simpan &amp; Cetak Kwitansi
+                            <i class="fas fa-print"></i> Simpan &amp; Cetak
                         </button>
                     </div>
                 </div>
