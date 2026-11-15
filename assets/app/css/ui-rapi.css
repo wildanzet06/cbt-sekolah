@@ -57,6 +57,26 @@
     }
 }
 
+/* Label tombol panjang: di layar sempit teks boleh turun baris agar tidak
+   terpotong, dan varian .page-aksi-tumpuk membuat tiap tombol satu baris penuh. */
+@media (max-width: 575.98px) {
+    .page-aksi > .btn {
+        white-space: normal;
+        line-height: 1.2;
+        padding: .45rem .5rem;
+    }
+
+    .page-aksi-tumpuk {
+        margin: 0;
+    }
+
+    .page-aksi-tumpuk > .btn {
+        flex: 1 1 100%;
+        max-width: 100%;
+        margin: .25rem 0;
+    }
+}
+
 /* ------------------------------------------------------------------
    2. Baris aksi di header halaman (otomatis, tanpa perlu ubah markup)
    ------------------------------------------------------------------ */
