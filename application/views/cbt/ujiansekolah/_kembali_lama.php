@@ -17,8 +17,6 @@ if (!isset($__tujuan[$__dari])) {
     $__dari = 'daftar';
 }
 ?>
-<div class="px-2 pt-2">
-    <a href="<?= base_url($__tujuan[$__dari][1]) ?>" class="btn btn-sm btn-outline-secondary">
-        <i class="fas fa-arrow-left mr-1"></i>Kembali ke <?= html_escape($__tujuan[$__dari][0]) ?>
-    </a>
-</div>
+<a href="<?= base_url($__tujuan[$__dari][1]) ?>" class="btn btn-sm btn-outline-secondary">
+    <i class="fas fa-arrow-left mr-1"></i>Kembali ke <?= html_escape($__tujuan[$__dari][0]) ?>
+</a>

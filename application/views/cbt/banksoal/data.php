@@ -1,8 +1,10 @@
 <?php
 $allBanksIds = [];
 ?>
-<?php $this->load->view('cbt/ujiansekolah/_kembali_lama'); ?>
 <div class="content-wrapper bg-white pt-4">
+    <div class="container-fluid pb-1">
+        <?php $this->load->view('cbt/ujiansekolah/_kembali_lama'); ?>
+    </div>
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
