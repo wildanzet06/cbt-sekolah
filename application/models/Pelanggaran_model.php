@@ -9,6 +9,45 @@ defined('BASEPATH') OR exit('No direct script access allowed');
  */
 class Pelanggaran_model extends CI_Model {
 
+    public function __construct() {
+        parent::__construct();
+        $this->pastikan_tabel();
+    }
+
+    /**
+     * Pastikan tabel cbt_pelanggaran_siswa ada.
+     *
+     * Tabel ini bagian dari docs/database_tambahan.sql. Bila database pernah
+     * dipulihkan dari dump lama (tabel tambahan hilang), halaman tidak boleh
+     * gagal dengan "Table ... doesn't exist" — cukup dibuat ulang di sini
+     * (idempoten, tanpa mengubah data yang sudah ada).
+     */
+    private function pastikan_tabel() {
+        if ($this->db->table_exists('cbt_pelanggaran_siswa')) {
+            return;
+        }
+        $this->db->query("CREATE TABLE IF NOT EXISTS `cbt_pelanggaran_siswa` (
+            `id_pelanggaran` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+            `id_siswa` INT NOT NULL,
+            `id_kelas` INT NULL,
+            `id_tp` INT NOT NULL,
+            `id_smt` INT NOT NULL,
+            `tanggal` DATE NOT NULL,
+            `jenis_pelanggaran` VARCHAR(150) NOT NULL,
+            `keterangan` TEXT NULL,
+            `poin` INT NOT NULL DEFAULT 0,
+            `id_guru` INT NULL,
+            `dicatat_oleh` VARCHAR(100) NULL,
+            `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            PRIMARY KEY (`id_pelanggaran`),
+            KEY `idx_siswa` (`id_siswa`),
+            KEY `idx_kelas` (`id_kelas`),
+            KEY `idx_periode` (`id_tp`, `id_smt`),
+            KEY `idx_tanggal` (`tanggal`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+    }
+
     // =====================================================================
     // KELAS & SISWA
     // =====================================================================
