@@ -106,23 +106,34 @@
                         ]
                     },
                     {
-                        'name': 'Data Ujian', 'icon': 'fa fa-user-graduate', 'cbt': '1',
-                        'submenu': [
-                            {'name':"Jenis Ujian", 'link':"cbtjenis", 'icon': 'fa fa-project-diagram'},
-                            {'name':"Sesi", 'link':"cbtsesi", 'icon': 'far fa-clock'},
-                            {'name':"Ruang", 'link':"cbtruang", 'icon': 'fa fa-door-open'},
-                            {'name':"Atur Ruang/Sesi", 'link':"cbtsesisiswa", 'icon': 'fa fa-user-clock'},
-                            {'name':"Nomor Peserta", 'link':"cbtnomorpeserta", 'icon': 'far fa-id-card'},
-                            {'name':"Bank Soal", 'link':"cbtbanksoal", 'icon': 'far fa-folder-open'},
-                            {'name':"Jadwal", 'link':"cbtjadwal", 'icon': 'far fa-calendar-alt'},
-                            {'name':"Alokasi Waktu", 'link':"cbtalokasi", 'icon': 'fa fa-clock-o'},
-                            {'name':"Pengawas", 'link':"cbtpengawas", 'icon': 'fa fa-briefcase'},
-                            {'name':"Token", 'link':"cbttoken", 'icon': 'fa fa-key'}
-                        ]
-                    },
-                    {
                         'name': 'Pengumuman', 'link': 'pengumuman', 'icon': 'fas fa-bullhorn', 'cbt': '1'
                     },
+                ]
+            },
+            {
+                'header': 'UJIAN SEKOLAH', 'cbt': '1',
+                'menu': [
+                    {'name': 'Daftar Ujian', 'link': 'ujiansekolah', 'icon': 'fas fa-clipboard-list', 'cbt': '1'},
+                    {'name': 'Kumpulan Soal', 'link': 'cbtbanksoal', 'icon': 'far fa-folder-open', 'cbt': '1'},
+                    {
+                        'name': 'Hasil', 'icon': 'fas fa-chart-bar', 'cbt': '1',
+                        'submenu': [
+                            {'name': 'Nilai Ujian', 'link': 'cbtnilai', 'icon': 'fa fa-file-alt'},
+                            {'name': 'Analisis Soal', 'link': 'cbtanalisis', 'icon': 'fa fa-chart-line'},
+                            {'name': 'Rekap Nilai', 'link': 'cbtrekap', 'icon': 'fas fa-trophy'},
+                            {'name': 'Nilai Manual', 'link': 'nilaimanual', 'icon': 'fas fa-pen-square'}
+                        ]
+                    },
+                ]
+            },
+            {
+                'header': 'PENGATURAN UJIAN', 'cbt': '1',
+                'menu': [
+                    {'name': 'Pembagian Peserta', 'link': 'ujiansekolah/pembagian', 'icon': 'fas fa-users', 'cbt': '1'},
+                    {'name': 'Ruang & Sesi', 'link': 'ujiansekolah/ruangsesi', 'icon': 'fas fa-door-open', 'cbt': '1'},
+                    {'name': 'Pengawas', 'link': 'cbtpengawas', 'icon': 'fas fa-briefcase', 'cbt': '1'},
+                    {'name': 'Jenis Ujian', 'link': 'cbtjenis', 'icon': 'fas fa-project-diagram', 'cbt': '1'},
+                    {'name': 'Urutan Jam Ujian', 'link': 'cbtalokasi', 'icon': 'far fa-clock', 'cbt': '1'},
                 ]
             },
             {
@@ -149,17 +160,6 @@
                             {'name': 'Kehadiran Harian', 'link':"kelasabsensiharian", 'icon': 'fa fa-user-check'},
                             {'name': 'Kehadiran Bulanan', 'link':"kelasabsensibulanan", 'icon': 'fa fa-tasks'},
                             {'name': 'Rekap Nilai', 'link':"kelasnilai", 'icon': 'fa fa-trophy'},
-                        ]
-                    },
-                    {
-                        'name': 'Pelaksanaan Ujian', 'icon': 'fas fa-graduation-cap', 'cbt': '1',
-                        'submenu': [
-                            {'name': 'Cetak', 'link':"cbtcetak", 'icon': 'fa fa-print'},
-                            {'name': 'Status Siswa', 'link':"cbtstatus", 'icon': 'fa fa-user-clock'},
-                            {'name': 'Hasil Ujian', 'link':"cbtnilai", 'icon': 'fa fa-file-alt'},
-                            {'name': 'Analisis Soal', 'link':"cbtanalisis", 'icon': 'fa fa-chart-line'},
-                            {'name': 'Rekap Nilai', 'link':"cbtrekap", 'icon': 'fas fa-trophy'},
-                            {'name': 'Nilai Manual', 'link':"nilaimanual", 'icon': 'fas fa-pen-square'},
                         ]
                     },
                 ]
@@ -251,7 +251,8 @@
                         });
                         htmlMenu += '</ul></li>';
                     } else {
-                        var menuActive = (page === menu.link) ? 'active' : '';
+                        var menuPath = page + '/' + pageact;
+                        var menuActive = (page === menu.link || menuPath === menu.link) ? 'active' : '';
                         htmlMenu += '<li class="nav-item"><a href="' + base_url + menu.link + '" class="nav-link ' + menuActive + '">';
                         htmlMenu += '<i class="nav-icon ' + menu.icon + '"></i>';
                         htmlMenu += '<p>' + menu.name + '</p>';
