@@ -1,14 +1,17 @@
-<div class="content-wrapper">
+<div class="content-wrapper bg-white pt-4">
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-8">
-                    <h1><i class="fas fa-plus-circle text-primary"></i> Buat Tagihan</h1>
+            <div class="row mb-2 align-items-center">
+                <div class="col-12 col-lg-8 mb-2 mb-lg-0">
+                    <h1 class="mb-0"><i class="fas fa-plus-circle text-primary mr-1"></i> Buat Tagihan</h1>
+                    <small class="text-muted">Buat tagihan massal untuk satu kelas</small>
                 </div>
-                <div class="col-sm-4 text-right">
-                    <a href="<?= site_url('tagihan'); ?>" class="btn btn-secondary btn-sm">
-                        <i class="fas fa-arrow-left"></i> Daftar Tagihan
-                    </a>
+                <div class="col-12 col-lg-4">
+                    <div class="page-aksi">
+                        <a href="<?= site_url('tagihan'); ?>" class="btn btn-default">
+                            <i class="fas fa-arrow-left"></i> Daftar Tagihan
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

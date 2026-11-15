@@ -1,19 +1,28 @@
-<div class="content-wrapper">
+<div class="content-wrapper bg-white pt-4">
     <section class="content-header">
-        <h1><i class="fa fa-print"></i> Kwitansi Pembayaran</h1>
-        <div class="pull-right">
-            <a href="<?= site_url('pembayaran/cetak_kwitansi/'.$pembayaran->id); ?>" class="btn btn-primary" target="_blank">
-                <i class="fa fa-print"></i> Cetak
-            </a>
-            <a href="<?= site_url('pembayaran'); ?>" class="btn btn-default">
-                <i class="fa fa-arrow-left"></i> Kembali
-            </a>
+        <div class="container-fluid">
+            <div class="row mb-2 align-items-center">
+                <div class="col-12 col-lg-6 mb-2 mb-lg-0">
+                    <h1 class="mb-0"><i class="fa fa-print text-primary mr-1"></i> Kwitansi Pembayaran</h1>
+                </div>
+                <div class="col-12 col-lg-6">
+                    <div class="page-aksi">
+                        <a href="<?= site_url('pembayaran'); ?>" class="btn btn-default">
+                            <i class="fa fa-arrow-left"></i> Kembali
+                        </a>
+                        <a href="<?= site_url('pembayaran/cetak_kwitansi/'.$pembayaran->id); ?>" class="btn btn-primary" target="_blank">
+                            <i class="fa fa-print"></i> Cetak
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
     <section class="content">
-        <div class="box box-primary">
-            <div class="box-body" id="kwitansi-content">
+        <div class="container-fluid">
+        <div class="card card-outline card-primary">
+            <div class="card-body" id="kwitansi-content">
                 <div style="border: 2px solid #333; padding: 30px; max-width: 800px; margin: 0 auto;">
                     <div style="text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px;">
                         <h2 style="margin: 0;"><?= $setting->nama_aplikasi ?? 'SEKOLAH'; ?></h2>
@@ -64,6 +73,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         </div>
     </section>
 </div>

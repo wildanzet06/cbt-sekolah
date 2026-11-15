@@ -2,17 +2,20 @@
 $e  = $edit; // baris yang sedang diedit, atau null
 $rp = function ($n) { return 'Rp ' . number_format((float) $n, 0, ',', '.'); };
 ?>
-<div class="content-wrapper">
+<div class="content-wrapper bg-white pt-4">
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-8">
-                    <h1><i class="fas fa-hand-holding-heart text-primary"></i> Keringanan Siswa</h1>
+            <div class="row mb-2 align-items-center">
+                <div class="col-12 col-lg-8 mb-2 mb-lg-0">
+                    <h1 class="mb-0"><i class="fas fa-hand-holding-heart text-primary mr-1"></i> Keringanan Siswa</h1>
+                    <small class="text-muted">Potongan tagihan per siswa atau per kelas</small>
                 </div>
-                <div class="col-sm-4 text-right">
-                    <a href="<?= site_url('tagihan'); ?>" class="btn btn-secondary btn-sm">
-                        <i class="fas fa-arrow-left"></i> Daftar Tagihan
-                    </a>
+                <div class="col-12 col-lg-4">
+                    <div class="page-aksi">
+                        <a href="<?= site_url('tagihan'); ?>" class="btn btn-default">
+                            <i class="fas fa-arrow-left"></i> Daftar Tagihan
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

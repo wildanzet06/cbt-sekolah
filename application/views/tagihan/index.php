@@ -9,26 +9,29 @@ foreach ($tagihan as $t) {
 }
 $qs_filter = http_build_query(array_filter($filter));
 ?>
-<div class="content-wrapper">
+<div class="content-wrapper bg-white pt-4">
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1><i class="fas fa-file-invoice-dollar text-primary"></i> Daftar Tagihan</h1>
+            <div class="row mb-2 align-items-center">
+                <div class="col-12 col-lg-5 mb-2 mb-lg-0">
+                    <h1 class="mb-0"><i class="fas fa-file-invoice-dollar text-primary mr-1"></i> Daftar Tagihan</h1>
+                    <small class="text-muted">Tagihan siswa per jenis, bulan, dan status</small>
                 </div>
-                <div class="col-sm-6 text-right">
-                    <a href="<?= site_url('pembayaran/export_tagihan?' . $qs_filter); ?>" class="btn btn-success btn-sm">
-                        <i class="fas fa-file-excel"></i> Ekspor Excel
-                    </a>
-                    <a href="<?= site_url('tagihan/buat'); ?>" class="btn btn-primary btn-sm">
-                        <i class="fas fa-plus"></i> Buat Tagihan
-                    </a>
-                    <a href="<?= site_url('tagihan/jenis'); ?>" class="btn btn-secondary btn-sm">
-                        <i class="fas fa-tags"></i> Jenis
-                    </a>
-                    <a href="<?= site_url('tagihan/keringanan'); ?>" class="btn btn-secondary btn-sm">
-                        <i class="fas fa-hand-holding-heart"></i> Keringanan
-                    </a>
+                <div class="col-12 col-lg-7">
+                    <div class="page-aksi">
+                        <a href="<?= site_url('pembayaran/export_tagihan?' . $qs_filter); ?>" class="btn btn-success">
+                            <i class="fas fa-file-excel"></i> Ekspor Excel
+                        </a>
+                        <a href="<?= site_url('tagihan/buat'); ?>" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Buat Tagihan
+                        </a>
+                        <a href="<?= site_url('tagihan/jenis'); ?>" class="btn btn-secondary">
+                            <i class="fas fa-tags"></i> Jenis
+                        </a>
+                        <a href="<?= site_url('tagihan/keringanan'); ?>" class="btn btn-secondary">
+                            <i class="fas fa-hand-holding-heart"></i> Keringanan
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -53,56 +56,87 @@ $qs_filter = http_build_query(array_filter($filter));
             <!-- Filter -->
             <div class="card card-outline card-primary">
                 <div class="card-body">
-                    <form method="get" action="<?= site_url('tagihan'); ?>" class="form-inline">
-                        <select name="jenis_id" class="form-control form-control-sm mr-2 mb-1">
-                            <option value="">Semua jenis</option>
-                            <?php foreach ($jenis as $j): ?>
-                                <option value="<?= (int) $j->id; ?>" <?= ($filter['jenis_id'] == $j->id) ? 'selected' : ''; ?>>
-                                    <?= html_escape($j->nama); ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                    <form method="get" action="<?= site_url('tagihan'); ?>" class="filter-keuangan">
+                        <div class="form-row">
+                            <div class="col-6 col-md-3">
+                                <div class="form-group mb-2">
+                                    <label>Jenis</label>
+                                    <select name="jenis_id" class="form-control form-control-sm">
+                                        <option value="">Semua jenis</option>
+                                        <?php foreach ($jenis as $j): ?>
+                                            <option value="<?= (int) $j->id; ?>" <?= ($filter['jenis_id'] == $j->id) ? 'selected' : ''; ?>>
+                                                <?= html_escape($j->nama); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
 
-                        <select name="bulan" class="form-control form-control-sm mr-2 mb-1">
-                            <option value="">Semua bulan</option>
-                            <?php foreach ($daftar_bulan as $b): ?>
-                                <option value="<?= $b; ?>" <?= ($filter['bulan'] == $b) ? 'selected' : ''; ?>><?= $b; ?></option>
-                            <?php endforeach; ?>
-                        </select>
+                            <div class="col-6 col-md-3">
+                                <div class="form-group mb-2">
+                                    <label>Bulan</label>
+                                    <select name="bulan" class="form-control form-control-sm">
+                                        <option value="">Semua bulan</option>
+                                        <?php foreach ($daftar_bulan as $b): ?>
+                                            <option value="<?= $b; ?>" <?= ($filter['bulan'] == $b) ? 'selected' : ''; ?>><?= $b; ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
 
-                        <input type="number" name="tahun" placeholder="Tahun" min="2000" max="2100"
-                               value="<?= html_escape($filter['tahun']); ?>"
-                               class="form-control form-control-sm mr-2 mb-1" style="width: 100px">
+                            <div class="col-6 col-md-2">
+                                <div class="form-group mb-2">
+                                    <label>Tahun</label>
+                                    <input type="number" name="tahun" placeholder="Tahun" min="2000" max="2100"
+                                           value="<?= html_escape($filter['tahun']); ?>"
+                                           class="form-control form-control-sm">
+                                </div>
+                            </div>
 
-                        <select name="status" class="form-control form-control-sm mr-2 mb-1">
-                            <option value="">Semua status</option>
-                            <option value="tunggakan" <?= ($filter['status'] == 'tunggakan') ? 'selected' : ''; ?>>Belum lunas (tunggakan)</option>
-                            <option value="belum"     <?= ($filter['status'] == 'belum') ? 'selected' : ''; ?>>Belum dibayar</option>
-                            <option value="cicilan"   <?= ($filter['status'] == 'cicilan') ? 'selected' : ''; ?>>Cicilan</option>
-                            <option value="lunas"     <?= ($filter['status'] == 'lunas') ? 'selected' : ''; ?>>Lunas</option>
-                        </select>
+                            <div class="col-6 col-md-2">
+                                <div class="form-group mb-2">
+                                    <label>Status</label>
+                                    <select name="status" class="form-control form-control-sm">
+                                        <option value="">Semua status</option>
+                                        <option value="tunggakan" <?= ($filter['status'] == 'tunggakan') ? 'selected' : ''; ?>>Belum lunas (tunggakan)</option>
+                                        <option value="belum"     <?= ($filter['status'] == 'belum') ? 'selected' : ''; ?>>Belum dibayar</option>
+                                        <option value="cicilan"   <?= ($filter['status'] == 'cicilan') ? 'selected' : ''; ?>>Cicilan</option>
+                                        <option value="lunas"     <?= ($filter['status'] == 'lunas') ? 'selected' : ''; ?>>Lunas</option>
+                                    </select>
+                                </div>
+                            </div>
 
-                        <button type="submit" class="btn btn-primary btn-sm mb-1 mr-1"><i class="fas fa-filter"></i> Tampilkan</button>
-                        <a href="<?= site_url('tagihan'); ?>" class="btn btn-default btn-sm mb-1">Reset</a>
+                            <div class="col-12 col-md-2">
+                                <div class="form-group mb-2">
+                                    <label class="d-none d-md-block">&nbsp;</label>
+                                    <div class="d-flex">
+                                        <button type="submit" class="btn btn-primary btn-sm mr-2 flex-fill">
+                                            <i class="fas fa-filter"></i> Tampilkan
+                                        </button>
+                                        <a href="<?= site_url('tagihan'); ?>" class="btn btn-default btn-sm flex-fill">Reset</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
 
             <!-- Ringkasan -->
             <div class="row">
-                <div class="col-md-4 col-sm-12">
+                <div class="col-12 col-sm-6 col-xl-4">
                     <div class="small-box bg-info">
                         <div class="inner"><h3><?= $rp($tot_nominal); ?></h3><p>Total tagihan setelah diskon (<?= count($tagihan); ?> data)</p></div>
                         <div class="icon"><i class="fas fa-file-invoice"></i></div>
                     </div>
                 </div>
-                <div class="col-md-4 col-sm-6">
+                <div class="col-12 col-sm-6 col-xl-4">
                     <div class="small-box bg-success">
                         <div class="inner"><h3><?= $rp($tot_terbayar); ?></h3><p>Sudah dibayar</p></div>
                         <div class="icon"><i class="fas fa-check-circle"></i></div>
                     </div>
                 </div>
-                <div class="col-md-4 col-sm-6">
+                <div class="col-12 col-sm-6 col-xl-4">
                     <div class="small-box bg-danger">
                         <div class="inner"><h3><?= $rp($tot_sisa); ?></h3><p>Sisa belum dibayar</p></div>
                         <div class="icon"><i class="fas fa-exclamation-circle"></i></div>
@@ -111,9 +145,9 @@ $qs_filter = http_build_query(array_filter($filter));
             </div>
 
             <!-- Tabel -->
-            <div class="card">
+            <div class="card card-outline card-primary">
                 <div class="card-body table-responsive">
-                    <table id="tableTagihan" class="table table-bordered table-striped">
+                    <table id="tableTagihan" class="table table-sm table-bordered table-striped w-100">
                         <thead>
                             <tr>
                                 <th>No</th>

@@ -1,0 +1,184 @@
+/* ============================================================
+   Menu Keuangan — perbaikan tampilan, terutama di smartphone
+   Dipakai oleh application/views/pembayaran/* dan tagihan/*
+   ============================================================ */
+
+/* ---- Baris tombol aksi halaman -------------------------------
+   Semua tombol sama tinggi, lebarnya merata, dan tidak berantakan
+   saat layar sempit. 2 tombol per baris di HP, sejajar kanan di desktop. */
+.page-aksi {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    margin: -.25rem;
+}
+
+.page-aksi > .btn,
+.page-aksi > .btn-group,
+.page-aksi > form {
+    margin: .25rem;
+}
+
+.page-aksi > .btn {
+    /* Dua tombol per baris di HP; tombol yang sendirian memenuhi barisnya. */
+    flex: 1 1 calc(50% - .5rem);
+    min-width: 0;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .85rem;
+    padding: .375rem .5rem;
+}
+
+.page-aksi > .btn i {
+    margin-right: .35rem;
+}
+
+/* Tombol yang dibungkus form (mis. tombol hapus) tetap rapi */
+.page-aksi > form > .btn {
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .page-aksi {
+        justify-content: flex-end;
+    }
+
+    .page-aksi > .btn {
+        flex: 0 0 auto;
+        max-width: none;
+        font-size: .875rem;
+        padding: .375rem .75rem;
+    }
+}
+
+/* ---- Judul halaman ------------------------------------------ */
+.content-header > .container-fluid > .row > .col-auto .btn,
+.content-header .btn-kembali {
+    white-space: nowrap;
+}
+
+/* ---- Kartu & tabel ------------------------------------------ */
+.card > .card-body > .table-responsive,
+.card > .card-body.table-responsive {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.table-responsive > .table {
+    margin-bottom: 0;
+}
+
+/* Tombol kecil di dalam tabel (markup lama memakai .btn-xs dari Bootstrap 3) */
+.btn-xs,
+.btn-group-xs > .btn {
+    padding: .18rem .4rem;
+    font-size: .75rem;
+    line-height: 1.5;
+    border-radius: .2rem;
+}
+
+@media (max-width: 575.98px) {
+    /* Tabel: beri ruang agar bisa digeser, sel tidak terlalu rapat */
+    .table-responsive > .table > thead > tr > th,
+    .table-responsive > .table > tbody > tr > td {
+        white-space: nowrap;
+        font-size: .85rem;
+        padding: .45rem .5rem;
+    }
+
+    /* Form filter: field full width, tombol sejajar */
+    .filter-keuangan .form-row > [class*="col-"] {
+        margin-bottom: .5rem;
+    }
+
+    .filter-keuangan .form-check {
+        margin-bottom: .5rem;
+    }
+
+    /* DataTables: panjang data, pencarian, info, dan paginasi di tengah */
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        text-align: left !important;
+        float: none !important;
+        padding: .35rem 0;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .dataTables_wrapper .dataTables_length select {
+        width: auto;
+        display: inline-block;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: .3rem .55rem;
+    }
+
+    /* Info box & small box lebih ringkas */
+    .info-box {
+        min-height: 70px;
+        margin-bottom: .75rem;
+    }
+
+    .info-box .info-box-icon {
+        width: 60px;
+        font-size: 1.4rem;
+        line-height: 70px;
+    }
+
+    .info-box .info-box-content {
+        padding: .5rem .75rem;
+    }
+
+    .small-box h3 {
+        font-size: 1.6rem;
+    }
+
+    /* Tombol kecil di dalam tabel tetap bisa disentuh */
+    .table .btn-xs,
+    .table .btn-sm {
+        padding: .2rem .4rem;
+        font-size: .75rem;
+    }
+}
+
+/* ---- Kompatibilitas sisa markup Bootstrap 3 di halaman lama -
+   (dipakai minimal, supaya halaman yang belum dibangun ulang tetap rapi) */
+.box-keuangan {
+    background: #fff;
+    border-radius: .25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
+    margin-bottom: 1rem;
+    border-top: 3px solid #dee2e6;
+}
+
+.box-keuangan.box-primary { border-top-color: #007bff; }
+.box-keuangan.box-info { border-top-color: #17a2b8; }
+.box-keuangan.box-success { border-top-color: #28a745; }
+
+.box-keuangan > .box-header {
+    padding: .75rem 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.box-keuangan > .box-header > .box-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.box-keuangan > .box-body { padding: 1rem; }
+
+.box-keuangan > .box-footer {
+    padding: .75rem 1rem;
+    border-top: 1px solid #e9ecef;
+    background: #f8f9fa;
+    border-radius: 0 0 .25rem .25rem;
+}
