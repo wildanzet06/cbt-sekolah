@@ -78,6 +78,12 @@ class Nilaimanual extends CI_Controller
         $data['csrf'] = $this->csrf();
         $data['is_admin'] = $this->isAdmin;
 
+        // Variabel yang dibutuhkan template dashboard (navbar & header).
+        $data['tp'] = $this->nm->allTp();
+        $data['smt'] = $this->nm->allSmt();
+        $data['tp_active'] = $this->tp;
+        $data['smt_active'] = $this->smt;
+
         if ($this->isAdmin) {
             $data['profile'] = $this->dashboard->getProfileAdmin($this->user->id);
             $this->load->view('_templates/dashboard/_header', $data);

@@ -115,25 +115,8 @@
                 'menu': [
                     {'name': 'Daftar Ujian', 'link': 'ujiansekolah', 'icon': 'fas fa-clipboard-list', 'cbt': '1'},
                     {'name': 'Kumpulan Soal', 'link': 'cbtbanksoal', 'icon': 'far fa-folder-open', 'cbt': '1'},
-                    {
-                        'name': 'Hasil', 'icon': 'fas fa-chart-bar', 'cbt': '1',
-                        'submenu': [
-                            {'name': 'Nilai Ujian', 'link': 'cbtnilai', 'icon': 'fa fa-file-alt'},
-                            {'name': 'Analisis Soal', 'link': 'cbtanalisis', 'icon': 'fa fa-chart-line'},
-                            {'name': 'Rekap Nilai', 'link': 'cbtrekap', 'icon': 'fas fa-trophy'},
-                            {'name': 'Nilai Manual', 'link': 'nilaimanual', 'icon': 'fas fa-pen-square'}
-                        ]
-                    },
-                ]
-            },
-            {
-                'header': 'PENGATURAN UJIAN', 'cbt': '1',
-                'menu': [
-                    {'name': 'Pembagian Peserta', 'link': 'ujiansekolah/pembagian', 'icon': 'fas fa-users', 'cbt': '1'},
-                    {'name': 'Ruang & Sesi', 'link': 'ujiansekolah/ruangsesi', 'icon': 'fas fa-door-open', 'cbt': '1'},
-                    {'name': 'Pengawas', 'link': 'cbtpengawas', 'icon': 'fas fa-briefcase', 'cbt': '1'},
-                    {'name': 'Jenis Ujian', 'link': 'cbtjenis', 'icon': 'fas fa-project-diagram', 'cbt': '1'},
-                    {'name': 'Urutan Jam Ujian', 'link': 'cbtalokasi', 'icon': 'far fa-clock', 'cbt': '1'},
+                    {'name': 'Pengaturan Ujian', 'link': 'ujiansekolah/pengaturan', 'icon': 'fas fa-cog', 'cbt': '1'},
+                    {'name': 'Hasil Ujian', 'link': 'ujiansekolah/hasil', 'icon': 'fas fa-chart-bar', 'cbt': '1'},
                 ]
             },
             {

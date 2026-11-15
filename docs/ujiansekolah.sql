@@ -7,7 +7,7 @@
 -- tetap berjalan apa adanya.
 --
 -- Cara pakai:
---   mysql -u root cbt < docs/migrasi-ujian-sekolah.sql
+--   mysql -u root cbt < docs/ujiansekolah.sql
 -- atau jalankan file ini lewat phpMyAdmin.
 --
 -- Modul baru juga menjalankan migrasi ini otomatis saat pertama kali

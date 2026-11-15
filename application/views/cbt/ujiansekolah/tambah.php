@@ -82,19 +82,17 @@ $this->load->view('cbt/ujiansekolah/_style');
 <div class="content-wrapper bg-white pt-4">
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-8">
+            <div class="row mb-2 align-items-center">
+                <div class="col-auto">
+                    <?php $this->load->view('cbt/ujiansekolah/_kembali'); ?>
+                </div>
+                <div class="col">
                     <h1 class="mb-0"><?= html_escape($judul) ?></h1>
                     <small class="text-muted">
                         <?= html_escape($subjudul) ?> &middot;
                         Tahun <?= html_escape($tp_active->tahun) ?> &middot;
                         Semester <?= html_escape($smt_active->nama_smt) ?>
                     </small>
-                </div>
-                <div class="col-sm-4 text-right">
-                    <a href="<?= base_url('ujiansekolah') ?>" class="btn btn-sm btn-outline-secondary">
-                        <i class="fas fa-arrow-left"></i> Daftar Ujian
-                    </a>
                 </div>
             </div>
         </div>
@@ -189,7 +187,8 @@ $this->load->view('cbt/ujiansekolah/_style');
                         </p>
                         <div id="daftar-bank"></div>
                         <div class="mt-2">
-                            <a href="<?= base_url('cbtbanksoal') ?>" class="btn btn-sm btn-outline-primary" target="_blank">
+                            <a href="<?= base_url('cbtbanksoal?dari=tambah') ?>"
+                               class="btn btn-sm btn-outline-primary">
                                 <i class="fas fa-plus"></i> Buat Kumpulan Soal
                             </a>
                         </div>
@@ -360,6 +359,7 @@ $this->load->view('cbt/ujiansekolah/_style');
         var JENIS = <?= json_encode($jenisJs, JSON_UNESCAPED_UNICODE) ?>;
         var BANK_TERPILIH = <?= (int)$nilai['id_bank'] ?>;
         var TOKEN_AWAL = <?= json_encode($nilai['token_ujian']) ?>;
+        var LANGKAH_AWAL = <?= (int)$langkah ?>;
 
         var URL_SIMPAN = '<?= base_url('ujiansekolah/simpan') ?>';
         var URL_TANGGAL = '<?= base_url('ujiansekolah/tanggal') ?>';
@@ -717,6 +717,10 @@ $this->load->view('cbt/ujiansekolah/_style');
             if (EDIT && BANK_TERPILIH) {
                 var b = $.grep(BANKS, function (x) { return x.id_bank === BANK_TERPILIH; })[0];
                 if (b) { infoPeserta(b); }
+            }
+            // "Lengkapi Persiapan" bisa membuka wizard langsung di langkah yang kurang.
+            if (LANGKAH_AWAL > 1) {
+                tampilStep(LANGKAH_AWAL);
             }
         });
     })();

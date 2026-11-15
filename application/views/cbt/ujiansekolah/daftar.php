@@ -58,31 +58,14 @@ $this->load->view('cbt/ujiansekolah/_style');
                             <i class="fas fa-plus"></i> Buat Ujian Baru
                         </a>
                     <?php endif; ?>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            <i class="fas fa-ellipsis-h"></i>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-right">
-                            <a class="dropdown-item" href="<?= base_url('cbtjadwal') ?>">
-                                <i class="far fa-calendar-alt fa-fw"></i> Halaman Jadwal (lama)</a>
-                            <a class="dropdown-item" href="<?= base_url('cbttoken') ?>">
-                                <i class="fas fa-key fa-fw"></i> Token Global</a>
-                            <a class="dropdown-item" href="<?= base_url('cbtnomorpeserta') ?>">
-                                <i class="far fa-id-card fa-fw"></i> Nomor Peserta</a>
-                            <a class="dropdown-item" href="<?= base_url('cbtcetak') ?>">
-                                <i class="fas fa-print fa-fw"></i> Cetak Kartu &amp; Absen</a>
-                            <a class="dropdown-item" href="<?= base_url('cbtstatus') ?>">
-                                <i class="fas fa-user-clock fa-fw"></i> Status Siswa (lama)</a>
-                            <?php if ($is_admin): ?>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="<?= base_url('ujiansekolah/pembagian') ?>">
-                                    <i class="fas fa-users fa-fw"></i> Pembagian Peserta</a>
-                                <a class="dropdown-item" href="<?= base_url('ujiansekolah/ruangsesi') ?>">
-                                    <i class="fas fa-door-open fa-fw"></i> Ruang &amp; Sesi</a>
-                            <?php endif; ?>
-                        </div>
-                    </div>
+                    <?php if ($is_admin): ?>
+                        <a href="<?= base_url('ujiansekolah/pengaturan') ?>" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-cog"></i> Pengaturan
+                        </a>
+                    <?php endif; ?>
+                    <a href="<?= base_url('ujiansekolah/hasil') ?>" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-chart-bar"></i> Hasil
+                    </a>
                 </div>
             </div>
         </div>
@@ -163,6 +146,14 @@ $this->load->view('cbt/ujiansekolah/_style');
                                 $judul = $judulUjian($u);
                                 $kelasLabel = !empty($u->label_kelas) ? $u->label_kelas : null;
                                 $oleh = $u->pembuat ? $u->pembuat : 'Admin';
+
+                                // "Lengkapi Persiapan" membuka wizard di langkah yang kurang (PRD 5.1).
+                                $langkahKurang = 3;
+                                foreach (['soal'] as $chipKurang) {
+                                    if (empty($k['chip'][$chipKurang])) {
+                                        $langkahKurang = 2;
+                                    }
+                                }
                                 ?>
                                 <div class="ujian-item border-bottom px-3 py-3"
                                      data-status="<?= html_escape($st) ?>"
@@ -233,7 +224,8 @@ $this->load->view('cbt/ujiansekolah/_style');
                                                     <i class="fas fa-stop"></i> Tutup
                                                 </button>
                                             <?php endif; ?>
-                                            <a href="<?= base_url('ujiansekolah/edit/' . (int)$u->id_jadwal) ?>"
+                                            <a href="<?= base_url('ujiansekolah/edit/' . (int)$u->id_jadwal
+                                                . '?langkah=' . (int)$langkahKurang) ?>"
                                                class="btn btn-sm btn-warning">
                                                 <i class="fas fa-tools"></i> Lengkapi Persiapan
                                             </a>
@@ -253,7 +245,8 @@ $this->load->view('cbt/ujiansekolah/_style');
                                                 <i class="fas fa-stop"></i> Tutup
                                             </button>
                                         <?php elseif ($st === 'selesai'): ?>
-                                            <a href="<?= base_url('cbtnilai') ?>" class="btn btn-sm btn-primary">
+                                            <a href="<?= base_url('ujiansekolah/hasil?tab=nilai') ?>"
+                                               class="btn btn-sm btn-primary">
                                                 <i class="fas fa-file-alt"></i> Hasil
                                             </a>
                                             <a href="<?= base_url('ujiansekolah/pantau/' . (int)$u->id_jadwal) ?>"
@@ -276,11 +269,15 @@ $this->load->view('cbt/ujiansekolah/_style');
                                             </button>
                                         <?php endif; ?>
 
-                                        <a href="<?= base_url('ujiansekolah/edit/' . (int)$u->id_jadwal) ?>"
-                                           class="btn btn-sm btn-outline-secondary" data-toggle="tooltip" title="Pengaturan ujian">
-                                            <i class="fas fa-cog"></i> Pengaturan
-                                        </a>
-                                        <a href="<?= base_url('cbtcetak') ?>" class="btn btn-sm btn-outline-secondary"
+                                        <?php if ($u->milik_saya || $is_admin): ?>
+                                            <a href="<?= base_url('ujiansekolah/edit/' . (int)$u->id_jadwal) ?>"
+                                               class="btn btn-sm btn-outline-secondary" data-toggle="tooltip"
+                                               title="Ubah pengaturan ujian ini">
+                                                <i class="fas fa-cog"></i> Pengaturan
+                                            </a>
+                                        <?php endif; ?>
+                                        <a href="<?= base_url('cbtcetak?dari=daftar') ?>"
+                                           class="btn btn-sm btn-outline-secondary"
                                            data-toggle="tooltip" title="Cetak kartu & daftar hadir">
                                             <i class="fas fa-print"></i> Kartu
                                         </a>
@@ -309,8 +306,9 @@ $this->load->view('cbt/ujiansekolah/_style');
                     <div class="card-header">
                         <h6 class="card-title mb-0"><i class="fas fa-key mr-1"></i> Token aktif hari ini</h6>
                         <div class="card-tools">
-                            <a href="<?= base_url('cbttoken') ?>" class="btn btn-sm btn-outline-secondary">
-                                Token Global
+                            <a href="<?= base_url('ujiansekolah/pengaturan?tab=token') ?>"
+                               class="btn btn-sm btn-outline-secondary">
+                                Atur Token
                             </a>
                         </div>
                     </div>

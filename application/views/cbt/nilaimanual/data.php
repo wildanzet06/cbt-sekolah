@@ -8,7 +8,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                 <div class="col-sm-8">
                     <h1><?= html_escape($judul) ?></h1>
                     <small class="text-muted">
-                        Tahun pelajaran <?= html_escape($tp->tahun) ?> &middot; Semester <?= html_escape($smt->nama_smt) ?>
+                        Tahun pelajaran <?= html_escape($tp_active->tahun) ?> &middot; Semester <?= html_escape($smt_active->nama_smt) ?>
                     </small>
                 </div>
             </div>

@@ -69,6 +69,17 @@ class Nilaimanual_model extends CI_Model
         return $this->db->get_where('master_smt', ['active' => 1])->row();
     }
 
+    /** Daftar seluruh TP/semester — dibutuhkan navbar dashboard. */
+    public function allTp()
+    {
+        return $this->db->order_by('id_tp', 'ASC')->get('master_tp')->result();
+    }
+
+    public function allSmt()
+    {
+        return $this->db->order_by('id_smt', 'ASC')->get('master_smt')->result();
+    }
+
     public function guruByUser($id_user)
     {
         return $this->db->get_where('master_guru', ['id_user' => $id_user])->row();

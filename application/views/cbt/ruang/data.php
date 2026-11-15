@@ -6,6 +6,7 @@
  * Time: 17:20
  */
 ?>
+<?php $this->load->view('cbt/ujiansekolah/_kembali_lama'); ?>
 
 <div class="content-wrapper bg-white pt-4">
     <section class="content-header">

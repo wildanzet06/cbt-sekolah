@@ -20,8 +20,11 @@ $this->load->view('cbt/ujiansekolah/_style');
 <div class="content-wrapper bg-white pt-4">
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-8">
+            <div class="row mb-2 align-items-center">
+                <div class="col-auto">
+                    <?php $this->load->view('cbt/ujiansekolah/_kembali'); ?>
+                </div>
+                <div class="col">
                     <h1 class="mb-0"><?= html_escape($judulUjian) ?></h1>
                     <small class="text-muted">
                         <?= html_escape($tglLabel) ?> &middot; <?= (int)$u->durasi_ujian ?> menit &middot; Sesi 1
@@ -30,14 +33,6 @@ $this->load->view('cbt/ujiansekolah/_style');
                         <?php endif; ?>
                         &middot; <?= (int)$u->status === 1 ? 'Dibuka' : 'Ditutup' ?>
                     </small>
-                </div>
-                <div class="col-sm-4 text-right">
-                    <a href="<?= base_url('ujiansekolah') ?>" class="btn btn-sm btn-outline-secondary">
-                        <i class="fas fa-arrow-left"></i> Daftar Ujian
-                    </a>
-                    <a href="<?= base_url('cbtstatus') ?>" class="btn btn-sm btn-outline-secondary" target="_blank">
-                        Status Siswa (lama)
-                    </a>
                 </div>
             </div>
         </div>

@@ -1318,4 +1318,253 @@ class Ujiansekolah_model extends CI_Model
         return $this->db->where('id_durasi', (int)$row->id_durasi)
             ->update('cbt_durasi_siswa', ['mulai' => date('Y-m-d H:i:s', $mulai - ($menit * 60))]);
     }
+
+    /* ==================================================================
+     * PENGATURAN UJIAN — tab Sesi & Jam
+     * ================================================================ */
+
+    public function getSesi($id_sesi)
+    {
+        return $this->db->get_where('cbt_sesi', ['id_sesi' => (int)$id_sesi])->row();
+    }
+
+    private function validJam($s)
+    {
+        $s = trim((string)$s);
+        if (preg_match('/^([01]\d|2[0-3]):[0-5]\d$/', $s)) {
+            return $s . ':00';
+        }
+        if (preg_match('/^([01]\d|2[0-3]):[0-5]\d:[0-5]\d$/', $s)) {
+            return $s;
+        }
+        return null;
+    }
+
+    /** Simpan satu sesi. Return ['ok'=>bool,'msg'=>string]. */
+    public function simpanSesi($id_sesi, $nama, $kode, $mulai, $akhir, $aktif)
+    {
+        $sesi = $this->getSesi($id_sesi);
+        if (!$sesi) {
+            return ['ok' => false, 'msg' => 'Sesi tidak ditemukan.'];
+        }
+        $nama = trim((string)$nama);
+        $kode = strtoupper(trim((string)$kode));
+        if ($nama === '' || mb_strlen($nama) > 50) {
+            return ['ok' => false, 'msg' => 'Nama sesi wajib diisi (maksimal 50 karakter).'];
+        }
+        if ($kode === '' || mb_strlen($kode) > 10) {
+            return ['ok' => false, 'msg' => 'Kode sesi wajib diisi (maksimal 10 karakter).'];
+        }
+        $mulai = $this->validJam($mulai);
+        $akhir = $this->validJam($akhir);
+        if ($mulai === null || $akhir === null) {
+            return ['ok' => false, 'msg' => 'Waktu harus berformat jam:menit (mis. 07:30).'];
+        }
+        if (strtotime($akhir) <= strtotime($mulai)) {
+            return ['ok' => false, 'msg' => 'Waktu akhir harus setelah waktu mulai.'];
+        }
+
+        $this->db->where('id_sesi', (int)$id_sesi)->update('cbt_sesi', [
+            'nama_sesi'   => $nama,
+            'kode_sesi'   => $kode,
+            'waktu_mulai' => $mulai,
+            'waktu_akhir' => $akhir,
+            'aktif'       => $aktif ? 1 : 0
+        ]);
+        return ['ok' => true, 'msg' => 'Sesi "' . $nama . '" disimpan.'];
+    }
+
+    /** Ubah urutan jam (jam_ke) satu ujian. */
+    public function setJamKe($id_jadwal, $jam_ke)
+    {
+        $jam_ke = (int)$jam_ke;
+        if ($jam_ke < 1 || $jam_ke > 10) {
+            return false;
+        }
+        $this->db->where('id_jadwal', (int)$id_jadwal)
+            ->update('cbt_jadwal', ['jam_ke' => $jam_ke]);
+        return true;
+    }
+
+    /* ==================================================================
+     * PENGATURAN UJIAN — tab Pengawas
+     * ================================================================ */
+
+    /**
+     * Matriks pengawas: satu pengawas per ruang per tanggal, dipakai bersama
+     * semua ujian pada tanggal itu.
+     * Return [['tanggal','ujian'=>[],'pengawas'=>[id_ruang=>id_guru]], ...]
+     */
+    public function pengawasMatrix($id_tp, $id_smt)
+    {
+        $tanggals = $this->db->select('tgl_mulai')->distinct()
+            ->where('id_tp', (int)$id_tp)->where('id_smt', (int)$id_smt)
+            ->order_by('tgl_mulai', 'ASC')->get('cbt_jadwal')->result();
+
+        $out = [];
+        foreach ($tanggals as $t) {
+            $tgl = substr((string)$t->tgl_mulai, 0, 10);
+            $ujian = $this->ujianPadaTanggal($tgl, 0, $id_tp, $id_smt);
+            $map = [];
+            foreach ($ujian as $u) {
+                foreach ($u->pengawas as $id_ruang => $id_guru) {
+                    if ((int)$id_guru > 0 && !isset($map[(int)$id_ruang])) {
+                        $map[(int)$id_ruang] = (int)$id_guru;
+                    }
+                }
+            }
+            $out[] = [
+                'tanggal'  => $tgl,
+                'ujian'    => $ujian,
+                'pengawas' => $map
+            ];
+        }
+        return $out;
+    }
+
+    /**
+     * Simpan pengawas per ruang untuk SEMUA ujian pada satu tanggal.
+     * Return jumlah ujian yang diperbarui.
+     */
+    public function simpanPengawasTanggal($tanggal, $id_tp, $id_smt, array $perRuang, $id_sesi)
+    {
+        $ujian = $this->ujianPadaTanggal($tanggal, 0, $id_tp, $id_smt);
+        $n = 0;
+        foreach ($ujian as $u) {
+            $this->simpanPengawas($u->id_jadwal, $id_tp, $id_smt, $perRuang, $id_sesi);
+            $n++;
+        }
+        return $n;
+    }
+
+    /* ==================================================================
+     * PENGATURAN UJIAN — tab Jenis Ujian
+     * ================================================================ */
+
+    public function jenisDenganPemakaian()
+    {
+        $this->db->select('j.*, (SELECT COUNT(*) FROM cbt_jadwal d WHERE d.id_jenis = j.id_jenis) AS dipakai', false);
+        $this->db->order_by('j.id_jenis', 'ASC');
+        return $this->db->get('cbt_jenis j')->result();
+    }
+
+    public function jenisDipakai($id_jenis)
+    {
+        $row = $this->db->select('COUNT(*) c')->get_where('cbt_jadwal', ['id_jenis' => (int)$id_jenis])->row();
+        return $row ? (int)$row->c : 0;
+    }
+
+    public function simpanJenis($id_jenis, $kode, $nama)
+    {
+        $kode = strtoupper(trim((string)$kode));
+        $nama = trim((string)$nama);
+        if ($kode === '' || mb_strlen($kode) > 10) {
+            return ['ok' => false, 'msg' => 'Kode jenis wajib diisi (maksimal 10 karakter).'];
+        }
+        if ($nama === '' || mb_strlen($nama) > 50) {
+            return ['ok' => false, 'msg' => 'Nama jenis wajib diisi (maksimal 50 karakter).'];
+        }
+        // Kode tidak boleh kembar dengan jenis lain.
+        $this->db->where('kode_jenis', $kode);
+        if ((int)$id_jenis > 0) {
+            $this->db->where('id_jenis !=', (int)$id_jenis);
+        }
+        if ($this->db->get('cbt_jenis')->row()) {
+            return ['ok' => false, 'msg' => 'Kode "' . $kode . '" sudah dipakai jenis lain.'];
+        }
+
+        if ((int)$id_jenis > 0) {
+            if (!$this->db->get_where('cbt_jenis', ['id_jenis' => (int)$id_jenis])->row()) {
+                return ['ok' => false, 'msg' => 'Jenis ujian tidak ditemukan.'];
+            }
+            $this->db->where('id_jenis', (int)$id_jenis)->update('cbt_jenis', [
+                'kode_jenis' => $kode, 'nama_jenis' => $nama
+            ]);
+            return ['ok' => true, 'msg' => 'Jenis ujian diperbarui.', 'id' => (int)$id_jenis];
+        }
+
+        $this->db->insert('cbt_jenis', ['kode_jenis' => $kode, 'nama_jenis' => $nama]);
+        return ['ok' => true, 'msg' => 'Jenis ujian ditambahkan.', 'id' => (int)$this->db->insert_id()];
+    }
+
+    public function hapusJenis($id_jenis)
+    {
+        $id_jenis = (int)$id_jenis;
+        if ($this->jenisDipakai($id_jenis) > 0) {
+            return ['ok' => false, 'msg' => 'Jenis ini sudah dipakai ujian dan tidak bisa dihapus.'];
+        }
+        $this->db->where('id_jenis', $id_jenis)->delete('cbt_jenis');
+        return ['ok' => true, 'msg' => 'Jenis ujian dihapus.'];
+    }
+
+    /* ==================================================================
+     * PENGATURAN UJIAN — tab Token
+     * ================================================================ */
+
+    /** Token global (baris tunggal cbt_token) — cadangan untuk ujian lama. */
+    public function globalToken()
+    {
+        return $this->db->order_by('id_token', 'ASC')->get('cbt_token')->row();
+    }
+
+    public function simpanTokenGlobal($token, $auto = 0, $jarak = 0)
+    {
+        $token = strtoupper(trim((string)$token));
+        if (!preg_match('/^[A-Z0-9]{6}$/', $token)) {
+            return ['ok' => false, 'msg' => 'Token harus 6 karakter huruf dan angka.'];
+        }
+        $row = $this->globalToken();
+        $data = [
+            'token'   => $token,
+            'auto'    => (int)$auto,
+            'jarak'   => (int)$jarak,
+            'updated' => date('Y-m-d H:i:s')
+        ];
+        if ($row) {
+            $this->db->where('id_token', (int)$row->id_token)->update('cbt_token', $data);
+        } else {
+            $this->db->insert('cbt_token', $data);
+        }
+        return ['ok' => true, 'msg' => 'Token global disimpan sebagai cadangan.'];
+    }
+
+    /** Simpan token satu ujian (validasi unik per tanggal). */
+    public function setTokenUjian($id_jadwal, $token)
+    {
+        $u = $this->getUjian((int)$id_jadwal);
+        if (!$u) {
+            return ['ok' => false, 'msg' => 'Ujian tidak ditemukan.'];
+        }
+        $token = strtoupper(trim((string)$token));
+        if (!preg_match('/^[A-Z0-9]{6}$/', $token)) {
+            return ['ok' => false, 'msg' => 'Token harus 6 karakter huruf dan angka.'];
+        }
+        $tgl = substr((string)$u->tgl_mulai, 0, 10);
+        foreach ($this->tokenDipakai($tgl, (int)$u->id_jadwal) as $t) {
+            if (strtoupper(trim((string)$t->token_ujian)) === $token) {
+                return ['ok' => false, 'msg' => 'Token ini sudah dipakai ujian lain di tanggal yang sama. Acak ulang.'];
+            }
+        }
+        $this->db->where('id_jadwal', (int)$id_jadwal)->update('cbt_jadwal', [
+            'token_ujian' => $token,
+            'token'       => 1
+        ]);
+        return ['ok' => true, 'token' => $token, 'msg' => 'Token ujian disimpan.'];
+    }
+
+    /** Acak + simpan token unik untuk satu ujian. */
+    public function acakTokenUjian($id_jadwal)
+    {
+        $u = $this->getUjian((int)$id_jadwal);
+        if (!$u) {
+            return ['ok' => false, 'msg' => 'Ujian tidak ditemukan.'];
+        }
+        $tgl = substr((string)$u->tgl_mulai, 0, 10);
+        $token = $this->tokenUnik($tgl, (int)$u->id_jadwal);
+        $this->db->where('id_jadwal', (int)$id_jadwal)->update('cbt_jadwal', [
+            'token_ujian' => $token,
+            'token'       => 1
+        ]);
+        return ['ok' => true, 'token' => $token, 'msg' => 'Token diacak ulang.'];
+    }
 }

@@ -198,7 +198,7 @@ class Ujiansekolah extends CI_Controller
             'hari_ini'    => $hariIni,
             'ada_opsi'    => count($this->opsi['pairs']) > 0
         ];
-        $this->render('cbt/ujiansekolah/data', $data);
+        $this->render('cbt/ujiansekolah/daftar', $data);
     }
 
     /* ==================================================================
@@ -236,10 +236,16 @@ class Ujiansekolah extends CI_Controller
             }
         }
 
+        $langkah = (int)$this->input->get('langkah');
+        if ($langkah < 1 || $langkah > 3) {
+            $langkah = 1;
+        }
+
         $data = [
             'judul'         => $u ? 'Ubah Ujian' : 'Buat Ujian Baru',
             'subjudul'      => $u ? 'Ubah pengaturan ujian' : 'Tiga langkah, selesai',
             'u'             => $u,
+            'langkah'       => $langkah,
             'jenis'         => $jenis,
             'jenis_akhir'   => $jenisTerakhir,
             'banks'         => $this->us->bankPilihan($this->tp->id_tp, $this->smt->id_smt, null, $this->idGuruFilter()),
@@ -251,7 +257,7 @@ class Ujiansekolah extends CI_Controller
             'pengawas'      => $u ? $this->us->pengawasMap($u->id_jadwal) : [],
             'berlangsung'   => $u ? $this->sedangBerlangsung($u) : false
         ];
-        $this->render('cbt/ujiansekolah/wizard', $data);
+        $this->render('cbt/ujiansekolah/tambah', $data);
     }
 
     /** AJAX: token unik 6 karakter untuk tanggal tertentu. */
@@ -687,19 +693,60 @@ class Ujiansekolah extends CI_Controller
     }
 
     /* ==================================================================
-     * FASE 3 — Pembagian Peserta (admin)
+     * PENGATURAN UJIAN — 1 halaman, 5 tab (PRD 4.3 / 5.3)
      * ================================================================ */
 
-    public function pembagian()
+    private $tabPengaturan = ['peserta', 'sesi', 'pengawas', 'jenis', 'token'];
+
+    public function pengaturan()
     {
         $this->hanyaAdmin();
 
+        $tab = strtolower((string)$this->input->get('tab', true));
+        if (!in_array($tab, $this->tabPengaturan, true)) {
+            $tab = 'peserta';
+        }
+
+        $sesi = $this->us->sesiList();
+        $sesi1 = count($sesi) > 0 ? $sesi[0] : null;
+
         $data = [
-            'judul'    => 'Pembagian Peserta',
-            'subjudul' => 'Pembagian peserta ke ruang dan sesi',
-            'd'        => $this->us->pembagianData($this->tp->id_tp, $this->smt->id_smt)
+            'judul'        => 'Pengaturan Ujian',
+            'subjudul'     => 'Semua pengaturan teknis ujian dalam satu halaman',
+            'tab'          => $tab,
+            'tabs'         => [
+                'peserta'  => ['Peserta & Ruang', 'fas fa-users'],
+                'sesi'     => ['Sesi & Jam', 'far fa-clock'],
+                'pengawas' => ['Pengawas', 'fas fa-user-shield'],
+                'jenis'    => ['Jenis Ujian', 'fas fa-project-diagram'],
+                'token'    => ['Token', 'fas fa-key']
+            ],
+            'd'            => $this->us->pembagianData($this->tp->id_tp, $this->smt->id_smt),
+            'ruang'        => $this->us->ruangList(),
+            'kapasitas'    => $this->us->kapasitasTotal(),
+            'sesi'         => $sesi,
+            'sesi1'        => $sesi1,
+            'matrix'       => $this->us->pengawasMatrix($this->tp->id_tp, $this->smt->id_smt),
+            'guru_list'    => $this->us->guruList(),
+            'jenis'        => $this->us->jenisDenganPemakaian(),
+            'ujian'        => $this->us->listUjian($this->tp->id_tp, $this->smt->id_smt, null),
+            'token_global' => $this->us->globalToken()
         ];
-        $this->render('cbt/ujiansekolah/pembagian', $data);
+        $this->render('cbt/ujiansekolah/pengaturan', $data);
+    }
+
+    /** Ajakan lama: /pembagian → tab Peserta & Ruang. */
+    public function pembagian()
+    {
+        $this->hanyaAdmin();
+        redirect('ujiansekolah/pengaturan?tab=peserta');
+    }
+
+    /** Ajakan lama: /ruangsesi → tab Peserta & Ruang. */
+    public function ruangsesi()
+    {
+        $this->hanyaAdmin();
+        redirect('ujiansekolah/pengaturan?tab=peserta');
     }
 
     public function bagiproses()
@@ -711,25 +758,8 @@ class Ujiansekolah extends CI_Controller
         // Fitur ini menimpa pembagian semester berjalan; konfirmasi dilakukan di UI.
         $semuaRuang = (int)$this->input->post('semua_ruang') === 0 ? false : true;
         $hasil = $this->us->bagiOtomatis($this->tp->id_tp, $this->smt->id_smt, $semuaRuang);
-        $hasil['redirect'] = base_url('ujiansekolah/pembagian');
+        $hasil['redirect'] = base_url('ujiansekolah/pengaturan?tab=peserta');
         return $this->json($hasil);
-    }
-
-    /* ==================================================================
-     * Ruang & Sesi (admin)
-     * ================================================================ */
-
-    public function ruangsesi()
-    {
-        $this->hanyaAdmin();
-        $data = [
-            'judul'     => 'Ruang & Sesi',
-            'subjudul'  => 'Kapasitas ruang dan sesi ujian',
-            'ruang'     => $this->us->ruangList(),
-            'sesi'      => $this->us->sesiList(),
-            'kapasitas' => $this->us->kapasitasTotal()
-        ];
-        $this->render('cbt/ujiansekolah/ruangsesi', $data);
     }
 
     public function simpanruang()
@@ -750,6 +780,179 @@ class Ujiansekolah extends CI_Controller
             return $this->json(['status' => false, 'msg' => 'Kapasitas harus antara 1 dan 500.']);
         }
         return $this->json(['status' => true, 'msg' => 'Kapasitas ruang disimpan.']);
+    }
+
+    /* ---- tab Sesi & Jam --------------------------------------------- */
+
+    public function sesisimpan()
+    {
+        $this->hanyaAdmin();
+        if ($this->input->method() !== 'post') {
+            return $this->json(['status' => false, 'msg' => 'Metode tidak valid.'], 405);
+        }
+        $r = $this->us->simpanSesi(
+            (int)$this->input->post('id_sesi'),
+            $this->input->post('nama_sesi', true),
+            $this->input->post('kode_sesi', true),
+            $this->input->post('waktu_mulai', true),
+            $this->input->post('waktu_akhir', true),
+            (int)$this->input->post('aktif') === 1
+        );
+        return $this->json(['status' => $r['ok'], 'msg' => $r['msg']]);
+    }
+
+    public function jamsimpan()
+    {
+        $this->hanyaAdmin();
+        if ($this->input->method() !== 'post') {
+            return $this->json(['status' => false, 'msg' => 'Metode tidak valid.'], 405);
+        }
+        $jam = $this->input->post('jam');
+        if (!is_array($jam)) {
+            return $this->json(['status' => false, 'msg' => 'Tidak ada data yang dikirim.']);
+        }
+        $n = 0;
+        foreach ($jam as $id_jadwal => $nilai) {
+            $u = $this->us->getUjian((int)$id_jadwal, $this->tp->id_tp, $this->smt->id_smt);
+            if (!$u) {
+                continue;
+            }
+            if ($this->us->setJamKe($u->id_jadwal, (int)$nilai)) {
+                $n++;
+            }
+        }
+        return $this->json(['status' => true, 'msg' => 'Urutan jam disimpan untuk ' . $n . ' ujian.']);
+    }
+
+    /* ---- tab Pengawas ---------------------------------------------- */
+
+    public function pengawassimpan()
+    {
+        $this->hanyaAdmin();
+        if ($this->input->method() !== 'post') {
+            return $this->json(['status' => false, 'msg' => 'Metode tidak valid.'], 405);
+        }
+        $tanggal = trim((string)$this->input->post('tanggal', true));
+        if (!$this->validTanggal($tanggal)) {
+            return $this->json(['status' => false, 'msg' => 'Tanggal tidak valid.']);
+        }
+        $input = $this->input->post('pengawas');
+        $perRuang = [];
+        if (is_array($input)) {
+            foreach ($input as $id_ruang => $id_guru) {
+                if ((int)$id_ruang > 0 && (int)$id_guru > 0) {
+                    $perRuang[(int)$id_ruang] = (int)$id_guru;
+                }
+            }
+        }
+        $sesi = $this->us->sesiSatu();
+        $id_sesi = $sesi ? (int)$sesi->id_sesi : 1;
+
+        $n = $this->us->simpanPengawasTanggal($tanggal, $this->tp->id_tp, $this->smt->id_smt, $perRuang, $id_sesi);
+        if ($n === 0) {
+            return $this->json(['status' => false, 'msg' => 'Tidak ada ujian pada tanggal tersebut.']);
+        }
+        return $this->json([
+            'status' => true,
+            'msg'    => 'Pengawas disimpan untuk ' . $n . ' ujian pada '
+                . date('d M Y', strtotime($tanggal)) . '.'
+        ]);
+    }
+
+    /* ---- tab Jenis Ujian ------------------------------------------- */
+
+    public function jenissimpan()
+    {
+        $this->hanyaAdmin();
+        if ($this->input->method() !== 'post') {
+            return $this->json(['status' => false, 'msg' => 'Metode tidak valid.'], 405);
+        }
+        $r = $this->us->simpanJenis(
+            (int)$this->input->post('id_jenis'),
+            $this->input->post('kode_jenis', true),
+            $this->input->post('nama_jenis', true)
+        );
+        return $this->json(['status' => $r['ok'], 'msg' => $r['msg'], 'id' => $r['id'] ?? 0]);
+    }
+
+    public function jenishapus()
+    {
+        $this->hanyaAdmin();
+        if ($this->input->method() !== 'post') {
+            return $this->json(['status' => false, 'msg' => 'Metode tidak valid.'], 405);
+        }
+        $r = $this->us->hapusJenis((int)$this->input->post('id_jenis'));
+        return $this->json(['status' => $r['ok'], 'msg' => $r['msg']]);
+    }
+
+    /* ---- tab Token ------------------------------------------------- */
+
+    public function tokenujian()
+    {
+        $this->hanyaAdmin();
+        if ($this->input->method() !== 'post') {
+            return $this->json(['status' => false, 'msg' => 'Metode tidak valid.'], 405);
+        }
+        $u = $this->us->getUjian((int)$this->input->post('id_jadwal'), $this->tp->id_tp, $this->smt->id_smt);
+        if (!$u) {
+            return $this->json(['status' => false, 'msg' => 'Ujian tidak ditemukan.']);
+        }
+        $r = $this->us->setTokenUjian($u->id_jadwal, $this->input->post('token', true));
+        return $this->json(['status' => $r['ok'], 'msg' => $r['msg'], 'token' => $r['token'] ?? '']);
+    }
+
+    public function tokenacak()
+    {
+        $this->hanyaAdmin();
+        if ($this->input->method() !== 'post') {
+            return $this->json(['status' => false, 'msg' => 'Metode tidak valid.'], 405);
+        }
+        $u = $this->us->getUjian((int)$this->input->post('id_jadwal'), $this->tp->id_tp, $this->smt->id_smt);
+        if (!$u) {
+            return $this->json(['status' => false, 'msg' => 'Ujian tidak ditemukan.']);
+        }
+        $r = $this->us->acakTokenUjian($u->id_jadwal);
+        return $this->json(['status' => $r['ok'], 'msg' => $r['msg'], 'token' => $r['token'] ?? '']);
+    }
+
+    public function tokensimpan()
+    {
+        $this->hanyaAdmin();
+        if ($this->input->method() !== 'post') {
+            return $this->json(['status' => false, 'msg' => 'Metode tidak valid.'], 405);
+        }
+        $r = $this->us->simpanTokenGlobal(
+            $this->input->post('token', true),
+            (int)$this->input->post('auto'),
+            (int)$this->input->post('jarak')
+        );
+        return $this->json(['status' => $r['ok'], 'msg' => $r['msg']]);
+    }
+
+    /* ==================================================================
+     * HASIL UJIAN — 1 halaman, 4 tab (PRD 4.4 / 5.4)
+     * ================================================================ */
+
+    public function hasil()
+    {
+        $tabs = [
+            'nilai'    => ['Nilai Ujian', 'fas fa-file-alt', 'cbtnilai'],
+            'analisis' => ['Analisis Soal', 'fas fa-chart-line', 'cbtanalisis'],
+            'rekap'    => ['Rekap Nilai', 'fas fa-trophy', 'cbtrekap'],
+            'manual'   => ['Nilai Manual', 'fas fa-pen-square', 'nilaimanual']
+        ];
+        $tab = strtolower((string)$this->input->get('tab', true));
+        if (!isset($tabs[$tab])) {
+            $tab = 'nilai';
+        }
+        $data = [
+            'judul'    => 'Hasil Ujian',
+            'subjudul' => 'Nilai, analisis, rekap, dan nilai manual dalam satu halaman',
+            'tab'      => $tab,
+            'tabs'     => $tabs,
+            'jumlah'   => count($this->us->listUjian($this->tp->id_tp, $this->smt->id_smt, $this->idGuruFilter()))
+        ];
+        $this->render('cbt/ujiansekolah/hasil', $data);
     }
 
     /* ==================================================================
