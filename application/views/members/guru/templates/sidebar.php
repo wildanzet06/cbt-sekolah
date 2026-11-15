@@ -74,17 +74,20 @@
                         {'name': 'Catatan Guru', 'link':"kelascatatan", 'icon': 'fa fa-pencil-alt'},
                     ]
                 },
+            ]
+        },
+        {
+            'header': 'UJIAN SEKOLAH', 'cbt': '1',
+            'menu': [
+                {'name': 'Daftar Ujian', 'link': 'ujiansekolah', 'icon': 'fas fa-clipboard-list', 'cbt': '1'},
+                {'name': 'Kumpulan Soal', 'link': 'cbtbanksoal', 'icon': 'far fa-folder-open', 'cbt': '1'},
                 {
-                    'name': 'Ulangan / Ujian', 'icon': 'fa fa-user-graduate', 'cbt': '1',
+                    'name': 'Hasil', 'icon': 'fas fa-chart-bar', 'cbt': '1',
                     'submenu': [
-                        {'name':"Bank Soal", 'link':"cbtbanksoal", 'icon': 'far fa-folder-open'},
-                        {'name':"Jadwal", 'link':"cbtjadwal", 'icon': 'far fa-calendar-alt'},
-                        {'name': 'Cetak', 'link':"cbtcetak", 'icon': 'fa fa-print'},
-                        {'name': 'Status Siswa', 'link':"cbtstatus", 'icon': 'fa fa-user-clock'},
-                        {'name': 'Hasil Ujian', 'link':"cbtnilai", 'icon': 'fa fa-file-alt'},
-                        {'name': 'Analisis Soal', 'link':"cbtanalisis", 'icon': 'fa fa-chart-line'},
-                        {'name': 'Rekap Nilai', 'link':"cbtrekap", 'icon': 'fas fa-trophy'},
-                        {'name': 'Nilai Manual', 'link':"nilaimanual", 'icon': 'fas fa-pen-square'},
+                        {'name': 'Nilai Ujian', 'link': 'cbtnilai', 'icon': 'fa fa-file-alt'},
+                        {'name': 'Analisis Soal', 'link': 'cbtanalisis', 'icon': 'fa fa-chart-line'},
+                        {'name': 'Rekap Nilai', 'link': 'cbtrekap', 'icon': 'fas fa-trophy'},
+                        {'name': 'Nilai Manual', 'link': 'nilaimanual', 'icon': 'fas fa-pen-square'}
                     ]
                 },
             ]
