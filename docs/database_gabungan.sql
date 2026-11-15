@@ -1,34 +1,31 @@
 -- =====================================================================
 -- DATABASE GABUNGAN (CBT)
--- Gabungan dari 3 file SQL di folder docs/. Isi SQL TIDAK diubah.
+-- Satu file berisi semua migrasi/tabel tambahan aplikasi.
+-- Isi SQL diambil apa adanya dari file-file aslinya (tidak diubah).
 --
---   1. database_tambahan.sql  Keuangan (SPP/tagihan), keringanan,
---                             presensi, poin pelanggaran
---   2. nilai_manual.sql       Tabel nilai manual (opsional; dibuat
---                             otomatis saat menu Nilai Manual dibuka)
---   3. ujiansekolah.sql       Kapasitas ruang, token per ujian,
---                             created_by, cbt_jadwal_meta
+--   1. database_tambahan.sql    Keuangan (SPP/tagihan), keringanan, presensi, poin pelanggaran, setting pembayaran + rekening
+--   2. pembayaran-tunai.sql     Metode pembayaran tunai (cash)
+--   3. rekening-transfer.sql    Rekening tujuan transfer (idempoten; juga sudah ada di database_tambahan)
+--   4. nilai_manual.sql         Tabel nilai manual (opsional; dibuat otomatis oleh aplikasi)
+--   5. ujiansekolah.sql         Kapasitas ruang, token per ujian, created_by, cbt_jadwal_meta
 --
--- Urutan eksekusi: 1 -> 2 -> 3.
--- File asli tetap ada di folder docs/.
+-- Semua perintah aman dijalankan berulang (CREATE IF NOT EXISTS / pengecekan
+-- information_schema), kecuali bagian 5 (ujiansekolah.sql) yang memakai
+-- ALTER TABLE langsung. Bila kolomnya sudah ada, MySQL bisa melaporkan
+-- "Duplicate column name ..." — pesan itu boleh diabaikan karena kolomnya
+-- memang sudah ada.
 --
 -- Cara pakai:
 --   mysql -u root cbt < docs/database_gabungan.sql
--- atau buka file ini lewat phpMyAdmin.
+-- atau buka lewat phpMyAdmin (Import).
 --
--- BACKUP dulu:
+-- BACKUP dulu sebelum menjalankan:
 --   mysqldump -u root cbt > backup-cbt-sebelum-migrasi.sql
---
--- CATATAN:
---   - Bagian 1 & 2 aman dijalankan berulang (CREATE TABLE IF NOT EXISTS).
---   - Bagian 3 memakai ALTER TABLE. Jalankan sekali saja; jika kolom
---     sudah ada, lewati bagian 3 (modul juga membuatnya otomatis).
 -- =====================================================================
 
--- #####################################################################
--- BAGIAN 1 dari 3 - database_tambahan.sql
--- #####################################################################
-
+-- =====================================================================
+-- FILE: database_tambahan.sql
+-- =====================================================================
 -- =====================================================================
 -- DATABASE TAMBAHAN: Keuangan (SPP & tagihan), Keringanan, Presensi,
 -- Poin Pelanggaran Siswa
@@ -50,7 +47,7 @@ CREATE TABLE IF NOT EXISTS cbt_pembayaran_spp (
     bulan              VARCHAR(20)  NOT NULL,
     tahun              INT          NOT NULL,
     jumlah_bayar       DECIMAL(15,2) NOT NULL,
-    metode_pembayaran  ENUM('transfer_manual','midtrans') NOT NULL,
+    metode_pembayaran  ENUM('transfer_manual','midtrans','tunai') NOT NULL,
     status_pembayaran  ENUM('pending','success','failed') DEFAULT 'pending',
     tanggal_bayar      DATETIME     DEFAULT CURRENT_TIMESTAMP,
     bukti_transfer     VARCHAR(255) DEFAULT NULL,
@@ -95,6 +92,15 @@ SET @sql = (SELECT IF(COUNT(*) = 0,
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_pembayaran_spp' AND COLUMN_NAME = 'diverifikasi_pada');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
+-- Metode pembayaran tunai (siswa bayar cash di sekolah)
+SET @sql = (SELECT IF(COUNT(*) = 0,
+    'ALTER TABLE cbt_pembayaran_spp MODIFY COLUMN metode_pembayaran ENUM(''transfer_manual'',''midtrans'',''tunai'') NOT NULL',
+    'SELECT ''metode tunai sudah ada'' AS info')
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_pembayaran_spp'
+      AND COLUMN_NAME = 'metode_pembayaran' AND COLUMN_TYPE NOT LIKE '%tunai%');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
 -- ---------------------------------------------------------------------
 -- 2. Pengaturan nominal SPP
 -- ---------------------------------------------------------------------
@@ -102,7 +108,19 @@ CREATE TABLE IF NOT EXISTS cbt_setting_spp (
     id           INT           NOT NULL AUTO_INCREMENT,
     nominal_spp  DECIMAL(15,2) NOT NULL,
     keterangan   VARCHAR(255)  DEFAULT NULL,
+    instruksi_transfer TEXT    NULL,
     updated_at   TIMESTAMP     NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Rekening tujuan transfer manual (boleh lebih dari satu bank)
+CREATE TABLE IF NOT EXISTS cbt_rekening (
+    id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    bank       VARCHAR(50)  NOT NULL,
+    nomor      VARCHAR(50)  NOT NULL,
+    atas_nama  VARCHAR(100) NOT NULL,
+    urut       INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -110,6 +128,15 @@ CREATE TABLE IF NOT EXISTS cbt_setting_spp (
 INSERT INTO cbt_setting_spp (nominal_spp, keterangan)
 SELECT 500000, 'SPP Bulanan Default' FROM DUAL
 WHERE NOT EXISTS (SELECT 1 FROM cbt_setting_spp);
+
+-- Kolom instruksi_transfer untuk pemasangan lama
+SET @sql = (SELECT IF(COUNT(*) = 0,
+    'ALTER TABLE cbt_setting_spp ADD COLUMN instruksi_transfer TEXT NULL',
+    'SELECT ''instruksi_transfer sudah ada'' AS info')
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_setting_spp'
+      AND COLUMN_NAME = 'instruksi_transfer');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 -- ---------------------------------------------------------------------
 -- 3. Jenis tagihan, tagihan, dan keringanan
@@ -249,10 +276,65 @@ WHERE TABLE_SCHEMA = DATABASE()
                      'cbt_pelanggaran_siswa')
 ORDER BY TABLE_NAME;
 
--- #####################################################################
--- BAGIAN 2 dari 3 - nilai_manual.sql
--- #####################################################################
+-- =====================================================================
+-- FILE: pembayaran-tunai.sql
+-- =====================================================================
+-- =====================================================================
+-- PEMBAYARAN TUNAI (cash di sekolah)
+-- Menambah nilai 'tunai' pada kolom metode_pembayaran, supaya admin bisa
+-- mencatat pembayaran SPP yang dibayar tunai langsung dari menu Keuangan.
+--
+-- Aman dijalankan berulang. Backup database lebih dulu.
+--   mysql -u root cbt < docs/pembayaran-tunai.sql
+-- =====================================================================
 
+ALTER TABLE cbt_pembayaran_spp
+    MODIFY COLUMN metode_pembayaran ENUM('transfer_manual','midtrans','tunai') NOT NULL;
+
+-- Pemeriksaan
+SELECT COLUMN_TYPE AS tipe_metode_pembayaran
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE()
+  AND TABLE_NAME = 'cbt_pembayaran_spp'
+  AND COLUMN_NAME = 'metode_pembayaran';
+
+-- =====================================================================
+-- FILE: rekening-transfer.sql
+-- =====================================================================
+-- =====================================================================
+-- REKENING TUJUAN TRANSFER (untuk pembayaran SPP manual)
+-- Nomor rekening yang tampil di halaman pembayaran siswa.
+--
+-- Aman dijalankan berulang.
+--   mysql -u root cbt < docs/rekening-transfer.sql
+-- =====================================================================
+
+-- 1. Tabel rekening (boleh lebih dari satu bank)
+CREATE TABLE IF NOT EXISTS `cbt_rekening` (
+    `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `bank`       VARCHAR(50)  NOT NULL,
+    `nomor`      VARCHAR(50)  NOT NULL,
+    `atas_nama`  VARCHAR(100) NOT NULL,
+    `urut`       INT NOT NULL DEFAULT 0,
+    `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 2. Instruksi tambahan untuk siswa
+SET @sql = (SELECT IF(COUNT(*) = 0,
+    'ALTER TABLE cbt_setting_spp ADD COLUMN instruksi_transfer TEXT NULL',
+    'SELECT ''instruksi_transfer sudah ada'' AS info')
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_setting_spp'
+      AND COLUMN_NAME = 'instruksi_transfer');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- 3. Isi rekening lewat menu: Keuangan > Setting Pembayaran
+SELECT * FROM cbt_rekening ORDER BY urut, id;
+
+-- =====================================================================
+-- FILE: nilai_manual.sql
+-- =====================================================================
 -- Opsional: tabel ini dibuat OTOMATIS saat menu Nilai Manual pertama kali dibuka.
 -- Jalankan manual hanya jika Anda lebih suka membuatnya sendiri.
 CREATE TABLE IF NOT EXISTS `cbt_nilai_manual` (
@@ -283,10 +365,9 @@ CREATE TABLE IF NOT EXISTS `cbt_nilai_manual_detail` (
   UNIQUE KEY `uniq_nm_siswa` (`id_nm`,`id_siswa`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- #####################################################################
--- BAGIAN 3 dari 3 - ujiansekolah.sql
--- #####################################################################
-
+-- =====================================================================
+-- FILE: ujiansekolah.sql
+-- =====================================================================
 -- =====================================================================
 -- Migrasi modul "Ujian Sekolah" (menu Daftar Ujian)
 -- PRD: docs/PRD-UJIAN-SIMPEL.md  (Fase 0)
@@ -327,3 +408,4 @@ CREATE TABLE IF NOT EXISTS `cbt_jadwal_meta` (
     `updated`   DATETIME    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id_jadwal`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+

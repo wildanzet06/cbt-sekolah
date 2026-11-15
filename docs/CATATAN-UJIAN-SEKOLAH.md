@@ -37,7 +37,7 @@ Admin: **4 item** (menggantikan 16). Guru: **3 item** tanpa Pengaturan
 | `views/cbt/ujiansekolah/_kembali.php` | Tombol Kembali baku halaman baru |
 | `views/cbt/ujiansekolah/_kembali_lama.php` | Tombol Kembali untuk halaman lama (`?dari=`) |
 | `views/cbt/ujiansekolah/_style.php` | CSS modul |
-| `docs/ujiansekolah.sql` | Migrasi manual (juga otomatis) |
+| `docs/database_gabungan.sql` | Migrasi manual semua tabel tambahan (juga otomatis oleh aplikasi) |
 | `docs/patch-siswa-token.md` | Dokumentasi patch 1 statement token |
 | `docs/backup/` | Backup `Siswa.php` sebelum patch + dump tabel sebelum uji |
 
@@ -86,7 +86,7 @@ CREATE TABLE cbt_jadwal_meta (...);   -- pelengkap draf tanpa kumpulan soal + ca
 ```
 
 Dijalankan otomatis (idempoten) saat model dimuat, atau manual
-`docs/ujiansekolah.sql`.
+`docs/database_gabungan.sql`.
 
 ## 6. Padanan PRD → implementasi
 

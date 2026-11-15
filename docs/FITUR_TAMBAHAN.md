@@ -21,12 +21,9 @@ Fitur-fitur ini ditambahkan di atas GarudaCBT. Tidak ada tabel bawaan GarudaCBT 
 ## Cara memasang
 
 1. Pasang GarudaCBT seperti biasa lewat folder `installer`.
-2. Jalankan `docs/database_tambahan.sql` pada database aplikasi (aman dijalankan berulang).
-   Untuk pembayaran tunai, jalankan juga `docs/pembayaran-tunai.sql`
-   (menambah nilai `tunai` pada kolom `metode_pembayaran`; otomatis juga dijalankan
-   oleh aplikasi saat pembayaran tunai pertama disimpan).
-   Untuk rekening tujuan transfer, jalankan `docs/rekening-transfer.sql`
-   (tabel `cbt_rekening` + kolom instruksi; juga dibuat otomatis oleh aplikasi).
+2. Jalankan `docs/database_gabungan.sql` pada database aplikasi — satu file berisi semua
+   tabel/migrasi tambahan (keuangan, tagihan, presensi, poin pelanggaran, nilai manual,
+   ujian sekolah, pembayaran tunai, rekening). Aman dijalankan berulang.
    Nomor rekening **diisi lewat aplikasi**: menu *Keuangan → Setting Pembayaran*.
 3. Salin `application/config/midtrans.php.example` menjadi `application/config/midtrans.php`, lalu isi kunci Midtrans.
    File `midtrans.php` **tidak ikut** repositori karena berisi kunci rahasia.

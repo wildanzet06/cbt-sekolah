@@ -4,7 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 /**
  * Model poin pelanggaran siswa.
  *
- * Tabel utama: cbt_pelanggaran_siswa (dibuat oleh docs/database_tambahan.sql).
+ * Tabel utama: cbt_pelanggaran_siswa (dibuat oleh docs/database_gabungan.sql).
  * Model ini hanya membaca data siswa/kelas yang sudah ada dan tidak mengubahnya.
  */
 class Pelanggaran_model extends CI_Model {
@@ -17,7 +17,7 @@ class Pelanggaran_model extends CI_Model {
     /**
      * Pastikan tabel cbt_pelanggaran_siswa ada.
      *
-     * Tabel ini bagian dari docs/database_tambahan.sql. Bila database pernah
+     * Tabel ini bagian dari docs/database_gabungan.sql. Bila database pernah
      * dipulihkan dari dump lama (tabel tambahan hilang), halaman tidak boleh
      * gagal dengan "Table ... doesn't exist" — cukup dibuat ulang di sini
      * (idempoten, tanpa mengubah data yang sudah ada).

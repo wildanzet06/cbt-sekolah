@@ -47,8 +47,8 @@ Perbaikan:
 - `installer/.htaccess`: hanya boleh diakses dari `127.0.0.1`/`::1`.
 
 ### K3. Skema & cadangan database dapat diunduh — **DIPERBAIKI**
-`docs/database_tambahan.sql`, `docs/database_gabungan.sql`,
-`docs/ujiansekolah.sql`, `assets/app/db/master.sql`, dan
+`docs/database_gabungan.sql` (kini satu-satunya file migrasi),
+`assets/app/db/master.sql`, dan
 `docs/backup/sebelum-pembagian-peserta.sql` (berisi NIS/nama siswa) merespons 200.
 
 Perbaikan: `docs/.htaccess` menolak semua; `.htaccess` root memblokir ekstensi
