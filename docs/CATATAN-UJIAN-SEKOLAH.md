@@ -52,6 +52,8 @@ Admin: **4 item** (menggantikan 16). Guru: **3 item** tanpa Pengaturan
 | `views/cbt/banksoal/data.php` | tambah tombol Kembali (`?dari=`) |
 | `views/cbt/cetak/data.php` | tambah tombol Kembali (`?dari=`) |
 | `views/cbt/ruang/data.php` | tambah tombol Kembali (`?dari=`) — PRD 4.7 secara eksplisit meminta ini |
+| `views/_templates/dashboard/_header.php` | mode **embed** opsional (`?embed=1`): navbar & sidebar tidak dirender, konten selebar penuh — dipakai tab Hasil Ujian |
+| `views/members/guru/templates/header.php` | sama untuk tampilan guru |
 | `controllers/Nilaimanual.php`, `models/Nilaimanual_model.php`, `views/cbt/nilaimanual/data.php` | perbaikan variabel `tp_active`/`smt_active` agar halaman Nilai Manual bersih saat ditampilkan di tab Hasil Ujian |
 
 Tidak ada controller/model obfuscated lain yang diubah.
@@ -92,7 +94,7 @@ Dijalankan otomatis (idempoten) saat model dimuat, atau manual
 |---|---|
 | 4.1/4.2 sidebar 4 & 3 item | `sidebar.php` admin & guru |
 | 4.3 Pengaturan 5 tab | `pengaturan.php` + 5 partial tab |
-| 4.4 Hasil 4 tab | `hasil.php` (iframe halaman lama, dimuat saat tab dibuka) |
+| 4.4 Hasil 4 tab | `hasil.php` (halaman lama dimuat di dalam tab dengan `?embed=1`, jadi **tanpa sidebar ganda**) |
 | 4.5 peta 16 menu | Semua fitur tercapai lewat 4 submenu; tidak ada yang hilang |
 | 4.7 tanpa tab browser | 0 `target="_blank"`/`window.open`; tombol Kembali di semua halaman |
 | 5.1 Daftar Ujian | Kartu + 5 chip + status + filter + pencarian + banner guru + token hari ini; "Lengkapi Persiapan" membuka wizard di langkah yang kurang |
@@ -113,7 +115,7 @@ Dijalankan otomatis (idempoten) saat model dimuat, atau manual
 |---|---|
 | Render 31 halaman (modul + 16 halaman lama) | **0 notice/error PHP** |
 | Tab Pengaturan | 5 nav-tab, 5 pane, tanpa reload |
-| Tab Hasil | 4 tab, iframe dimuat saat tab dibuka (lazy) |
+| Tab Hasil | 4 tab, halaman dimuat saat tab dibuka, **tanpa sidebar/navbar di dalam tab** (`?embed=1`) |
 | `target="_blank"` / `window.open` di modul | **0** |
 | Tombol Kembali | wizard, pengaturan, hasil, pantau, kumpulan soal, cetak, ruang — semua ada |
 | `sesisimpan` | simpan OK; jam `25:99` ditolak |

@@ -1,3 +1,10 @@
+<?php
+/**
+ * Mode "embed": halaman lama ditampilkan di dalam tab Hasil Ujian.
+ * Navbar + sidebar tidak dirender agar tidak muncul sidebar ganda di dalam halaman.
+ */
+$__embed = (bool)$this->input->get('embed');
+?>
 <!DOCTYPE html>
 <html>
 
@@ -110,6 +117,14 @@
         }
     </style>
     <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/blue-gray-theme.css">
+    <?php if ($__embed): ?>
+        <style>
+            /* Mode embed: tanpa navbar/sidebar, konten memakai lebar penuh. */
+            .content-wrapper { margin-left: 0 !important; min-height: 100vh; }
+            .main-footer { display: none !important; }
+            body { background: #fff; }
+        </style>
+    <?php endif; ?>
 </head>
 
 <script>
@@ -273,9 +288,11 @@ function singkat_tanggal($str)
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed text-sm" spellcheck="false" onload="startTime()">
 <div class="wrapper">
 
-    <!-- Navbar -->
-    <?php require_once("navbar.php"); ?>
+    <?php if (!$__embed): ?>
+        <!-- Navbar -->
+        <?php require_once("navbar.php"); ?>
 
-    <!-- Sidebar -->
-    <?php require_once("sidebar.php"); ?>
-    <!-- /.sidebar -->
+        <!-- Sidebar -->
+        <?php require_once("sidebar.php"); ?>
+        <!-- /.sidebar -->
+    <?php endif; ?>

@@ -38,7 +38,7 @@ $this->load->view('cbt/ujiansekolah/_style');
                                 <a class="nav-link <?= $tab === $kunci ? 'active' : '' ?>"
                                    id="tab-link-<?= $kunci ?>" data-toggle="tab"
                                    href="#pane-<?= $kunci ?>" role="tab"
-                                   data-src="<?= base_url($info[2] . '?dari=hasil') ?>">
+                                   data-src="<?= base_url($info[2] . '?dari=hasil&embed=1') ?>">
                                     <i class="<?= $info[1] ?> mr-1"></i><?= html_escape($info[0]) ?>
                                 </a>
                             </li>
@@ -50,7 +50,7 @@ $this->load->view('cbt/ujiansekolah/_style');
                         <?php foreach ($tabs as $kunci => $info): ?>
                             <div class="tab-pane fade <?= $tab === $kunci ? 'show active' : '' ?>"
                                  id="pane-<?= $kunci ?>" role="tabpanel"
-                                 data-src="<?= base_url($info[2] . '?dari=hasil') ?>">
+                                 data-src="<?= base_url($info[2] . '?dari=hasil&embed=1') ?>">
                                 <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
                                     <div class="text-muted small">
                                         <i class="fas fa-info-circle mr-1"></i>
