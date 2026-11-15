@@ -114,25 +114,9 @@ $__embed = (bool)$this->input->get('embed');
         .linker-list p {
             margin-bottom: .5rem;
             margin-top: .5rem;
-        }
-
-        /* Navbar lebih ringkas di HP: jam disembunyikan agar TP/Smt tidak terlipat */
-        @media (max-width: 575.98px) {
-            .main-header #live-clock {
-                display: none !important;
-            }
-
-            .main-header .navbar-nav .nav-link {
-                font-size: .78rem;
-                padding-left: .4rem;
-                padding-right: .4rem;
-                white-space: normal;
-                line-height: 1.25;
-            }
-        }
-    </style>
+        }</style>
     <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/blue-gray-theme.css">
-    <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/keuangan.css">
+    <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/ui-rapi.css">
     <?php if ($__embed): ?>
         <style>
             /* Mode embed: tanpa navbar/sidebar, konten memakai lebar penuh. */

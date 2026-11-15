@@ -1,0 +1,376 @@
+/* ============================================================
+   Penyelarasan tampilan aplikasi: tombol, toolbar, tabel, form.
+
+   Dimuat di semua halaman (admin & guru). Tujuannya:
+   1. Baris tombol aksi selalu rapi dan tidak berantakan di layar sempit.
+   2. Toolbar di dalam card tidak meluber.
+   3. Tabel & DataTables nyaman digeser di HP.
+   4. Markup lama (sisa Bootstrap 3) tetap tampil wajar.
+   ============================================================ */
+
+/* ------------------------------------------------------------------
+   1. Baris tombol aksi (dipakai dengan class .page-aksi)
+   ------------------------------------------------------------------ */
+.page-aksi {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    margin: -.25rem;
+}
+
+.page-aksi > .btn,
+.page-aksi > .btn-group,
+.page-aksi > form {
+    margin: .25rem;
+}
+
+.page-aksi > .btn {
+    /* Dua tombol per baris di HP; tombol yang sendirian memenuhi barisnya. */
+    flex: 1 1 calc(50% - .5rem);
+    min-width: 0;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .85rem;
+    padding: .375rem .5rem;
+}
+
+.page-aksi > .btn i {
+    margin-right: .35rem;
+}
+
+.page-aksi > form > .btn {
+    width: 100%;
+}
+
+@media (min-width: 768px) {
+    .page-aksi {
+        justify-content: flex-end;
+    }
+
+    .page-aksi > .btn {
+        flex: 0 0 auto;
+        max-width: none;
+        font-size: .875rem;
+        padding: .375rem .75rem;
+    }
+}
+
+/* ------------------------------------------------------------------
+   2. Baris aksi di header halaman (otomatis, tanpa perlu ubah markup)
+   ------------------------------------------------------------------ */
+.content-header .text-right,
+.content-header .float-right,
+.content-header .pull-right {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    margin: -.25rem;
+}
+
+.content-header .text-right > *,
+.content-header .float-right > *,
+.content-header .pull-right > * {
+    margin: .25rem;
+}
+
+@media (max-width: 575.98px) {
+    .content-header .text-right > .btn,
+    .content-header .text-right > form,
+    .content-header .float-right > .btn,
+    .content-header .float-right > form,
+    .content-header .pull-right > .btn,
+    .content-header .pull-right > form {
+        flex: 1 1 calc(50% - .5rem);
+        text-align: center;
+    }
+
+    .content-header .text-right > form > .btn,
+    .content-header .float-right > form > .btn,
+    .content-header .pull-right > form > .btn {
+        width: 100%;
+    }
+}
+
+/* ------------------------------------------------------------------
+   3. Toolbar di dalam card (card-tools) tidak meluber
+   ------------------------------------------------------------------ */
+.card-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.card-header > .card-title {
+    margin-right: auto;
+}
+
+.card-header .card-tools {
+    float: none;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    margin-left: auto;
+}
+
+.card-header .card-tools > * {
+    margin-left: .35rem;
+    margin-bottom: .15rem;
+}
+
+.card-header .card-tools > *:first-child {
+    margin-left: 0;
+}
+
+@media (max-width: 575.98px) {
+    .card-header {
+        padding: .5rem .75rem;
+    }
+
+    .card-header .card-tools {
+        width: 100%;
+        justify-content: flex-start;
+        margin-left: 0;
+        margin-top: .35rem;
+    }
+
+    .card-header .card-tools > * {
+        margin-left: 0;
+        margin-right: .35rem;
+    }
+}
+
+/* ------------------------------------------------------------------
+   4. Spasi tombol di dalam tabel & toolbar DataTables
+   ------------------------------------------------------------------ */
+.table .btn {
+    margin-bottom: .1rem;
+}
+
+.table .btn + .btn,
+.table .btn + form,
+.table form + .btn {
+    margin-left: .25rem;
+}
+
+.dt-buttons {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.dt-buttons .btn {
+    margin: 0 .25rem .25rem 0;
+}
+
+/* ------------------------------------------------------------------
+   5. Form filter (form-inline) menumpuk rapi di HP
+   ------------------------------------------------------------------ */
+@media (max-width: 575.98px) {
+    .form-inline {
+        display: block;
+    }
+
+    .form-inline > .form-control,
+    .form-inline > .custom-select,
+    .form-inline > select,
+    .form-inline > input,
+    .form-inline > .form-group,
+    .form-inline > .input-group,
+    .form-inline > .btn {
+        width: 100%;
+        margin: .25rem 0 !important;
+    }
+
+    .form-inline > label {
+        display: block;
+        margin: .25rem 0 0;
+    }
+
+    /* Grid filter yang memakai .form-row (class bantu) */
+    .filter-keuangan .form-row > [class*="col-"] {
+        margin-bottom: .5rem;
+    }
+
+    .filter-keuangan .form-check {
+        margin-bottom: .5rem;
+    }
+}
+
+/* ------------------------------------------------------------------
+   6. Tabel & DataTables di HP
+   ------------------------------------------------------------------ */
+.card > .card-body > .table-responsive,
+.card > .card-body.table-responsive {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.table-responsive > .table {
+    margin-bottom: 0;
+}
+
+@media (max-width: 575.98px) {
+    .table-responsive > .table > thead > tr > th,
+    .table-responsive > .table > tbody > tr > td {
+        white-space: nowrap;
+        font-size: .85rem;
+        padding: .45rem .5rem;
+    }
+
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        text-align: left !important;
+        float: none !important;
+        padding: .35rem 0;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .dataTables_wrapper .dataTables_length select {
+        width: auto;
+        display: inline-block;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        padding: .3rem .55rem;
+    }
+
+    .info-box {
+        min-height: 70px;
+        margin-bottom: .75rem;
+    }
+
+    .info-box .info-box-icon {
+        width: 60px;
+        font-size: 1.4rem;
+        line-height: 70px;
+    }
+
+    .info-box .info-box-content {
+        padding: .5rem .75rem;
+    }
+
+    .small-box h3 {
+        font-size: 1.6rem;
+    }
+
+    .table .btn-xs,
+    .table .btn-sm {
+        padding: .2rem .4rem;
+        font-size: .75rem;
+    }
+}
+
+/* ------------------------------------------------------------------
+   7. Kompatibilitas markup lama (sisa Bootstrap 3)
+   ------------------------------------------------------------------ */
+.box {
+    background: #fff;
+    border-radius: .25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .12);
+    margin-bottom: 1rem;
+    border-top: 3px solid #dee2e6;
+}
+
+.box.box-primary { border-top-color: #007bff; }
+.box.box-info { border-top-color: #17a2b8; }
+.box.box-success { border-top-color: #28a745; }
+.box.box-warning { border-top-color: #ffc107; }
+.box.box-danger { border-top-color: #dc3545; }
+
+.box > .box-header {
+    padding: .75rem 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.box > .box-header > .box-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.box > .box-body { padding: 1rem; }
+
+.box > .box-footer {
+    padding: .75rem 1rem;
+    border-top: 1px solid #e9ecef;
+    background: #f8f9fa;
+    border-radius: 0 0 .25rem .25rem;
+}
+
+.pull-right { float: right; }
+.pull-left { float: left; }
+
+.row > .col-xs-12 { flex: 0 0 100%; max-width: 100%; }
+.row > .col-xs-9 { flex: 0 0 75%; max-width: 75%; }
+.row > .col-xs-8 { flex: 0 0 66.666667%; max-width: 66.666667%; }
+.row > .col-xs-6 { flex: 0 0 50%; max-width: 50%; }
+.row > .col-xs-4 { flex: 0 0 33.333333%; max-width: 33.333333%; }
+.row > .col-xs-3 { flex: 0 0 25%; max-width: 25%; }
+
+.label {
+    display: inline-block;
+    padding: .25em .5em;
+    font-size: 75%;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: .25rem;
+}
+
+.label-default { background: #6c757d; color: #fff; }
+.label-primary { background: #007bff; color: #fff; }
+.label-success { background: #28a745; color: #fff; }
+.label-info { background: #17a2b8; color: #fff; }
+.label-warning { background: #ffc107; color: #212529; }
+.label-danger { background: #dc3545; color: #fff; }
+
+.btn-xs,
+.btn-group-xs > .btn {
+    padding: .18rem .4rem;
+    font-size: .75rem;
+    line-height: 1.5;
+    border-radius: .2rem;
+}
+
+/* ------------------------------------------------------------------
+   8. Navbar lebih ringkas di HP
+   ------------------------------------------------------------------ */
+@media (max-width: 575.98px) {
+    .main-header #live-clock {
+        display: none !important;
+    }
+
+    .main-header .navbar-nav .nav-link {
+        font-size: .78rem;
+        padding-left: .4rem;
+        padding-right: .4rem;
+        white-space: normal;
+        line-height: 1.25;
+    }
+}
+
+/* ------------------------------------------------------------------
+   9. Modal: footer tombol tidak mepet
+   ------------------------------------------------------------------ */
+.modal-footer {
+    flex-wrap: wrap;
+}
+
+.modal-footer > .btn,
+.modal-footer > form {
+    margin: .15rem;
+}
+
+.modal-body .form-group:last-child {
+    margin-bottom: 0;
+}
