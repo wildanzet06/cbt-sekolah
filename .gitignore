@@ -78,3 +78,5 @@ uploads/import/format/*
 !uploads/import/format/*.xlsx
 !uploads/import/format/*.docx
 !uploads/import/format/*.pdf
+# Berkas proteksi folder upload harus ikut ter-commit
+!uploads/.htaccess

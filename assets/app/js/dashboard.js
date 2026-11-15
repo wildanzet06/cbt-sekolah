@@ -1,5 +1,20 @@
 let halaman = 0;
 
+/**
+ * Escape teks sebelum dimasukkan ke HTML.
+ * Komentar/balasan berasal dari pengguna (termasuk siswa), jadi wajib
+ * di-escape agar tidak menjadi celah XSS di dashboard admin/guru.
+ */
+function esc(s) {
+    if (s === null || s === undefined) return '';
+    return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 function createTime(d) {
     var date = new Date(d);
 
@@ -61,8 +76,8 @@ function addComments(id, comments, append) {
             + avatar +
             '    <div class="w-100 ml-2">' +
             '        <div class="media-body border pl-3 bg-light" style="border-radius: 20px">' +
-            '            <span class="text-xs text-muted"><b>' + dari + '</b></span>' +
-            '            <div class="comment-text pb-1">' + v.text + '</div>' +
+            '            <span class="text-xs text-muted"><b>' + esc(dari) + '</b></span>' +
+            '            <div class="comment-text pb-1">' + esc(v.text) + '</div>' +
             '        </div>' +
             '        <div class="ml-2">' +
             '            <span class="btn-sm mr-2 text-muted">' + createTime(v.tanggal) + '</span>' +
@@ -135,8 +150,8 @@ function addReplies(id, replies, append) {
                 + avatar +
                 '    <div class="w-100">' +
                 '        <div class="media-body border pl-3" style="border-radius: 17px; background-color: #dee2e6">' +
-                '            <span class="text-xs text-muted"><b>'+dari+'</b></span>' +
-                '            <div class="comment-text">' + v.text +
+                '            <span class="text-xs text-muted"><b>'+esc(dari)+'</b></span>' +
+                '            <div class="comment-text">' + esc(v.text) +
                 '            </div>' +
                 '        </div>' +
                 '        <div class="ml-2">' +
@@ -242,7 +257,7 @@ function addPosts(response) {
                 '        <div class="media">' +
                 avatar +
                 '                <div class="media-body ml-3">' +
-                '                    <span class="font-weight-bold"><b>'+dari+'</b></span>' +
+                '                    <span class="font-weight-bold"><b>'+esc(dari)+'</b></span>' +
                 '                    <br/>' +
                 '                    <span class="text-gray">' + createTime(v.tanggal) + '</span>' +
                 '                </div>' +

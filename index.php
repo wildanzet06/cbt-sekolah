@@ -37,7 +37,30 @@
  */
 
 $envs = ['development', 'testing', 'production'];
-define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : $envs[0]);
+
+/*
+ * Default aman: aplikasi berjalan di mode "production" sehingga error tidak
+ * ditampilkan ke pengguna (tidak membocorkan query SQL / path file).
+ * Mode "development" otomatis dipakai hanya saat diakses dari komputer lokal
+ * (localhost / 127.0.0.1 / *.test / *.local) atau bila CI_ENV diisi.
+ */
+$__env = getenv('CI_ENV');
+if ($__env === false || $__env === '') {
+    $__env = isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : '';
+}
+if ($__env === '') {
+    $__host = isset($_SERVER['HTTP_HOST']) ? strtolower($_SERVER['HTTP_HOST']) : '';
+    $__host = preg_replace('/:\d+$/', '', $__host);
+    $__lokal = ($__host === '')
+        || $__host === 'localhost'
+        || $__host === '127.0.0.1'
+        || $__host === '[::1]'
+        || $__host === '::1'
+        || substr($__host, -5) === '.test'
+        || substr($__host, -6) === '.local';
+    $__env = $__lokal ? 'development' : 'production';
+}
+define('ENVIRONMENT', in_array($__env, $envs, true) ? $__env : 'production');
 
 switch (ENVIRONMENT) {
     case 'development':

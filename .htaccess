@@ -1,5 +1,44 @@
 RewriteEngine On
+
+# =====================================================================
+# Pengerasan keamanan
+# =====================================================================
+
+# Jangan tampilkan daftar isi folder
+Options -Indexes
+
+# Blokir metadata repository & file dotfile (.git, .env, .idea, dst.)
+RewriteRule (^|/)\.(git|svn|hg|env|htaccess|htpasswd|idea|vscode)(/|$) - [F,L]
+
+# Blokir file dokumentasi/konfigurasi yang tidak perlu diakses lewat web
+RewriteRule ^(composer\.(json|lock)|options\.json|package(-lock)?\.json|README[^/]*|LICEN[CS]E[^/]*|contributing\.md|plus\.md|_Sidebar\.md)$ - [F,L]
+
+# Blokir folder dokumentasi (berisi skema & catatan internal)
+RewriteRule ^docs/ - [F,L]
+
+# Aplikasi tetap jalan seperti biasa
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php/$1 [L]
 
+# =====================================================================
+# Blokir ekstensi berbahaya (berlaku juga untuk subfolder)
+# =====================================================================
+<FilesMatch "\.(sql|md|log|lock|ini|bak|old|orig|sh|bat|ps1|dist)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# =====================================================================
+# Header keamanan dasar
+# =====================================================================
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
