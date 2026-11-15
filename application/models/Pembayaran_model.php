@@ -368,4 +368,87 @@ class Pembayaran_model extends CI_Model {
         $this->db->delete('cbt_pembayaran_spp');
         return $this->db->affected_rows() > 0;
     }
+
+    // =====================================================================
+    // REKENING TUJUAN TRANSFER (ditampilkan ke siswa)
+    // =====================================================================
+
+    /** Pastikan tabel rekening & kolom instruksi transfer tersedia (idempoten). */
+    private function pastikan_tabel_rekening() {
+        if (!$this->db->table_exists('cbt_rekening')) {
+            $this->db->query("CREATE TABLE IF NOT EXISTS `cbt_rekening` (
+                `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                `bank`       VARCHAR(50)  NOT NULL,
+                `nomor`      VARCHAR(50)  NOT NULL,
+                `atas_nama`  VARCHAR(100) NOT NULL,
+                `urut`       INT NOT NULL DEFAULT 0,
+                `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+        if (!$this->db->field_exists('instruksi_transfer', 'cbt_setting_spp')) {
+            $this->db->query("ALTER TABLE `cbt_setting_spp` ADD COLUMN `instruksi_transfer` TEXT NULL");
+        }
+    }
+
+    /** Daftar rekening tujuan transfer, urut sesuai kolom `urut`. */
+    public function rekening_all() {
+        $this->pastikan_tabel_rekening();
+        return $this->db->order_by('urut', 'ASC')->order_by('id', 'ASC')
+            ->get('cbt_rekening')->result();
+    }
+
+    /**
+     * Ganti seluruh daftar rekening.
+     * $rows = array(array('bank'=>..,'nomor'=>..,'atas_nama'=>..), ...)
+     * Baris yang bank/nomor/atas nama-nya kosong diabaikan.
+     */
+    public function rekening_ganti(array $rows) {
+        $this->pastikan_tabel_rekening();
+
+        // Hormati urutan baris dari form (key array POST tidak selalu berurutan)
+        usort($rows, function ($a, $b) {
+            $ua = isset($a['urut']) ? (int) $a['urut'] : 0;
+            $ub = isset($b['urut']) ? (int) $b['urut'] : 0;
+            return $ua - $ub;
+        });
+
+        $data = array();
+        $urut = 0;
+        foreach ($rows as $r) {
+            $bank  = trim(isset($r['bank']) ? (string) $r['bank'] : '');
+            $nomor = trim(isset($r['nomor']) ? (string) $r['nomor'] : '');
+            $nama  = trim(isset($r['atas_nama']) ? (string) $r['atas_nama'] : '');
+            if ($bank === '' && $nomor === '' && $nama === '') {
+                continue;
+            }
+            if ($bank === '' || $nomor === '' || $nama === '') {
+                return array('ok' => false, 'msg' => 'Bank, nomor rekening, dan atas nama harus diisi lengkap.');
+            }
+            $data[] = array(
+                'bank'      => mb_substr($bank, 0, 50),
+                'nomor'     => mb_substr($nomor, 0, 50),
+                'atas_nama' => mb_substr($nama, 0, 100),
+                'urut'      => $urut++
+            );
+        }
+
+        $this->db->trans_start();
+        $this->db->truncate('cbt_rekening');
+        foreach ($data as $d) {
+            $this->db->insert('cbt_rekening', $d);
+        }
+        $this->db->trans_complete();
+
+        if (!$this->db->trans_status()) {
+            return array('ok' => false, 'msg' => 'Gagal menyimpan rekening (kesalahan database).');
+        }
+        return array('ok' => true, 'msg' => count($data) . ' rekening tujuan transfer disimpan.');
+    }
+
+    /** Satu baris pengaturan SPP (nominal, keterangan, instruksi transfer). */
+    public function setting_spp() {
+        $this->pastikan_tabel_rekening();
+        return $this->db->get('cbt_setting_spp')->row();
+    }
 }

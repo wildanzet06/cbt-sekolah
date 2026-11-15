@@ -25,6 +25,9 @@ Fitur-fitur ini ditambahkan di atas GarudaCBT. Tidak ada tabel bawaan GarudaCBT 
    Untuk pembayaran tunai, jalankan juga `docs/pembayaran-tunai.sql`
    (menambah nilai `tunai` pada kolom `metode_pembayaran`; otomatis juga dijalankan
    oleh aplikasi saat pembayaran tunai pertama disimpan).
+   Untuk rekening tujuan transfer, jalankan `docs/rekening-transfer.sql`
+   (tabel `cbt_rekening` + kolom instruksi; juga dibuat otomatis oleh aplikasi).
+   Nomor rekening **diisi lewat aplikasi**: menu *Keuangan → Setting Pembayaran*.
 3. Salin `application/config/midtrans.php.example` menjadi `application/config/midtrans.php`, lalu isi kunci Midtrans.
    File `midtrans.php` **tidak ikut** repositori karena berisi kunci rahasia.
 4. Poin pelanggaran memakai tabel `cbt_pelanggaran_siswa` yang juga dibuat pada langkah 2.

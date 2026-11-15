@@ -197,7 +197,27 @@ $rp = function ($n) { return 'Rp ' . number_format((float) $n, 0, ',', '.'); };
                 </div>
 
                 <div id="blok_manual">
-                    <p class="text-muted small">Transfer ke BCA 1234567890 a.n Sekolah, lalu upload bukti.</p>
+                    <?php if (!empty($rekening)): ?>
+                        <div class="small text-muted mb-1">Transfer ke salah satu rekening berikut, lalu unggah bukti:</div>
+                        <ul class="list-unstyled mb-2">
+                            <?php foreach ($rekening as $rk): ?>
+                                <li class="border rounded px-2 py-1 mb-1">
+                                    <b><?= html_escape($rk->bank); ?></b>
+                                    <span class="text-monospace"><?= html_escape($rk->nomor); ?></span>
+                                    <span class="text-muted d-block small">a.n. <?= html_escape($rk->atas_nama); ?></span>
+                                </li>
+                            <?php endforeach; ?>
+                        </ul>
+                        <?php if (!empty($setting_spp) && !empty($setting_spp->instruksi_transfer)): ?>
+                            <div class="alert alert-light border py-2 small mb-2">
+                                <?= nl2br(html_escape($setting_spp->instruksi_transfer)); ?>
+                            </div>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <div class="alert alert-warning py-2 small mb-2">
+                            Nomor rekening tujuan transfer belum diatur. Hubungi bagian keuangan sekolah.
+                        </div>
+                    <?php endif; ?>
                     <div class="form-group mb-0">
                         <label>Upload bukti (JPG/PNG/PDF, maks 2MB)</label>
                         <input type="file" name="bukti_transfer" id="f_bukti" class="form-control" accept="image/*,.pdf">

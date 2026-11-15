@@ -80,7 +80,19 @@ CREATE TABLE IF NOT EXISTS cbt_setting_spp (
     id           INT           NOT NULL AUTO_INCREMENT,
     nominal_spp  DECIMAL(15,2) NOT NULL,
     keterangan   VARCHAR(255)  DEFAULT NULL,
+    instruksi_transfer TEXT    NULL,
     updated_at   TIMESTAMP     NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Rekening tujuan transfer manual (boleh lebih dari satu bank)
+CREATE TABLE IF NOT EXISTS cbt_rekening (
+    id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    bank       VARCHAR(50)  NOT NULL,
+    nomor      VARCHAR(50)  NOT NULL,
+    atas_nama  VARCHAR(100) NOT NULL,
+    urut       INT NOT NULL DEFAULT 0,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -88,6 +100,15 @@ CREATE TABLE IF NOT EXISTS cbt_setting_spp (
 INSERT INTO cbt_setting_spp (nominal_spp, keterangan)
 SELECT 500000, 'SPP Bulanan Default' FROM DUAL
 WHERE NOT EXISTS (SELECT 1 FROM cbt_setting_spp);
+
+-- Kolom instruksi_transfer untuk pemasangan lama
+SET @sql = (SELECT IF(COUNT(*) = 0,
+    'ALTER TABLE cbt_setting_spp ADD COLUMN instruksi_transfer TEXT NULL',
+    'SELECT ''instruksi_transfer sudah ada'' AS info')
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_setting_spp'
+      AND COLUMN_NAME = 'instruksi_transfer');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 -- ---------------------------------------------------------------------
 -- 3. Jenis tagihan, tagihan, dan keringanan

@@ -178,8 +178,9 @@ class Pembayaran extends CI_Controller {
     public function setting_spp() {
         if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak');
 
-        $data = $this->_admin_data('Setting SPP');
-        $data['setting_spp'] = $this->db->get('cbt_setting_spp')->row();
+        $data = $this->_admin_data('Setting Pembayaran SPP');
+        $data['setting_spp'] = $this->Pembayaran_model->setting_spp();
+        $data['rekening']    = $this->Pembayaran_model->rekening_all();
 
         $this->_render_admin('pembayaran/setting_spp', $data);
     }
@@ -204,10 +205,13 @@ class Pembayaran extends CI_Controller {
             'nominal_spp' => $nominal,
             'keterangan'  => trim((string) $this->input->post('keterangan'))
         );
+        if ($this->db->field_exists('instruksi_transfer', 'cbt_setting_spp')) {
+            $data['instruksi_transfer'] = trim((string) $this->input->post('instruksi_transfer'));
+        }
 
         // Tabel ini hanya berisi satu baris pengaturan. Update baris yang ada;
         // jika belum ada (instalasi baru), buat barisnya.
-        $row = $this->db->get('cbt_setting_spp')->row();
+        $row = $this->Pembayaran_model->setting_spp();
         if ($row) {
             $this->db->where('id', $row->id);
             $this->db->update('cbt_setting_spp', $data);
@@ -215,7 +219,35 @@ class Pembayaran extends CI_Controller {
             $this->db->insert('cbt_setting_spp', $data);
         }
 
-        $this->session->set_flashdata('success', 'Setting SPP berhasil diupdate');
+        $this->session->set_flashdata('success', 'Setting pembayaran berhasil diupdate');
+        redirect('pembayaran/setting_spp');
+    }
+
+    /** Simpan daftar rekening tujuan transfer (POST dari halaman setting). */
+    public function simpan_rekening() {
+        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak');
+        if ($this->input->method() !== 'post') {
+            redirect('pembayaran/setting_spp');
+            return;
+        }
+
+        $banks  = (array) $this->input->post('bank');
+        $nomors = (array) $this->input->post('nomor');
+        $namas  = (array) $this->input->post('atas_nama');
+
+        $rows = array();
+        foreach ($banks as $i => $bank) {
+            $rows[] = array(
+                'bank'      => isset($bank) ? $bank : '',
+                'nomor'     => isset($nomors[$i]) ? $nomors[$i] : '',
+                'atas_nama' => isset($namas[$i]) ? $namas[$i] : '',
+                // Simpan urutan asli dari form (bukan urutan iterasi array POST)
+                'urut'      => (int) $i
+            );
+        }
+
+        $hasil = $this->Pembayaran_model->rekening_ganti($rows);
+        $this->session->set_flashdata($hasil['ok'] ? 'success' : 'error', $hasil['msg']);
         redirect('pembayaran/setting_spp');
     }
 
@@ -581,7 +613,10 @@ class Pembayaran extends CI_Controller {
         $data['smt']         = $this->dashboard->getSemester();
         $data['smt_active']  = $this->dashboard->getSemesterActive();
         $data['title']       = 'Pembayaran Sekolah';
-        $data['setting_spp'] = $this->db->get('cbt_setting_spp')->row();
+        $data['judul']       = 'Pembayaran Sekolah';
+        $data['running_text'] = $this->dashboard->getRunningText();
+        $data['setting_spp'] = $this->Pembayaran_model->setting_spp();
+        $data['rekening']    = $this->Pembayaran_model->rekening_all();
         $data['tagihan']     = $this->Tagihan_model->tagihan_siswa($siswa->id_siswa);
         $data['riwayat']     = $this->Pembayaran_model->get_riwayat_siswa($siswa->id_siswa);
         $data['min_cicilan'] = self::MIN_CICILAN;

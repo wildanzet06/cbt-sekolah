@@ -81,7 +81,7 @@
                             {'name': 'Buat Tagihan', 'link': 'tagihan/buat', 'icon': 'fas fa-plus-circle'},
                             {'name': 'Jenis Tagihan', 'link': 'tagihan/jenis', 'icon': 'fas fa-tags'},
                             {'name': 'Keringanan Siswa', 'link': 'tagihan/keringanan', 'icon': 'fas fa-hand-holding-heart'},
-                            {'name': 'Setting Nominal SPP', 'link': 'pembayaran/setting_spp', 'icon': 'fas fa-cog'},
+                            {'name': 'Setting Pembayaran', 'link': 'pembayaran/setting_spp', 'icon': 'fas fa-cog'},
                             {'name': 'Laporan SPP', 'link': 'pembayaran/laporan', 'icon': 'fas fa-file-alt'}
                         ]
                     },
