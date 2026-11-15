@@ -275,6 +275,52 @@
                     </div>
                 </div>
             </div>
+            <?php if ($this->ion_auth->is_admin()): ?>
+                <!-- Pemberitahuan ujian buatan guru (PRD 5.1). Dashboard_model tidak diubah;
+                     data diambil lewat AJAX ke endpoint modul Ujian Sekolah. -->
+                <div class="row d-none" id="kartu-ujian-guru">
+                    <div class="col-12">
+                        <div class="card card-light my-shadow mb-3">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <b>UJIAN BARU DARI GURU</b>
+                                <a href="<?= base_url('ujiansekolah') ?>" class="btn btn-sm btn-default">
+                                    Lihat semua
+                                </a>
+                            </div>
+                            <div class="card-body p-0">
+                                <div id="list-ujian-guru"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    (function () {
+                        var URL = '<?= base_url('ujiansekolah/notif') ?>';
+                        $.getJSON(URL, function (r) {
+                            if (!r || !r.status || !r.items || r.items.length === 0) {
+                                return;
+                            }
+                            var $w = $('#list-ujian-guru').empty();
+                            $.each(r.items, function (i, u) {
+                                var $a = $('<a href="#">')
+                                    .addClass('d-flex justify-content-between align-items-center px-3 py-2 border-bottom text-dark')
+                                    .attr('href', u.url);
+                                var $kiri = $('<div>');
+                                $kiri.append($('<b>').text(u.judul));
+                                if (u.kelas) {
+                                    $kiri.append($('<span>').addClass('text-muted').text(' — Kelas ' + u.kelas));
+                                }
+                                $kiri.append($('<div>').addClass('small text-muted')
+                                    .text('oleh ' + u.oleh + ' · ' + u.tanggal));
+                                $a.append($kiri);
+                                $a.append($('<span>').addClass('badge badge-info').text('Baru'));
+                                $w.append($a);
+                            });
+                            $('#kartu-ujian-guru').removeClass('d-none');
+                        });
+                    })();
+                </script>
+            <?php endif; ?>
         </div>
     </section>
 </div>
