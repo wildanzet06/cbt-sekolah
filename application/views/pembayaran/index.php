@@ -8,6 +8,9 @@
                 </div>
                 <div class="col-12 col-lg-6">
                     <div class="page-aksi">
+                        <a href="<?= site_url('pembayaran/tunai'); ?>" class="btn btn-success">
+                            <i class="fas fa-money-bill-wave"></i> Input Tunai
+                        </a>
                         <a href="<?= site_url('pembayaran/laporan'); ?>" class="btn btn-info">
                             <i class="fa fa-file-text"></i> Laporan
                         </a>
@@ -103,6 +106,8 @@
                                 <td>
                                     <?php if($row->metode_pembayaran == 'transfer_manual'): ?>
                                         <span class="badge badge-secondary">Transfer Manual</span>
+                                    <?php elseif($row->metode_pembayaran == 'tunai'): ?>
+                                        <span class="badge badge-success">Tunai</span>
                                     <?php else: ?>
                                         <span class="badge badge-info">Midtrans</span>
                                     <?php endif; ?>
@@ -132,6 +137,13 @@
                                         <a href="<?= site_url('pembayaran/kwitansi/'.$row->id); ?>" class="btn btn-sm btn-info mb-1">
                                             <i class="fa fa-print"></i> Kwitansi
                                         </a>
+                                        <?php if($row->metode_pembayaran == 'tunai'): ?>
+                                            <button type="button" class="btn btn-sm btn-outline-danger mb-1"
+                                                    onclick="batalkanTunai(<?= (int) $row->id; ?>)"
+                                                    title="Hapus pembayaran tunai yang salah input">
+                                                <i class="fa fa-undo"></i> Batalkan
+                                            </button>
+                                        <?php endif; ?>
                                     <?php endif; ?>
 
                                     <?php if(!empty($row->bukti_transfer)): ?>
@@ -196,5 +208,24 @@
 
         document.body.appendChild(form);
         form.submit();
+    }
+
+    // Batalkan (hapus) pembayaran tunai yang salah input
+    function batalkanTunai(id) {
+        if (!confirm('Batalkan pembayaran tunai ini? Catatan pembayaran akan dihapus dan status tagihan kembali seperti semula.')) {
+            return;
+        }
+        $.post('<?= site_url('pembayaran/batal_tunai'); ?>', {
+            id: id,
+            '<?= $this->security->get_csrf_token_name(); ?>': '<?= $this->security->get_csrf_hash(); ?>'
+        }, function (r) {
+            if (r && r.status) {
+                window.location.reload();
+            } else {
+                alert((r && r.msg) ? r.msg : 'Gagal membatalkan pembayaran.');
+            }
+        }, 'json').fail(function () {
+            alert('Gagal membatalkan pembayaran.');
+        });
     }
 </script>

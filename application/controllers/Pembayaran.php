@@ -268,6 +268,233 @@ class Pembayaran extends CI_Controller {
         redirect('pembayaran');
     }
 
+    // =====================================================================
+    // PEMBAYARAN TUNAI (siswa bayar cash di sekolah)
+    // =====================================================================
+
+    /** Halaman form input pembayaran tunai. */
+    public function tunai() {
+        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak');
+
+        $this->load->model('Tagihan_model');
+
+        $data = $this->_admin_data('Pembayaran Tunai');
+        $data['bulan_list'] = $this->Pembayaran_model->daftar_bulan;
+        $data['csrf']       = array(
+            'name' => $this->security->get_csrf_token_name(),
+            'hash' => $this->security->get_csrf_hash()
+        );
+
+        // Bisa dibuka langsung dari halaman tagihan: ?tagihan=ID
+        $id_tagihan = (int) $this->input->get('tagihan');
+        $data['tagihan_awal'] = null;
+        if ($id_tagihan > 0) {
+            $t = $this->Tagihan_model->get_tagihan($id_tagihan);
+            if ($t) {
+                $data['tagihan_awal'] = array(
+                    'id'      => (int) $t->id,
+                    'siswa'   => array(
+                        'id_siswa'   => (int) $t->siswa_id,
+                        'nis'        => $t->nis,
+                        'nama'       => $t->nama,
+                        'nama_kelas' => null
+                    ),
+                    'label'   => $this->_label_tagihan($t),
+                    'sisa'    => (int) $t->sisa
+                );
+            }
+        }
+
+        $this->_render_admin('pembayaran/tunai', $data);
+    }
+
+    /** AJAX: cari siswa untuk dipilih pada form tunai. */
+    public function cari_siswa() {
+        if (!$this->ion_auth->is_admin()) {
+            return $this->_json_out(array('status' => false, 'msg' => 'Akses ditolak'), 403);
+        }
+        $tp  = $this->dashboard->getTahunActive();
+        $smt = $this->dashboard->getSemesterActive();
+        $q   = $this->input->get('q', true);
+
+        $hasil = array();
+        foreach ($this->Pembayaran_model->cari_siswa($q, $tp->id_tp, $smt->id_smt) as $s) {
+            $hasil[] = array(
+                'id_siswa'   => (int) $s->id_siswa,
+                'nis'        => $s->nis,
+                'nama'       => $s->nama,
+                'nama_kelas' => $s->nama_kelas ? $s->nama_kelas : '-',
+                'teks'       => trim($s->nama . ' — ' . $s->nis . ($s->nama_kelas ? ' (' . $s->nama_kelas . ')' : ''))
+            );
+        }
+        return $this->_json_out(array('status' => true, 'items' => $hasil));
+    }
+
+    /** AJAX: tagihan belum lunas milik satu siswa. */
+    public function tagihan_siswa_json($id_siswa = 0) {
+        if (!$this->ion_auth->is_admin()) {
+            return $this->_json_out(array('status' => false, 'msg' => 'Akses ditolak'), 403);
+        }
+        $tp  = $this->dashboard->getTahunActive();
+        $smt = $this->dashboard->getSemesterActive();
+
+        $siswa = $this->Pembayaran_model->siswa_detail($id_siswa, $tp->id_tp, $smt->id_smt);
+        if (!$siswa) {
+            return $this->_json_out(array('status' => false, 'msg' => 'Siswa tidak ditemukan.'));
+        }
+
+        $this->load->model('Tagihan_model');
+        $tagihan = array();
+        foreach ($this->Tagihan_model->tagihan_siswa($siswa->id_siswa) as $t) {
+            if ($t->status === 'lunas' || (int) $t->sisa <= 0) {
+                continue;
+            }
+            $tagihan[] = array(
+                'id'    => (int) $t->id,
+                'label' => $this->_label_tagihan($t),
+                'sisa'  => (int) $t->sisa
+            );
+        }
+
+        return $this->_json_out(array(
+            'status'  => true,
+            'siswa'   => array(
+                'id_siswa'   => (int) $siswa->id_siswa,
+                'nis'        => $siswa->nis,
+                'nama'       => $siswa->nama,
+                'nama_kelas' => $siswa->nama_kelas ? $siswa->nama_kelas : '-'
+            ),
+            'tagihan' => $tagihan
+        ));
+    }
+
+    /** Simpan pembayaran tunai (POST, AJAX). */
+    public function simpan_tunai() {
+        if (!$this->ion_auth->is_admin()) {
+            return $this->_json_out(array('status' => false, 'msg' => 'Akses ditolak'), 403);
+        }
+        if ($this->input->method() !== 'post') {
+            return $this->_json_out(array('status' => false, 'msg' => 'Metode tidak valid.'), 405);
+        }
+
+        $tp  = $this->dashboard->getTahunActive();
+        $smt = $this->dashboard->getSemesterActive();
+
+        $id_siswa   = (int) $this->input->post('siswa_id');
+        $id_tagihan = (int) $this->input->post('tagihan_id');
+        $jumlah     = (float) str_replace(',', '.', (string) $this->input->post('jumlah_bayar'));
+        $tanggal    = trim((string) $this->input->post('tanggal', true));
+        $catatan    = trim((string) $this->input->post('catatan', true));
+        $bulan      = trim((string) $this->input->post('bulan', true));
+        $tahun      = (int) $this->input->post('tahun');
+        $cetak      = (int) $this->input->post('cetak') === 1;
+
+        $siswa = $this->Pembayaran_model->siswa_detail($id_siswa, $tp->id_tp, $smt->id_smt);
+        if (!$siswa) {
+            return $this->_json_out(array('status' => false, 'msg' => 'Pilih siswa dulu.'));
+        }
+
+        $d = DateTime::createFromFormat('Y-m-d', $tanggal);
+        if (!$d || $d->format('Y-m-d') !== $tanggal) {
+            return $this->_json_out(array('status' => false, 'msg' => 'Tanggal pembayaran belum diisi dengan benar.'));
+        }
+
+        $label = '';
+        if ($id_tagihan > 0) {
+            $this->load->model('Tagihan_model');
+            $t = $this->Tagihan_model->get_tagihan($id_tagihan);
+            if (!$t || (int) $t->siswa_id !== (int) $siswa->id_siswa) {
+                return $this->_json_out(array('status' => false, 'msg' => 'Tagihan tidak cocok dengan siswa yang dipilih.'));
+            }
+            if ((int) $t->sisa <= 0) {
+                return $this->_json_out(array('status' => false, 'msg' => 'Tagihan ini sudah lunas.'));
+            }
+            if ($jumlah <= 0) {
+                return $this->_json_out(array('status' => false, 'msg' => 'Jumlah pembayaran harus lebih dari nol.'));
+            }
+            if ($jumlah > (int) $t->sisa) {
+                return $this->_json_out(array('status' => false, 'msg' =>
+                    'Jumlah melebihi sisa tagihan (Rp ' . number_format($t->sisa, 0, ',', '.') . ').'));
+            }
+            $label = $this->_label_tagihan($t);
+            if ($t->periode_bulan) {
+                $bulan = $t->periode_bulan;
+            }
+            if ($t->periode_tahun) {
+                $tahun = (int) $t->periode_tahun;
+            }
+        } else {
+            if ($jumlah <= 0) {
+                return $this->_json_out(array('status' => false, 'msg' => 'Jumlah pembayaran harus lebih dari nol.'));
+            }
+            if (!in_array($bulan, $this->Pembayaran_model->daftar_bulan, true)) {
+                return $this->_json_out(array('status' => false, 'msg' => 'Pilih bulan pembayaran.'));
+            }
+            if ($tahun < 2000 || $tahun > 2100) {
+                return $this->_json_out(array('status' => false, 'msg' => 'Tahun pembayaran tidak valid.'));
+            }
+            $label = 'SPP ' . $bulan . ' ' . $tahun;
+        }
+
+        if ($bulan === '' || $bulan === null) {
+            $bulan = $this->Pembayaran_model->daftar_bulan[(int) date('n') - 1];
+        }
+        if ($tahun <= 0) {
+            $tahun = (int) date('Y');
+        }
+
+        $user = $this->ion_auth->user()->row();
+        $id = $this->Pembayaran_model->simpan_tunai(array(
+            'siswa_id'     => $siswa->id_siswa,
+            'bulan'        => $bulan,
+            'tahun'        => $tahun,
+            'jumlah_bayar' => $jumlah,
+            'tanggal'      => $tanggal,
+            'tagihan_id'   => $id_tagihan > 0 ? $id_tagihan : null,
+            'catatan'      => $catatan,
+            'oleh'         => $user ? $user->username : null
+        ));
+
+        if (!$id) {
+            return $this->_json_out(array('status' => false, 'msg' => 'Gagal menyimpan pembayaran.'));
+        }
+
+        $pesan = 'Pembayaran tunai ' . $siswa->nama . ' untuk ' . $label
+            . ' sebesar Rp ' . number_format($jumlah, 0, ',', '.') . ' tersimpan.';
+
+        return $this->_json_out(array(
+            'status'  => true,
+            'id'      => $id,
+            'msg'     => $pesan,
+            'kwitansi'=> site_url('pembayaran/kwitansi/' . $id),
+            'cetak'   => $cetak
+        ));
+    }
+
+    /** Batalkan (hapus) pembayaran tunai yang salah input. */
+    public function batal_tunai() {
+        if (!$this->ion_auth->is_admin()) {
+            return $this->_json_out(array('status' => false, 'msg' => 'Akses ditolak'), 403);
+        }
+        if ($this->input->method() !== 'post') {
+            return $this->_json_out(array('status' => false, 'msg' => 'Metode tidak valid.'), 405);
+        }
+        $id = (int) $this->input->post('id');
+        if ($this->Pembayaran_model->hapus_tunai($id)) {
+            return $this->_json_out(array('status' => true, 'msg' => 'Pembayaran tunai dibatalkan.'));
+        }
+        return $this->_json_out(array('status' => false, 'msg' =>
+            'Hanya pembayaran tunai yang bisa dibatalkan di sini.'));
+    }
+
+    /** Output JSON ringkas untuk endpoint AJAX. */
+    private function _json_out($data, $code = 200) {
+        return $this->output
+            ->set_status_header($code)
+            ->set_content_type('application/json')
+            ->set_output(json_encode($data));
+    }
+
     // Catatan siapa & kapan memproses pembayaran. Hanya mengisi kolom yang
     // memang ada di tabel, jadi aman walau SQL penambahan kolom belum dijalankan.
     private function _audit_fields($catatan = null) {

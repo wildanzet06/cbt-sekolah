@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS cbt_pembayaran_spp (
     bulan              VARCHAR(20)  NOT NULL,
     tahun              INT          NOT NULL,
     jumlah_bayar       DECIMAL(15,2) NOT NULL,
-    metode_pembayaran  ENUM('transfer_manual','midtrans') NOT NULL,
+    metode_pembayaran  ENUM('transfer_manual','midtrans','tunai') NOT NULL,
     status_pembayaran  ENUM('pending','success','failed') DEFAULT 'pending',
     tanggal_bayar      DATETIME     DEFAULT CURRENT_TIMESTAMP,
     bukti_transfer     VARCHAR(255) DEFAULT NULL,
@@ -62,6 +62,15 @@ SET @sql = (SELECT IF(COUNT(*) = 0,
     'SELECT ''diverifikasi_pada sudah ada'' AS info')
     FROM information_schema.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_pembayaran_spp' AND COLUMN_NAME = 'diverifikasi_pada');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- Metode pembayaran tunai (siswa bayar cash di sekolah)
+SET @sql = (SELECT IF(COUNT(*) = 0,
+    'ALTER TABLE cbt_pembayaran_spp MODIFY COLUMN metode_pembayaran ENUM(''transfer_manual'',''midtrans'',''tunai'') NOT NULL',
+    'SELECT ''metode tunai sudah ada'' AS info')
+    FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_pembayaran_spp'
+      AND COLUMN_NAME = 'metode_pembayaran' AND COLUMN_TYPE NOT LIKE '%tunai%');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 -- ---------------------------------------------------------------------

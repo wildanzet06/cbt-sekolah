@@ -207,6 +207,12 @@ $qs_filter = http_build_query(array_filter($filter));
                                     </td>
                                     <td><?= $t->jatuh_tempo ? date('d/m/Y', strtotime($t->jatuh_tempo)) : '-'; ?></td>
                                     <td>
+                                        <?php if ($t->status != 'lunas' && !$t->gratis): ?>
+                                            <a href="<?= site_url('pembayaran/tunai?tagihan=' . (int) $t->id); ?>"
+                                               class="btn btn-success btn-xs" title="Catat pembayaran tunai">
+                                                <i class="fas fa-money-bill-wave"></i> Tunai
+                                            </a>
+                                        <?php endif; ?>
                                         <?php if ($t->status != 'lunas' || $t->gratis): ?>
                                             <button type="button" class="btn btn-warning btn-xs"
                                                     onclick="ubahDiskon(<?= (int) $t->id; ?>, <?= (int) $t->nominal; ?>, <?= (int) $t->diskon; ?>, '<?= html_escape(addslashes($t->nama)); ?>')">

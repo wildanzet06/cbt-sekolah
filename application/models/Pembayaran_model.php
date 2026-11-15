@@ -248,4 +248,124 @@ class Pembayaran_model extends CI_Model {
         $this->db->where('status_pembayaran', 'pending');
         $this->db->update('cbt_pembayaran_spp', array('status_pembayaran' => 'failed'));
     }
+
+    // =====================================================================
+    // PEMBAYARAN TUNAI (dicatat admin/guru di sekolah)
+    // =====================================================================
+
+    /**
+     * Pastikan kolom metode_pembayaran menerima nilai 'tunai'.
+     * Idempoten: hanya mengubah enum bila 'tunai' belum ada.
+     */
+    public function pastikan_metode_tunai() {
+        $kolom = $this->db->query("SHOW COLUMNS FROM cbt_pembayaran_spp LIKE 'metode_pembayaran'")->row();
+        if (!$kolom) {
+            return false;
+        }
+        if (stripos((string) $kolom->Type, "'tunai'") !== false) {
+            return true;
+        }
+        return (bool) $this->db->query(
+            "ALTER TABLE cbt_pembayaran_spp
+             MODIFY COLUMN metode_pembayaran ENUM('transfer_manual','midtrans','tunai') NOT NULL"
+        );
+    }
+
+    /** Cari siswa (nama/NIS) pada tahun pelajaran & semester aktif. */
+    public function cari_siswa($q, $id_tp, $id_smt, $limit = 25) {
+        $q = trim((string) $q);
+        $sql = "SELECT s.id_siswa, s.nis, s.nama, ks.id_kelas, mk.nama_kelas
+                FROM master_siswa s
+                LEFT JOIN kelas_siswa ks
+                       ON ks.id_siswa = s.id_siswa AND ks.id_tp = ? AND ks.id_smt = ?
+                LEFT JOIN master_kelas mk ON mk.id_kelas = ks.id_kelas
+                WHERE 1 = 1";
+        $bind = array((int) $id_tp, (int) $id_smt);
+
+        if ($q !== '') {
+            $sql .= " AND (s.nama LIKE ? OR s.nis LIKE ?)";
+            $bind[] = '%' . $q . '%';
+            $bind[] = '%' . $q . '%';
+        }
+        $sql .= " ORDER BY s.nama ASC LIMIT " . (int) $limit;
+
+        return $this->db->query($sql, $bind)->result();
+    }
+
+    /** Data satu siswa + kelasnya pada periode tertentu. */
+    public function siswa_detail($id_siswa, $id_tp = null, $id_smt = null) {
+        $this->db->select('s.id_siswa, s.nis, s.nama');
+        $this->db->from('master_siswa s');
+        $this->db->where('s.id_siswa', (int) $id_siswa);
+        $siswa = $this->db->get()->row();
+        if (!$siswa) {
+            return null;
+        }
+        $siswa->nama_kelas = null;
+        if ($id_tp !== null && $id_smt !== null) {
+            $k = $this->db->select('mk.nama_kelas')
+                ->from('kelas_siswa ks')
+                ->join('master_kelas mk', 'mk.id_kelas = ks.id_kelas', 'left')
+                ->where('ks.id_siswa', (int) $id_siswa)
+                ->where('ks.id_tp', (int) $id_tp)
+                ->where('ks.id_smt', (int) $id_smt)
+                ->get()->row();
+            if ($k) {
+                $siswa->nama_kelas = $k->nama_kelas;
+            }
+        }
+        return $siswa;
+    }
+
+    /**
+     * Simpan pembayaran tunai (langsung lunas/tercatat).
+     * $data: siswa_id, bulan, tahun, jumlah_bayar, tanggal (Y-m-d),
+     *        tagihan_id (opsional), catatan (opsional), oleh (username)
+     * Return insert id atau false.
+     */
+    public function simpan_tunai(array $data) {
+        $this->pastikan_metode_tunai();
+
+        $isi = array(
+            'siswa_id'          => (int) $data['siswa_id'],
+            'bulan'             => (string) $data['bulan'],
+            'tahun'             => (int) $data['tahun'],
+            'jumlah_bayar'      => (float) $data['jumlah_bayar'],
+            'metode_pembayaran' => 'tunai',
+            'status_pembayaran' => 'success',
+            'tanggal_bayar'     => $data['tanggal'] . ' ' . date('H:i:s'),
+            'created_at'        => date('Y-m-d H:i:s')
+        );
+
+        // Kolom opsional: hanya diisi bila memang ada di tabel.
+        if ($this->db->field_exists('tagihan_id', 'cbt_pembayaran_spp')) {
+            $isi['tagihan_id'] = !empty($data['tagihan_id']) ? (int) $data['tagihan_id'] : null;
+        }
+        if ($this->db->field_exists('catatan_admin', 'cbt_pembayaran_spp')) {
+            $isi['catatan_admin'] = !empty($data['catatan'])
+                ? mb_substr((string) $data['catatan'], 0, 255) : 'Pembayaran tunai di sekolah';
+        }
+        if ($this->db->field_exists('diverifikasi_oleh', 'cbt_pembayaran_spp')) {
+            $isi['diverifikasi_oleh'] = isset($data['oleh']) ? (string) $data['oleh'] : null;
+        }
+        if ($this->db->field_exists('diverifikasi_pada', 'cbt_pembayaran_spp')) {
+            $isi['diverifikasi_pada'] = date('Y-m-d H:i:s');
+        }
+
+        $this->db->insert('cbt_pembayaran_spp', $isi);
+        $id = $this->db->insert_id();
+        return $id ? (int) $id : false;
+    }
+
+    /** Hapus (batalkan) satu pembayaran tunai. Hanya metode tunai. */
+    public function hapus_tunai($id) {
+        $row = $this->db->get_where('cbt_pembayaran_spp', array('id' => (int) $id))->row();
+        if (!$row || $row->metode_pembayaran !== 'tunai') {
+            return false;
+        }
+        $this->db->where('id', (int) $id);
+        $this->db->where('metode_pembayaran', 'tunai');
+        $this->db->delete('cbt_pembayaran_spp');
+        return $this->db->affected_rows() > 0;
+    }
 }

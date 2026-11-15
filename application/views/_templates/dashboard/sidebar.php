@@ -76,6 +76,7 @@
                         'name': 'Keuangan', 'icon': 'fas fa-money-bill-wave', 'cbt': '1',
                         'submenu': [
                             {'name': 'Pembayaran SPP', 'link': 'pembayaran', 'icon': 'far fa-circle'},
+                            {'name': 'Pembayaran Tunai', 'link': 'pembayaran/tunai', 'icon': 'fas fa-money-bill-wave'},
                             {'name': 'Daftar Tagihan', 'link': 'tagihan', 'icon': 'fas fa-file-invoice-dollar'},
                             {'name': 'Buat Tagihan', 'link': 'tagihan/buat', 'icon': 'fas fa-plus-circle'},
                             {'name': 'Jenis Tagihan', 'link': 'tagihan/jenis', 'icon': 'fas fa-tags'},
