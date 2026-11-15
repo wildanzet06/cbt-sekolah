@@ -206,7 +206,7 @@ $qs_filter = http_build_query(array_filter($filter));
                                         <?php endif; ?>
                                     </td>
                                     <td><?= $t->jatuh_tempo ? date('d/m/Y', strtotime($t->jatuh_tempo)) : '-'; ?></td>
-                                    <td>
+                                    <td class="text-nowrap">
                                         <?php if ($t->status != 'lunas' && !$t->gratis): ?>
                                             <a href="<?= site_url('pembayaran/tunai?tagihan=' . (int) $t->id); ?>"
                                                class="btn btn-success btn-xs" title="Catat pembayaran tunai">

@@ -167,6 +167,8 @@
    ------------------------------------------------------------------ */
 .table .btn {
     margin-bottom: .1rem;
+    white-space: nowrap;
+    vertical-align: middle;
 }
 
 .table .btn + .btn,
@@ -227,13 +229,13 @@
     padding-right: 0;
 }
 
-.table-responsive > .table {
+.table-responsive .table {
     margin-bottom: 0;
 }
 
 @media (max-width: 575.98px) {
-    .table-responsive > .table > thead > tr > th,
-    .table-responsive > .table > tbody > tr > td {
+    .table-responsive .table > thead > tr > th,
+    .table-responsive .table > tbody > tr > td {
         white-space: nowrap;
         font-size: .85rem;
         padding: .45rem .5rem;
