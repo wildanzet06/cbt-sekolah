@@ -159,6 +159,7 @@
                             {'name': 'Hasil Ujian', 'link':"cbtnilai", 'icon': 'fa fa-file-alt'},
                             {'name': 'Analisis Soal', 'link':"cbtanalisis", 'icon': 'fa fa-chart-line'},
                             {'name': 'Rekap Nilai', 'link':"cbtrekap", 'icon': 'fas fa-trophy'},
+                            {'name': 'Nilai Manual', 'link':"nilaimanual", 'icon': 'fas fa-pen-square'},
                         ]
                     },
                 ]
