@@ -269,6 +269,30 @@ document.addEventListener('DOMContentLoaded', function () {
     var dataEdit = <?= json_encode($data_edit, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
     var siswaMap = <?= json_encode($siswa_map, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 
+    // Pencarian siswa: ketik nama atau NIS (selain menggulir daftar).
+    if (window.jQuery && jQuery.fn.select2 && select) {
+        jQuery(select).select2({
+            dropdownParent: jQuery('#modalPelanggaran'),
+            placeholder: 'Ketik nama atau NIS siswa...',
+            allowClear: true,
+            width: '100%',
+            language: {
+                noResults: function () { return 'Siswa tidak ditemukan'; },
+                searching: function () { return 'Mencari...'; }
+            }
+        });
+        // select2 memicu event lewat jQuery, jadi pasang juga di sini
+        jQuery(select).on('change', perbaruiKelas);
+    }
+
+    // Segarkan tampilan select2 setelah nilai diubah lewat kode.
+    function sinkronSelect() {
+        if (window.jQuery && jQuery.fn.select2) {
+            jQuery(select).trigger('change.select2');
+        }
+        perbaruiKelas();
+    }
+
     function perbaruiKelas() {
         var info = siswaMap[select.value];
         fieldKelas.value = info && info.nama_kelas ? info.nama_kelas : '-';
@@ -304,6 +328,7 @@ document.addEventListener('DOMContentLoaded', function () {
             form.reset();
             document.getElementById('f_id').value = '0';
             select.value = '';
+            sinkronSelect();
             fieldKelas.value = '-';
             document.getElementById('f_tanggal').value = <?= json_encode($tanggal_ini); ?>;
             document.getElementById('f_poin').value = '';
@@ -323,6 +348,7 @@ document.addEventListener('DOMContentLoaded', function () {
             form.action = base_url + 'pelanggaran/ubah/' + id;
             document.getElementById('f_id').value = id;
             select.value = String(d.id_siswa);
+            sinkronSelect();
             document.getElementById('f_tanggal').value = d.tanggal;
             document.getElementById('f_jenis').value = d.jenis;
             document.getElementById('f_poin').value = d.poin;
