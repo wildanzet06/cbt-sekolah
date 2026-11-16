@@ -160,6 +160,16 @@
         margin-left: 0;
         margin-right: .35rem;
     }
+
+    /* Tombol toolbar: dua kolom sama lebar agar tidak berantakan di HP. */
+    .card-header .card-tools > .btn,
+    .card-header .card-tools > .btn-group {
+        flex: 1 1 calc(50% - .35rem);
+        margin: 0 0 .35rem;
+        white-space: normal;
+        line-height: 1.2;
+        padding: .4rem .45rem;
+    }
 }
 
 /* ------------------------------------------------------------------

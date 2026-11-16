@@ -106,7 +106,7 @@ foreach ($materi as $k => $m) {
                                 'id="guru" class="select2 form-control" required'
                             ); ?>
                         </div>
-                        <div class="col-6 <?= $left ?> <?= $btnNone ?>">
+                        <div class="col-12 col-md-6 <?= $left ?> <?= $btnNone ?>">
                             <button type="button" id="delete-all" data-count="<?= count($curr_materi) ?>"
                                     class="btn btn-sm btn-danger mb-3"><i class="fa fa-trash"></i> Hapus
                                 Semua <?= $subjudul ?>

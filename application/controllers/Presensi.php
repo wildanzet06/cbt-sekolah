@@ -13,7 +13,7 @@ class Presensi extends CI_Controller {
         if (!$this->ion_auth->logged_in()) {
             redirect('auth');
         }
-        if (!$this->ion_auth->is_admin()) {
+        if (!$this->ion_auth->is_admin() && !$this->ion_auth->in_group('guru')) {
             show_error('Akses Ditolak', 403);
         }
 
@@ -37,14 +37,36 @@ class Presensi extends CI_Controller {
         $data['smt']        = $this->dashboard->getSemester();
         $data['smt_active'] = $this->dashboard->getSemesterActive();
 
+        // Sidebar template guru membutuhkan objek $guru.
+        $data['guru'] = null;
+        if (!$this->ion_auth->is_admin()) {
+            $guru = $this->dashboard->getDataGuruByUserId($user->id, $data['tp_active']->id_tp, $data['smt_active']->id_smt);
+            if (!$guru) {
+                $guru = (object) array(
+                    'id_guru' => null, 'id_jabatan' => null, 'foto' => null,
+                    'nama_guru' => $user->username, 'username' => $user->username
+                );
+            }
+            $data['guru'] = $guru;
+        }
+
         return $data;
     }
 
-    private function _render_admin($view, $data) {
-        // Sidebar & navbar sudah di-include di dalam _header.php
-        $this->load->view('_templates/dashboard/_header', $data);
-        $this->load->view($view, $data);
-        $this->load->view('_templates/dashboard/_footer');
+    /**
+     * Render halaman sesuai peran: admin memakai template dashboard,
+     * guru memakai template guru (sidebar & navbar guru).
+     */
+    private function _render($view, $data) {
+        if ($this->ion_auth->is_admin()) {
+            $this->load->view('_templates/dashboard/_header', $data);
+            $this->load->view($view, $data);
+            $this->load->view('_templates/dashboard/_footer');
+        } else {
+            $this->load->view('members/guru/templates/header', $data);
+            $this->load->view($view, $data);
+            $this->load->view('members/guru/templates/footer');
+        }
     }
 
     private function _harus_post($kembali = 'presensi') {
@@ -107,7 +129,7 @@ class Presensi extends CI_Controller {
             $data['kelas_id'] = 0;
         }
 
-        $this->_render_admin('presensi/index', $data);
+        $this->_render('presensi/index', $data);
     }
 
     public function simpan() {
@@ -195,6 +217,10 @@ class Presensi extends CI_Controller {
     }
 
     public function hapus_sesi($id) {
+        // Hapus sesi presensi hanya untuk admin (guru boleh mengisi/mengubah).
+        if (!$this->ion_auth->is_admin()) {
+            show_error('Akses Ditolak', 403);
+        }
         $this->_harus_post();
 
         $sesi = $this->Presensi_model->get_sesi_by_id($id);
@@ -238,7 +264,7 @@ class Presensi extends CI_Controller {
             $data['nama_kelas'] = $this->Presensi_model->nama_kelas($kelas_id);
         }
 
-        $this->_render_admin('presensi/rekap', $data);
+        $this->_render('presensi/rekap', $data);
     }
 
     public function detail($siswa_id = 0) {
@@ -263,7 +289,7 @@ class Presensi extends CI_Controller {
         $data['tahun']        = $tahun;
         $data['kelas_id']     = (int) $this->input->get('kelas');
 
-        $this->_render_admin('presensi/detail', $data);
+        $this->_render('presensi/detail', $data);
     }
 
     // =====================================================================
