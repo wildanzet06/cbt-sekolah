@@ -164,6 +164,7 @@ nilainya (perhatikan data terenkripsi lama bila ada).
 | B1 | 9 tabel tambahan hilang → halaman Pelanggaran/Presensi/Tagihan error 1146 | **DIPERBAIKI**: skema dibuat ulang + `Pelanggaran_model` kini membuat tabelnya sendiri bila hilang |
 | B2 | `Undefined variable: $gurus` di halaman Jadwal (guru) | **DIPERBAIKI** |
 | B3 | `Invalid argument supplied for foreach()` di `Dbmanager.php:7` | terbuka (controller obfuscated; hanya notice) |
+| B4 | `Dbclear::index()` (menu Pengaturan → Database → Bersihkan Data) **menghapus tabel** yang tidak ada di `assets/app/db/database.json` hanya dengan membuka halamannya — inilah penyebab tabel keuangan/presensi hilang 15 Nov | **DIPERBAIKI**: DROP otomatis dimatikan, tabel tambahan aplikasi dimasukkan ke daftar lindung |
 
 ---
 

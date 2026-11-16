@@ -36,6 +36,11 @@ Fitur-fitur ini ditambahkan di atas GarudaCBT. Tidak ada tabel bawaan GarudaCBT 
 
 ## Catatan
 
+- Halaman **Pengaturan → Database → Bersihkan Data** (`Dbclear`) pada GarudaCBT asli
+  menghapus tabel yang tidak dikenal **begitu halamannya dibuka** (tanpa konfirmasi).
+  Perilaku itu sudah dimatikan: membuka halaman tidak menghapus apa pun, dan tabel
+  tambahan (keuangan, tagihan, presensi, pelanggaran, nilai manual, rekening, ujian)
+  ikut dilindungi sehingga tidak muncul di daftar hapus.
 - Tabel tambahan (keuangan, tagihan, presensi) **dibuat otomatis** oleh aplikasi bila
   hilang, lewat `application/helpers/skema_helper.php`. Jadi kalau database dipulihkan
   dari dump lama atau tabelnya terhapus, halaman keuangan tidak lagi menampilkan
