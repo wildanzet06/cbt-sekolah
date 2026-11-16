@@ -76,3 +76,15 @@ if (!$__lokal) {
     unset($__alat);
 }
 unset($__remote, $__lokal);
+
+/*
+ * 'compare' (pembanding database) bisa MENGHAPUS tabel yang tidak terdaftar di
+ * assets/app/db/database.json. Alat ini hanya untuk pengembang, jadi ditutup
+ * total — termasuk dari komputer server sendiri.
+ */
+foreach (['compare'] as $__alat) {
+    $route[$__alat] = 'blocked';
+    $route[$__alat . '/(:any)'] = 'blocked';
+    $route[$__alat . '/(:any)/(:any)'] = 'blocked';
+}
+unset($__alat);

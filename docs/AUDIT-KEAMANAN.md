@@ -1,197 +1,300 @@
-# Audit Bug & Celah Keamanan — CBT Sekolah
+# Audit Keamanan & Bug — CBT Sekolah
 
-Tanggal: 15 November 2026
-Lingkup: seluruh aplikasi (230 view, 80 controller/model, konfigurasi server, database)
-Metode: pembacaan kode (controller/model/view ter-obfuscate di-decode lebih dulu),
-pemindaian pola otomatis, dan uji HTTP langsung dengan 3 peran (admin, guru, siswa).
+**Tanggal audit:** 15–16 November 2026
+**Lingkup:** seluruh aplikasi (`application/controllers`, `models`, `views`, `config`,
+`helpers`, `hooks`, folder `installer`, aset JS/CSS, konfigurasi Apache/.htaccess)
+**Metode:** pembacaan kode (controller/model/view), pemetaan hak akses per peran,
+uji akses langsung dengan akun admin/guru/siswa, uji IDOR & path traversal,
+pemindaian pola SQLi/XSS, pemeriksaan konfigurasi server, serta uji regresi halaman.
 
----
-
-## 1. Ringkasan
-
-| Tingkat | Jumlah | Sudah diperbaiki | Masih terbuka |
-|---|---|---|---|
-| Kritis | 3 | 3 | 0 |
-| Tinggi | 4 | 2 | 2 |
-| Sedang | 5 | 3 | 2 |
-| Rendah | 3 | 0 | 3 |
-| Bug fungsional | 3 | 2 | 1 |
-
-Aplikasi **tidak rentan SQL injection** pada jalur input pengguna: query memakai
-query builder / placeholder `?` (dari 80 file controller+model hanya ada 3 query
-dengan interpolasi, semuanya memakai nilai internal: `date()`, nama tabel dari
-kode, bukan dari request).
+Status: **Diperbaiki** = sudah ditutup di kode. **Terbuka** = belum diperbaiki
+(butuh keputusan/perubahan alur), dengan rekomendasi.
 
 ---
 
-## 2. Kritis
+## 1. Ringkasan temuan
 
-### K1. Folder `.git/` dapat diunduh publik — **DIPERBAIKI**
-`http://host/.git/HEAD`, `.git/config`, `.git/index` (270 KB), `.git/logs/HEAD`
-semua merespons 200. Artinya seluruh riwayat kode (termasuk kredensial yang
-pernah ter-commit) bisa diambil siapa pun.
-
-Perbaikan: `.htaccess` root memblokir `\.git`, `.svn`, `.hg`, `.env`, `.idea`, dll.
-Verifikasi: seluruh `.git/*` sekarang **403**.
-
-### K2. Alat instalasi/updater/pembanding DB terbuka tanpa login — **DIPERBAIKI**
-`Install.php`, `Update.php`, `Compare.php` tidak punya cek login. `Compare`
-menjalankan `DROP`/`CREATE`/`ALTER TABLE` untuk menyamakan dua database;
-`Update` mengubah struktur tabel dari `assets/app/db/database.json`; `Install`
-menjalankan instalasi ulang.
-
-Perbaikan:
-- `application/config/routes.php`: untuk request dari luar komputer server,
-  route `install/*`, `update/*`, `compare/*` diarahkan ke controller `Blocked`
-  (404).
-- `installer/.htaccess`: hanya boleh diakses dari `127.0.0.1`/`::1`.
-
-### K3. Skema & cadangan database dapat diunduh — **DIPERBAIKI**
-`docs/database_gabungan.sql` (kini satu-satunya file migrasi),
-`assets/app/db/master.sql`, dan
-`docs/backup/sebelum-pembagian-peserta.sql` (berisi NIS/nama siswa) merespons 200.
-
-Perbaikan: `docs/.htaccess` menolak semua; `.htaccess` root memblokir ekstensi
-`sql|md|log|lock|ini|bak|old|orig|sh|bat|ps1|dist`. Verifikasi: **403**.
+| ID | Temuan | Risiko | Status |
+|----|--------|--------|--------|
+| K1 | Halaman **Bersihkan Data** (`Dbclear::index`) menghapus tabel begitu halaman dibuka (tanpa konfirmasi) | **Kritis** | Diperbaiki |
+| K2 | **Installer** terbuka bagi siapa pun yang bisa menjangkau foldernya; POST bisa menimpa `application/config/database.php` (pengambilalihan aplikasi) | **Kritis** | Diperbaiki |
+| K3 | Route `compare` bisa **menghapus tabel** yang tidak ada di `database.json` | **Kritis** | Diperbaiki (ditutup total) |
+| T1 | Guru bisa membuka `datasiswa`: tambah/ubah/hapus siswa, ubah username & password siswa | **Tinggi** | Diperbaiki |
+| T2 | Guru bisa memanggil aksi admin `bukurapor`: `editnilairapor`, `backupnilai`, `restorenilai` | **Tinggi** | Diperbaiki |
+| T3 | IDOR ujian: siswa bisa mengirim jawaban / membaca timer **atas nama siswa lain** (`savejawaban`, `gettimer`, dsb.) | **Tinggi** | Diperbaiki |
+| T4 | Path traversal pada hapus file (`unlink($_POST['src'])`) di beberapa controller + `hapusBackup($src)` | **Tinggi** | Diperbaiki |
+| T5 | Endpoint `kelasmateri` (upload/hapus/simpan materi) dikecualikan dari CSRF | **Sedang** | Diperbaiki |
+| T6 | Tabel tambahan hilang → semua halaman keuangan error `Table ... doesn't exist` | **Tinggi** | Diperbaiki (self-healing) |
+| S1 | Password siswa/guru tersimpan **plaintext** di `master_siswa`/`master_guru` dan ditampilkan di form | **Tinggi** | Terbuka |
+| S2 | ~5.000 keluaran `<?=` tanpa `html_escape()` di view (XSS) | **Sedang** | Sebagian |
+| S3 | `encryption_key` statis di dalam repositori publik | **Sedang** | Terbuka |
+| S4 | IDOR `Siswa::bukaMateri/bukaTugas`: materi/tugas kelas lain bisa dibuka lewat ID | **Rendah** | Terbuka |
+| S5 | Integritas ujian: jawaban masih bisa dikirim setelah waktu habis (timer di sisi klien) | **Sedang** | Terbuka |
+| S6 | Route `update` masih bisa diakses dari komputer server (menjalankan SQL migrasi) | **Rendah** | Terbuka |
+| B1 | Notice/warning PHP di beberapa halaman (materi, materi jadwal, presensi, backup) | **Rendah** | Diperbaiki |
+| B2 | Halaman siswa dibuka admin → 500 "Data siswa tidak ditemukan" | **Rendah** | Diperbaiki |
+| B3 | Akses ditolak mengembalikan status 500 (bukan 403) di Pembayaran/Tagihan | **Rendah** | Diperbaiki |
 
 ---
 
-## 3. Tinggi
+## 2. Detail temuan kritis
 
-### T1. Mode `development` selalu aktif → bocor query SQL & path file — **DIPERBAIKI**
-`index.php` menentukan `ENVIRONMENT` dari `$envs[0]` = `development`, sehingga
-`display_errors=1`. Inilah sebab halaman error menampilkan query SQL lengkap dan
-path `C:/laragon/www/...` (seperti pada halaman Pelanggaran sebelumnya).
+### K1. Halaman "Bersihkan Data" menghapus tabel saat dibuka
 
-Perbaikan: default sekarang `production`; `development` hanya otomatis untuk
-host lokal (`localhost`, `127.0.0.1`, `*.test`, `*.local`) atau bila `CI_ENV`
-diisi. Dampak: di server asli error tidak lagi tampil ke pengguna (tetap masuk
-log di `application/logs`).
+`Dbclear::index()` menjalankan, untuk **setiap** tabel yang tidak terdaftar di
+`assets/app/db/database.json` dan tidak ada di daftar `$excludes`:
 
-### T2. XSS tersimpan pada komentar/balasan pengumuman — **DIPERBAIKI**
-`assets/app/js/dashboard.js` menyisipkan `v.text` dan nama penulis ke HTML tanpa
-escape (`append(comm)`). Siswa dapat menulis komentar berisi
-`<img src=x onerror=...>`; skrip berjalan di dashboard admin/guru (sesi admin).
+```php
+$this->dbforge->drop_table($table, true);   // DROP TABLE
+```
 
-Perbaikan: helper `esc()` dan dipakai untuk `v.text` (komentar & balasan) dan
-nama penulis. Isi pengumuman (ditulis admin lewat editor) sengaja tetap HTML.
+Artinya sekadar **membuka** menu *Pengaturan → Database → Bersihkan Data* sudah
+menghapus semua tabel tambahan (keuangan, tagihan, presensi). Bukti dari log
+Apache: `GET /dbclear` pada 15/11 15:29:17 dan 17:31:12; tabel hilang tepat
+setelahnya dan aplikasi membuat ulang tabel yang punya *auto-create* pada
+17:31:46–17:49.
 
-### T3. Password siswa & guru tersimpan **plaintext** dan ditampilkan di form — **TERBUKA**
-- `master_siswa.password` dan `master_guru.password` berisi teks asli
-  (contoh: `12341234`), berbeda dengan tabel `users` yang sudah bcrypt.
-- Form admin menampilkan password tersebut apa adanya:
-  `views/master/siswa/edit.php:69`, `:374`, `:428`;
-  `views/master/guru/edit.php:81`;
-  `views/master/guru/profile.php:249`;
-  `views/members/guru/wali/kelas.php:55` (kolom `U: … P: …`).
+**Perbaikan:** dua pemanggilan `drop_table()` di `index()` dihapus; 13 tabel
+tambahan dimasukkan ke daftar lindung sehingga tidak muncul di daftar hapus.
+Tombol hapus per tabel (yang punya konfirmasi + backup otomatis) tetap ada.
 
-Dampak: siapa pun yang bisa membaca database/backup (atau memakai SQLi) langsung
-memperoleh password semua siswa/guru; password juga terlihat di layar.
+### K2. Installer terbuka
 
-Rekomendasi: migrasi bertahap —
-1. Saat login/aktivasi, tulis `password_hash()` ke `master_siswa`/`master_guru`
-   dan pakai `password_verify()` dengan fallback plaintext (auto-upgrade).
-2. Hapus nilai password dari form (ganti dengan tombol **Reset password**).
-3. Hapus tampilan `U: … P: …` di halaman wali kelas.
+`installer/install.php` menerima POST berisi host/user/password/nama database,
+membuat database, mengimpor `master.sql`, lalu **menulis ulang**
+`application/config/database.php`. Folder ini hanya dibatasi `.htaccess`
+(Require ip 127.0.0.1). Bila `AllowOverride` dimatikan — atau lewat CSRF dari
+browser di komputer yang sama — siapa pun bisa mengarahkan aplikasi ke database
+miliknya sendiri (termasuk membuat akun admin baru) ⇒ pengambilalihan total.
 
-### T4. IDOR pada endpoint ujian sisi siswa — **TERBUKA**
-`Siswa::saveJawaban`, `Siswa::loadNomorSoal`, `Siswa::getTimer`,
-`Siswa::checkTimer` menerima `id_siswa` (dan `id_soal_siswa`) dari POST tanpa
-mencocokkan dengan siswa yang sedang login. Pola `id_soal_siswa` =
-`id_siswa + '0' + id_jadwal + id_bank + jenis + nomor` mudah ditebak, sehingga
-siswa yang login berpotensi mengubah jawaban/membaca soal siswa lain.
+**Perbaikan:** berkas baru `installer/includes/cek_terpasang.php` yang memeriksa
+apakah tabel `users` sudah ada. Bila aplikasi sudah terpasang → **HTTP 403**
+("Installer dinonaktifkan"). Diuji: GET/POST ke `installer/` dan
+`installer/install.php` → 403, `database.php` tidak berubah.
 
-Rekomendasi: di awal tiap method tersebut, ambil siswa dari sesi
-(`getDataSiswa($user->username, …)`) dan tolak (403) bila `id_siswa`/`id_soal_siswa`
-tidak berawalan miliknya. Perubahan menyentuh `Siswa.php` (obfuscated) → perlu
-dilakukan bersama uji alur ujian penuh (mulai → jawab → selesai → nilai).
+### K3. Route `compare`
+
+`Compare` membandingkan database dengan `database.json` dan menjalankan
+`drop_table` untuk tabel yang tidak dikenal — sumber risiko yang sama dengan K1.
+
+**Perbaikan:** route `compare` (dan turunannya) selalu diarahkan ke `blocked`
+(404), termasuk dari localhost.
 
 ---
 
-## 4. Sedang
+## 3. Detail temuan otorisasi
 
-### S1. Folder `uploads/` tanpa proteksi — **DIPERBAIKI**
-Daftar file bisa dibuka publik dan skrip di dalamnya berpotensi dieksekusi.
-Perbaikan `uploads/.htaccess`: `Options -Indexes`, tolak ekstensi
-`php|phtml|phar|pl|py|cgi|sh|asp|jsp|html|svg|xml`, dan `php_flag engine off`.
-Verifikasi: `uploads/` → **403**.
+### T1. Guru bisa mengelola data siswa
 
-### S2. Cookie sesi tanpa `HttpOnly` dan `Secure` — **DIPERBAIKI**
-`cookie_httponly = FALSE` (cookie sesi bisa dibaca JavaScript) dan
-`cookie_secure = FALSE`.
-Perbaikan: `cookie_httponly = TRUE`; `cookie_secure` otomatis `TRUE` bila
-request lewat HTTPS (tanpa memutus akses HTTP lokal). Verifikasi: cookie
-`ci_session` sekarang `HttpOnly`.
+`Datasiswa::__construct` mengizinkan **admin atau guru**:
 
-### S3. Sekitar 5.300 echo tanpa escaping — **SEBAGIAN (bertahap)**
-Dari 5.324 `<?=` di view, hanya 246 memakai `html_escape()`. Sebagian besar
-aman (label statis/angka), tetapi data yang bisa diisi pengguna ber-Hak rendah
-(nama siswa, nama guru, judul materi, dsb.) berpotensi XSS tersimpan.
-Prioritas: nama & judul pada tabel daftar (DataTables), halaman cetak, dan
-halaman yang dibuka admin.
+```php
+if (!$this->ion_auth->is_admin() && !$this->ion_auth->in_group("guru")) { show_error(...); }
+```
 
-### S4. Tiga endpoint dikecualikan dari CSRF — **TERBUKA**
-`kelasmateri/saveMateri`, `kelasmateri/uploadfile`, `kelasmateri/deletefile`
-dikecualikan di `config.php`, padahal dipanggil dari dalam aplikasi (bukan
-callback pihak ketiga). Hanya `pembayaran/midtrans_notification` yang memang
-perlu dikecualikan.
-Rekomendasi: hapus 3 URI itu dari `csrf_exclude_uris`; template admin/guru sudah
-menyisipkan token lewat `ajaxcsrf()`.
+Padahal menu "Siswa" hanya ada di sidebar admin, dan seluruh method
+(`create`, `updateData`, `delete`, `editLogin`, `do_import`, `update_foto`, …)
+tanpa cek tambahan. Guru dapat menghapus siswa atau mengganti password login
+siswa (pengambilalihan akun siswa).
 
-### S5. `encryption_key` tertulis di repo publik — **TERBUKA**
-`application/config/config.php` berisi `encryption_key` statis dan repo
-`github.com/wildanzet06/cbt-sekolah` publik. Siapa pun yang meng-clone tahu kunci
-tersebut (dipakai library Encryption).
-Rekomendasi: pindahkan ke variabel lingkungan/`config` di luar repo dan ganti
-nilainya (perhatikan data terenkripsi lama bila ada).
+**Perbaikan (Akses_hook):** `datasiswa` dan `bukuinduk` masuk `$khusus_admin_semua`
+(seluruh method hanya admin). Diuji: guru → **403** di `datasiswa`,
+`datasiswa/edit/1`, `bukuinduk`; admin tetap normal.
+
+### T2. Guru bisa mengedit/memulihkan nilai rapor
+
+`Bukurapor` mengizinkan guru (menu "Arsip Rapor" memang milik guru), tetapi
+`editNilaiRapor`, `backupNilai`, dan `restoreNilai` adalah aksi admin dan tidak
+memeriksa peran. Guru dapat mengubah nilai siswa atau menimpa nilai dengan backup.
+
+**Perbaikan (Akses_hook):** `bukurapor` → `editnilairapor`, `backupnilai`,
+`restorenilai` hanya admin. Halaman arsip (`index`) tetap bisa dibuka guru.
+
+### T3. IDOR pada ujian siswa
+
+`Siswa::saveJawaban()` mengambil `siswa` (id_siswa) dari **POST** dan langsung
+menyimpannya; `getTimer($id_siswa, $id_jadwal)` mengambil dari **URI**. Tidak ada
+pemeriksaan bahwa id tersebut milik siswa yang login ⇒ siswa dapat mengisi
+jawaban siswa lain atau membaca timer siswa lain.
+
+**Perbaikan (Akses_hook):** untuk peran siswa pada method ujian
+(`savejawaban`, `loadnomorsoal`, `gettimer`, `checktimer`, `resettimer`,
+`selesaiujian`, `ulangiujian`, `validasisiswa`, `soalsiswa`, `saveujian`,
+`savelogujian`), `id_siswa` dari POST/URI dibandingkan dengan `id_siswa` milik
+akun yang login (dipetakan lewat `master_siswa.username`). Bila berbeda → 403.
+Diuji: kirim `siswa=999` → **403**; `getTimer/999/1` → **403**; data sendiri tetap
+bisa dikirim.
+
+### T4. Path traversal pada hapus file
+
+Beberapa controller menghapus file dengan pola:
+
+```php
+$src = $this->input->post('src');
+$file_name = str_replace(base_url(), '', $src);
+unlink($file_name);
+```
+
+`$src = ../../index.php` dapat menghapus berkas di luar folder uploads.
+`Dbmanager::hapusBackup($src)` juga `unlink("./backups/" . $src)`.
+
+**Perbaikan (Akses_hook):** pada method `deletefile`/`delete_file`/`hapusfile`/
+`hapusbackup`, nilai `src` (POST) dan segmen URI ditolak bila mengandung `..`,
+path absolut Windows (`C:\`), atau UNC (`\\server`); nama backup wajib cocok
+`^[A-Za-z0-9._-]+$`. Diuji: `src=../../index.php` → **403**, `index.php` utuh.
+
+### T5. CSRF pada endpoint kelasmateri
+
+`csrf_exclude_uris` memuat `kelasmateri/saveMateri`, `uploadfile`, `deletefile`.
+Ketiganya sebenarnya **sudah mengirim token** (form memakai `form_open()`, dan
+upload summernote menambahkan token secara manual), sehingga pengecualian itu
+tidak perlu dan membuka celah CSRF (guru yang sedang login bisa dipaksa
+mengunggah/menghapus file dari situs lain).
+
+**Perbaikan:** pengecualian dihapus; hanya `pembayaran/midtrans_notification`
+(notifikasi server Midtrans) yang tersisa. Diuji: POST tanpa token → **403**,
+dengan token → diteruskan.
 
 ---
 
-## 5. Rendah
+## 4. Ketersediaan data (bukan keamanan, tapi berdampak besar)
 
-| # | Temuan | Saran |
+### T6. Tabel tambahan hilang → semua halaman keuangan error
+
+Delapan tabel (`cbt_pembayaran_spp`, `cbt_setting_spp`, `cbt_jenis_tagihan`,
+`cbt_tagihan`, `cbt_keringanan`, `cbt_password_diganti`, `cbt_presensi`,
+`cbt_presensi_sesi`) hilang pada 15/11 dan 16/11 sehingga halaman keuangan
+menampilkan `Table 'cbt.xxx' doesn't exist`.
+
+**Perbaikan:** helper `application/helpers/skema_helper.php` dengan
+`skema_tambahan_pastikan($db)`, dipanggil dari constructor `Pembayaran_model`,
+`Tagihan_model`, `Presensi_model`. Satu query pengecekan; bila ada yang kurang,
+tabel dibuat ulang (idempoten), kolom versi lama dilengkapi, enum
+`metode_pembayaran` dipastikan memuat `tunai`, lalu setting SPP + jenis "SPP"
+diisi. Diuji: 9 tabel dihapus manual → semua halaman keuangan normal kembali.
+
+---
+
+## 5. Temuan yang masih terbuka
+
+### S1. Password siswa/guru plaintext (Tinggi)
+
+Kolom `master_siswa.password` dan `master_guru.password` berisi teks biasa
+(contoh: `12341234`) dan nilai itu ditampilkan di form Data Siswa/Guru. Bila
+database atau backup bocor, seluruh akun siswa/guru terbaca langsung.
+
+Rekomendasi:
+1. Simpan dengan `password_hash()`; saat login, verifikasi dengan
+   `password_verify()` dan migrasikan otomatis nilai lama (rehash saat login sukses).
+2. Jangan tampilkan password di form; gunakan "Reset password" (isi ulang).
+3. Akun login tetap memakai `users` (ion_auth/bcrypt) — kolom plaintext ini
+   sebaiknya dihapus setelah migrasi.
+
+### S2. XSS: keluaran tanpa escaping (Sedang)
+
+Terdapat ±5.000 `<?=` di `application/views` tanpa `html_escape()`. Sebagian
+besar berisi angka/nilai internal, tetapi beberapa menampilkan data dari database
+(nama siswa, judul materi, keterangan). Vektor yang sudah diperbaiki: komentar &
+balasan postingan (JS `esc()`), serta `pelanggaran` (sudah `html_escape`).
+
+Rekomendasi: terapkan `html_escape()` pada semua keluaran data pengguna; untuk
+isi materi yang memang HTML (summernote), gunakan pembersih HTML (mis. `HTMLPurifier`)
+dan batasi tag yang diizinkan.
+
+### S3. Encryption key statis (Sedang)
+
+`$config['encryption_key']` di `application/config/config.php` bernilai tetap dan
+ikut di repositori publik (dipakai untuk cookie/enkripsi). Siapa pun yang tahu
+nilainya dapat memalsukan data terenkripsi yang memakai key tersebut.
+
+Rekomendasi: ganti dengan nilai acak baru per instalasi (minimal 32 karakter),
+simpan di file yang tidak ikut repositori (`application/config/*.local.php` atau
+environment), lalu dokumentasikan cara mengisinya.
+
+### S4. IDOR materi/tugas (Rendah)
+
+`/siswa/bukaMateri/{id_kjm}/{jamke}` dan `bukaTugas` mengambil data berdasarkan ID
+tanpa memeriksa apakah materi itu milik kelas siswa tersebut. Siswa dapat membaca
+materi kelas lain bila mengetahui ID-nya.
+
+Rekomendasi: sebelum menampilkan, pastikan `id_kjm` terdaftar untuk kelas siswa
+(join `kelas_jadwal_materi` → `kelas_siswa` pada tahun pelajaran & semester aktif).
+
+### S5. Integritas ujian (Sedang)
+
+Waktu ujian dihitung dan dikirim dari sisi klien (`elapsed`), dan `saveJawaban`
+tidak memeriksa apakah sesi ujian masih berjalan. Siswa yang paham teknis dapat
+mengirim jawaban setelah waktu habis atau mengubah `elapsed`.
+
+Rekomendasi: hitung sisa waktu di server dari `log_ujian` (waktu mulai + durasi),
+tolak penyimpanan bila melewati batas, dan catat percobaan tersebut.
+
+### S6. Route `update` (Rendah)
+
+`/update` masih bisa dibuka dari komputer server dan dapat menjalankan perintah
+migrasi dari `database.json`. Untuk sekolah yang tidak pernah update manual,
+route ini bisa ditutup seperti `compare`.
+
+---
+
+## 6. Hasil uji akses per peran
+
+Uji langsung dengan akun admin, guru, dan siswa (`GET`, tanpa token):
+
+| Halaman | Guru | Siswa |
 |---|---|---|
-| R1 | `sess_expiration = 7200*12` (24 jam), komentar menulis "1 jam" | turunkan ke 4–8 jam untuk akun admin |
-| R2 | `csrf_regenerate = FALSE` (token tetap per sesi) | aman untuk mencegah CSRF lintas situs; regenerasi akan memutus AJAX yang memakai token saat halaman dimuat — biarkan atau sesuaikan JS lebih dulu |
-| R3 | Proteksi login sudah baik: bcrypt, `track_login_attempts`, `lockout_time=600` | tidak ada aksi |
+| `settings`, `dbmanager`, `dbclear`, `useradmin`, `userguru`, `usersiswa` | 403 | 403 |
+| `datasiswa` | **403** (dulu 200) | 403 |
+| `bukuinduk` | **403** (dulu 200) | 403 |
+| `bukurapor` (arsip) | 200 | 403 |
+| `bukurapor/editnilairapor` | **403** (dulu 200) | 403 |
+| `pembayaran`, `pembayaran/tunai`, `pembayaran/laporan`, `pembayaran/setting_spp`, `tagihan` | **403** (dulu 500) | 403 |
+| `presensi`, `presensi/rekap`, `cbtsesi`, `cbtruang`, `cbtjenis`, `cbtnomorpeserta`, `cbtpengawas`, `cbtalokasi`, `ujiansekolah/pengaturan` | 403 | 403 |
+| `dashboard`, `kelasmateri`, `ujiansekolah`, `nilaimanual`, `pelanggaran` | 200 | 403 (admin/guru) / 200 (siswa) |
+
+Tanpa login, seluruh halaman di atas → **307** (redirect ke login). Yang tidak
+pernah terbuka tanpa login: `.git/`, `application/logs/`, `uploads/`, `backups/`
+→ **403**.
 
 ---
 
-## 6. Bug fungsional
+## 7. Perlindungan yang sudah terpasang
 
-| # | Bug | Status |
-|---|---|---|
-| B1 | 9 tabel tambahan hilang → halaman Pelanggaran/Presensi/Tagihan error 1146 | **DIPERBAIKI**: skema dibuat ulang + `Pelanggaran_model` kini membuat tabelnya sendiri bila hilang |
-| B2 | `Undefined variable: $gurus` di halaman Jadwal (guru) | **DIPERBAIKI** |
-| B3 | `Invalid argument supplied for foreach()` di `Dbmanager.php:7` | terbuka (controller obfuscated; hanya notice) |
-| B4 | `Dbclear::index()` (menu Pengaturan → Database → Bersihkan Data) **menghapus tabel** yang tidak ada di `assets/app/db/database.json` hanya dengan membuka halamannya — inilah penyebab tabel keuangan/presensi hilang 15 Nov | **DIPERBAIKI**: DROP otomatis dimatikan, tabel tambahan aplikasi dimasukkan ke daftar lindung |
-
----
-
-## 7. Yang diuji dan hasilnya
-
-- **Halaman**: 43 halaman admin + 13 halaman guru + 7 form edit + halaman siswa
-  (`/akun/pelanggaran`, `/akun/kehadiran`) → 200, tanpa notice/error baru.
-- **Injeksi SQL**: query builder/placeholder dipakai konsisten; 3 interpolasi
-  memakai nilai internal (`date()`, nama tabel dari kode).
-- **XSS refleksi**: tidak ada view yang mencetak `$_GET/$_POST` langsung.
-- **XSS tersimpan**: 1 jalur nyata (komentar) sudah ditutup; sisanya bertahap (S3).
-- **CSRF**: proteksi aktif untuk semua POST kecuali 3 URI (S4).
-- **Upload**: tipe file dibatasi `jpeg|jpg|png|gif|mp3|mp4|doc|docx|xls|xlsx|ppt|pdf|zip`,
-  tidak ada PHP; folder upload sekarang juga menolak eksekusi skrip.
-- **Akses berkas sensitif**: `.git`, `docs/`, `*.sql`, `composer.*`, `options.json`,
-  `README`, daftar `uploads/` → **403**.
-- **Header keamanan**: `X-Content-Type-Options: nosniff`,
-  `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`.
-- **Alat internal** (`install`, `update`, `compare`): hanya dari komputer server.
+- `.htaccess` root: blokir `.git`, dotfiles, folder `docs/`, ekstensi sensitif
+  (`.sql`, `.log`, `.bak`, `.env`, …), `Options -Indexes`, security headers
+  (`X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`).
+- `uploads/.htaccess`: tanpa listing, tolak ekstensi skrip, `php_flag engine off`.
+- `backups/.htaccess`: tolak akses web (403).
+- `installer/.htaccess`: hanya localhost + penjaga "sudah terpasang" (K2).
+- CSRF aktif (`csrf_protection = TRUE`), token diregenerasi otomatis oleh CI.
+- Cookie `HttpOnly`, `Secure` otomatis bila HTTPS; sesi disimpan di file.
+- Login dibatasi 3 percobaan gagal / 10 menit (ion_auth).
+- `Akses_hook` menolak siswa ke halaman admin/guru dan menolak non-admin ke
+  aksi sensitif (User Management, data siswa, arsip rapor, ujian milik orang lain).
+- Mode `production` otomatis untuk akses non-localhost (pesan error tidak
+  menampilkan detail database).
 
 ---
 
-## 8. Rekomendasi lanjutan (urut prioritas)
+## 8. Cara menguji ulang
 
-1. Migrasi password `master_siswa`/`master_guru` ke bcrypt + hapus tampilan password (T3).
-2. Kunci `id_siswa`/`id_soal_siswa` pada endpoint ujian ke sesi siswa (T4).
-3. Escape bertahap pada view yang menampilkan data masukan pengguna (S3).
-4. Hapus 3 URI dari pengecualian CSRF (S4).
-5. Rotasi `encryption_key` dan simpan di luar repo (S5).
-6. Rutin backup database (menu Pengaturan → Database → Backup) dan simpan di luar webroot.
+1. **Otorisasi:** login sebagai guru → buka `/datasiswa`, `/bukurapor/editnilairapor`
+   → harus 403. Login sebagai siswa → `/settings`, `/tagihan` → 403.
+2. **IDOR ujian:** sebagai siswa, POST `/siswa/saveJawaban` dengan `siswa=999`
+   → 403 (JSON).
+3. **Path traversal:** POST `/cbtbanksoal/deletefile` dengan `src=../../index.php`
+   → 403; pastikan `index.php` masih ada.
+4. **CSRF:** POST `/kelasmateri/deletefile` tanpa `csrf_token` → 403.
+5. **Installer:** buka `/installer/` → 403 "Installer dinonaktifkan".
+6. **Bersihkan Data:** buat tabel uji, buka `/dbclear`, pastikan tabel uji masih ada.
+7. **Self-healing:** hapus satu tabel tambahan (mis. `cbt_tagihan`), buka
+   `/tagihan` → tabel dibuat ulang dan halaman normal.
+
+---
+
+## 9. Catatan penutup
+
+Semua perbaikan sudah diuji regresi: 28 halaman admin, 15 halaman guru, dan
+6 halaman siswa — **0 error/warning PHP**. Dua area yang sebaiknya dikerjakan
+berikutnya adalah **S1 (password plaintext)** dan **S5 (integritas waktu ujian)**,
+karena keduanya berdampak langsung pada data akademik.

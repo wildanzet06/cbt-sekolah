@@ -6,6 +6,14 @@
  * Time: 22:29
  */
 
+// Nilai default agar halaman tetap tampil walau controller tidak mengirim
+// variabel tertentu (mis. saat dibuka bukan dari menu materi/tugas).
+$jenis          = isset($jenis) ? $jenis : '1';
+$jadwal_mapel   = isset($jadwal_mapel) ? $jadwal_mapel : array();
+$tanggal_jadwal = isset($tanggal_jadwal) ? $tanggal_jadwal : '';
+$materi         = isset($materi) ? $materi : array();
+$id_guru        = isset($id_guru) ? $id_guru : '';
+$subjudul       = isset($subjudul) ? $subjudul : 'Materi';
 $urlJenis = $jenis == "1" ? "materi" : "tugas";
 $total = count($materi);
 $all_materi = [];

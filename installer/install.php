@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/includes/cek_terpasang.php'; // tolak bila sudah terpasang
+
 error_reporting(0);
 $db_config_path = '../application/config/database.php';
 

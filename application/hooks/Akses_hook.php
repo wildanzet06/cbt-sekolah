@@ -48,6 +48,35 @@ class Akses_hook {
     );
     private $khusus_admin = array('usersiswa', 'userguru', 'useradmin');
 
+    /**
+     * Controller yang SELURUH method-nya hanya untuk admin.
+     * Datasiswa: tambah/ubah/hapus siswa + ubah username/password siswa.
+     * Bukuinduk: buku induk siswa (halaman admin, tidak ada di menu guru).
+     */
+    private $khusus_admin_semua = array('datasiswa', 'bukuinduk');
+
+    /**
+     * Controller dengan method tertentu yang hanya untuk admin,
+     * walau controller-nya sendiri boleh diakses guru.
+     */
+    private $khusus_admin_method = array(
+        // Arsip rapor: guru hanya boleh melihat; mengubah/memulihkan nilai = admin
+        'bukurapor' => array('backupnilai', 'restorenilai', 'editnilairapor')
+    );
+
+    /**
+     * Method ujian di controller Siswa yang menerima id_siswa dari luar.
+     * Dipakai untuk memastikan siswa hanya mengakses datanya sendiri.
+     */
+    private $metode_ujian_siswa = array(
+        'savejawaban', 'loadnomorsoal', 'gettimer', 'checktimer',
+        'resettimer', 'selesaiujian', 'ulangiujian', 'validasisiswa',
+        'soalsiswa', 'saveujian', 'savelogujian'
+    );
+
+    /** Method yang menghapus file dari POST 'src' / URI (cek path traversal). */
+    private $metode_hapus_file = array('deletefile', 'delete_file', 'hapusfile', 'hapusbackup');
+
     public function periksa() {
         $CI =& get_instance();
 
@@ -80,7 +109,75 @@ class Akses_hook {
             if (!$admin && in_array($n, $this->khusus_admin) && in_array($metode, $this->aksi_admin)) {
                 $this->tolak($CI, 'non-admin membuka ' . $n . '/' . $metode);
             }
+
+            // 3) Controller yang seluruhnya hanya untuk admin
+            if (!$admin && in_array($n, $this->khusus_admin_semua)) {
+                $this->tolak($CI, 'non-admin membuka ' . $n . '/' . $metode);
+            }
+
+            // 4) Method tertentu yang hanya untuk admin
+            if (!$admin && isset($this->khusus_admin_method[$n])
+                && in_array($metode, $this->khusus_admin_method[$n])) {
+                $this->tolak($CI, 'non-admin membuka ' . $n . '/' . $metode);
+            }
+
+            // 5) Siswa tidak boleh mengirim jawaban/timer atas nama siswa lain
+            //    (endpoint ujian menerima id_siswa dari POST/URI).
+            if ($siswa && $n === 'siswa' && in_array($metode, $this->metode_ujian_siswa)) {
+                $id_login = $this->id_siswa_login($CI);
+                if ($id_login) {
+                    $diminta = $CI->input->post('siswa', true);
+                    if ($diminta === null || $diminta === '') {
+                        $diminta = $CI->uri->segment(3);
+                    }
+                    if ($diminta !== null && $diminta !== ''
+                        && (string) (int) $diminta !== (string) (int) $id_login) {
+                        $this->tolak($CI, 'siswa ' . $id_login . ' memakai id_siswa ' . $diminta . ' di ' . $metode);
+                    }
+                }
+            }
+            // 6) Cegah penghapusan file di luar folder uploads (path traversal).
+            //    Beberapa controller memakai unlink(str_replace(base_url(),'', $_POST['src'])).
+            if (in_array($metode, $this->metode_hapus_file)) {
+                $src = (string) $CI->input->post('src', true);
+                if ($src !== '' && $this->path_mencurigakan($src)) {
+                    $this->tolak($CI, 'path traversal hapus file: ' . $src);
+                }
+                // hapusBackup($src): nama file backup dari URI
+                if ($metode === 'hapusbackup') {
+                    $seg = (string) $CI->uri->segment(3);
+                    if ($seg !== '' && !preg_match('/^[A-Za-z0-9._-]+$/', $seg)) {
+                        $this->tolak($CI, 'nama backup tidak valid: ' . $seg);
+                    }
+                }
+            }
         }
+    }
+
+    /** Path mengandung pola traversal / absolut (dipakai penjaga hapus file). */
+    private function path_mencurigakan($path) {
+        if (strpos($path, '..') !== false) {
+            return true;
+        }
+        // path absolut Windows (C:\...) atau UNC (\\server)
+        if (preg_match('#^[A-Za-z]:[\\\\/]#', $path) || preg_match('#^\\\\\\\\#', $path)) {
+            return true;
+        }
+        return false;
+    }
+    private function id_siswa_login($CI) {
+        static $cache = false;
+        if ($cache !== false) {
+            return $cache;
+        }
+        $user = $CI->ion_auth->user()->row();
+        if (!$user) {
+            return $cache = null;
+        }
+        $row = $CI->db->select('id_siswa')
+            ->where('username', $user->username)
+            ->get('master_siswa')->row();
+        return $cache = $row ? (int) $row->id_siswa : null;
     }
 
     private function tolak($CI, $alasan) {

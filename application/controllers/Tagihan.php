@@ -12,7 +12,7 @@ class Tagihan extends CI_Controller {
             redirect('auth');
         }
         if (!$this->ion_auth->is_admin()) {
-            show_error('Akses Ditolak');
+            show_error('Akses Ditolak', 403, 'Akses Ditolak');
         }
 
         $this->load->model('Dashboard_model', 'dashboard');

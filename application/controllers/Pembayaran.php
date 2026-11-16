@@ -161,7 +161,7 @@ class Pembayaran extends CI_Controller {
     // ADMIN
     // =====================================================================
     public function index() {
-        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak');
+        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak', 403, 'Akses Ditolak');
 
         // Transaksi Midtrans yang tidak dibayar > 24 jam otomatis dianggap gagal
         $this->Pembayaran_model->expire_pending_midtrans(24);
@@ -176,7 +176,7 @@ class Pembayaran extends CI_Controller {
     }
 
     public function setting_spp() {
-        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak');
+        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak', 403, 'Akses Ditolak');
 
         $data = $this->_admin_data('Setting Pembayaran SPP');
         $data['setting_spp'] = $this->Pembayaran_model->setting_spp();
@@ -186,7 +186,7 @@ class Pembayaran extends CI_Controller {
     }
 
     public function update_setting_spp() {
-        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak');
+        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak', 403, 'Akses Ditolak');
 
         // Form dikirim lewat POST; tolak akses langsung via URL.
         if ($this->input->method() !== 'post') {
@@ -225,7 +225,7 @@ class Pembayaran extends CI_Controller {
 
     /** Simpan daftar rekening tujuan transfer (POST dari halaman setting). */
     public function simpan_rekening() {
-        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak');
+        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak', 403, 'Akses Ditolak');
         if ($this->input->method() !== 'post') {
             redirect('pembayaran/setting_spp');
             return;
@@ -252,7 +252,7 @@ class Pembayaran extends CI_Controller {
     }
 
     public function verifikasi($id) {
-        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak');
+        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak', 403, 'Akses Ditolak');
 
         $update = array(
             'status_pembayaran' => 'success',
@@ -276,7 +276,7 @@ class Pembayaran extends CI_Controller {
     // Admin menolak pembayaran (mis. bukti transfer tidak sesuai).
     // Statusnya jadi "Gagal", sehingga siswa bisa mengajukan ulang bulan itu.
     public function tolak($id) {
-        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak');
+        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak', 403, 'Akses Ditolak');
 
         // Penolakan wajib lewat POST (dikirim dari tombol Tolak di halaman Pembayaran)
         if ($this->input->method() !== 'post') {
@@ -306,7 +306,7 @@ class Pembayaran extends CI_Controller {
 
     /** Halaman form input pembayaran tunai. */
     public function tunai() {
-        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak');
+        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak', 403, 'Akses Ditolak');
 
         $this->load->model('Tagihan_model');
 
@@ -550,7 +550,7 @@ class Pembayaran extends CI_Controller {
     // KWITANSI
     // =====================================================================
     public function kwitansi($id) {
-        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak');
+        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak', 403, 'Akses Ditolak');
 
         $pembayaran = $this->Pembayaran_model->get_pembayaran_by_id($id);
         if (!$pembayaran) {
@@ -564,7 +564,7 @@ class Pembayaran extends CI_Controller {
     }
 
     public function cetak_kwitansi($id) {
-        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak');
+        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak', 403, 'Akses Ditolak');
 
         $data['pembayaran'] = $this->Pembayaran_model->get_pembayaran_by_id($id);
         $data['setting']    = $this->dashboard->getSetting();
@@ -580,7 +580,7 @@ class Pembayaran extends CI_Controller {
     // LAPORAN
     // =====================================================================
     public function laporan() {
-        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak');
+        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak', 403, 'Akses Ditolak');
 
         $bulan  = $this->input->get('bulan');
         $tahun  = $this->input->get('tahun');
@@ -602,7 +602,12 @@ class Pembayaran extends CI_Controller {
         $siswa = $this->_get_siswa();
 
         if (!$siswa) {
-            show_error('Data siswa tidak ditemukan.<br><br>Username: ' . $user->username . '<br>User ID: ' . $user->id);
+            // Admin/guru tidak punya data siswa: arahkan ke menu keuangan admin.
+            if ($this->ion_auth->is_admin() || $this->ion_auth->in_group('guru')) {
+                redirect('pembayaran');
+                return;
+            }
+            show_error('Data siswa tidak ditemukan.<br><br>Username: ' . html_escape($user->username) . '<br>User ID: ' . (int) $user->id, 403);
         }
 
         $data['user']        = $user;
@@ -816,7 +821,7 @@ class Pembayaran extends CI_Controller {
     // =====================================================================
     // Tunggakan kini dilihat lewat Daftar Tagihan (status: belum lunas)
     public function tunggakan() {
-        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak');
+        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak', 403, 'Akses Ditolak');
         redirect('tagihan?status=tunggakan');
     }
 
@@ -826,7 +831,7 @@ class Pembayaran extends CI_Controller {
 
     // Ekspor daftar transaksi. Bisa difilter: ?bulan=Juni&tahun=2026&status=success
     public function export_laporan() {
-        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak');
+        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak', 403, 'Akses Ditolak');
 
         $bulan  = $this->input->get('bulan');
         $tahun  = $this->input->get('tahun');
@@ -863,7 +868,7 @@ class Pembayaran extends CI_Controller {
     // Ekspor daftar tunggakan. Parameter sama dengan halaman Tunggakan.
     // Ekspor Daftar Tagihan (filter sama dengan halaman Daftar Tagihan)
     public function export_tagihan() {
-        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak');
+        if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak', 403, 'Akses Ditolak');
 
         $filter = array(
             'jenis_id' => $this->input->get('jenis_id'),

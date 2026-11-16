@@ -375,7 +375,7 @@ $tempIdSelected = $id_kelas . $tp_active->id_tp . $smt_active->id_smt;
                     <ul class="nav nav-pills nav-sidebar flex-column nav-child-indent" data-widget="treeview">
                         <?php
                         $n = 1;
-                        foreach ($siswas as $siswa): ?>
+                        foreach ((isset($siswas) ? $siswas : array()) as $siswa): ?>
                             <li class="nav-item">
                                 <a href="javascript:void(0)" class="nav-link pt-1 pb-1 pl-2 text-sm siswa"
                                    onclick="preview(<?= $siswa->id_siswa ?>)">

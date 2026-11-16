@@ -193,10 +193,10 @@ $config['csrf_token_name'] = 'csrf_token';
 $config['csrf_cookie_name'] = 'csrf_cookie';
 $config['csrf_expire'] = 9000;
 $config['csrf_regenerate'] = FALSE;
+// Hanya notifikasi Midtrans (dari server Midtrans, tanpa token CSRF).
+// Endpoint kelasmateri sudah mengirim token (form_open otomatis), jadi
+// tidak perlu dikecualikan lagi.
 $config['csrf_exclude_uris'] = array(
-    'kelasmateri/saveMateri',
-    'kelasmateri/uploadfile',
-    'kelasmateri/deletefile',
 	'pembayaran/midtrans_notification'
 );
 
