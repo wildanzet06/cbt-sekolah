@@ -75,15 +75,14 @@
                     {
                         'name': 'Keuangan', 'icon': 'fas fa-money-bill-wave', 'cbt': '1',
                         'submenu': [
-                            // Urut sesuai alur kerja keuangan:
-                            // penagihan -> pembayaran -> laporan
-                            // (Setting Pembayaran kini berupa tombol di halaman Pembayaran SPP)
-                            {'name': 'Jenis Tagihan', 'link': 'tagihan/jenis', 'icon': 'fas fa-tags'},
-                            {'name': 'Keringanan Siswa', 'link': 'tagihan/keringanan', 'icon': 'fas fa-hand-holding-heart'},
-                            {'name': 'Buat Tagihan', 'link': 'tagihan/buat', 'icon': 'fas fa-plus-circle'},
+                            // Menu harian di paling atas, lalu alur penagihan.
+                            // (Setting Pembayaran berupa tombol di halaman Pembayaran SPP)
+                            {'name': 'Pembayaran SPP', 'link': 'pembayaran', 'icon': 'fas fa-receipt'},
                             {'name': 'Daftar Tagihan', 'link': 'tagihan', 'icon': 'fas fa-file-invoice-dollar'},
                             {'name': 'Pembayaran Tunai', 'link': 'pembayaran/tunai', 'icon': 'fas fa-money-bill-wave'},
-                            {'name': 'Pembayaran SPP', 'link': 'pembayaran', 'icon': 'fas fa-receipt'},
+                            {'name': 'Buat Tagihan', 'link': 'tagihan/buat', 'icon': 'fas fa-plus-circle'},
+                            {'name': 'Jenis Tagihan', 'link': 'tagihan/jenis', 'icon': 'fas fa-tags'},
+                            {'name': 'Keringanan Siswa', 'link': 'tagihan/keringanan', 'icon': 'fas fa-hand-holding-heart'},
                             {'name': 'Laporan SPP', 'link': 'pembayaran/laporan', 'icon': 'fas fa-file-alt'}
                         ]
                     },
