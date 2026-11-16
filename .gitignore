@@ -14,12 +14,16 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 application/logs/*
 !application/logs/index.html
 !application/logs/.htaccess
-/backups/
+/backups/*
+!/backups/index.html
+!/backups/.htaccess
 /orm/
 #/vendor/
 /nbproject/private/
 vendor/
-backups/
+backups/*
+!backups/index.html
+!backups/.htaccess
 .idea/
 # Editor
 .idea/
@@ -30,7 +34,9 @@ backups/
 application/config/midtrans.php
 
 # Data pengguna dan cadangan
-backups/
+backups/*
+!backups/index.html
+!backups/.htaccess
 uploads/**
 !uploads/**/
 !uploads/**/index.html
@@ -52,7 +58,9 @@ application/cache/*
 application/config/midtrans.php
 
 # Cadangan database
-backups/
+backups/*
+!backups/index.html
+!backups/.htaccess
 
 # Berkas unggahan pengguna (foto siswa, bukti transfer, dll.)
 # Folder dan index.html pelindung tetap ikut
