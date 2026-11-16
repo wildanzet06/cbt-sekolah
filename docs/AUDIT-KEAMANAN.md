@@ -24,6 +24,9 @@ Status: **Diperbaiki** = sudah ditutup di kode. **Terbuka** = belum diperbaiki
 | T3 | IDOR ujian: siswa bisa mengirim jawaban / membaca timer **atas nama siswa lain** (`savejawaban`, `gettimer`, dsb.) | **Tinggi** | Diperbaiki |
 | T4 | Path traversal pada hapus file (`unlink($_POST['src'])`) di beberapa controller + `hapusBackup($src)` | **Tinggi** | Diperbaiki |
 | T5 | Endpoint `kelasmateri` (upload/hapus/simpan materi) dikecualikan dari CSRF | **Sedang** | Diperbaiki |
+| T7 | `Usersiswa` tanpa cek admin: guru bisa `edit`/`update` akun siswa (ganti username & password) | **Tinggi** | Diperbaiki |
+| T8 | Banyak aksi pengubah data bisa dipicu lewat **GET** (`pembayaran/verifikasi` berupa tautan, hapus posting, reset login, hapus bank soal, dll.) → CSRF lewat `<img>`/tautan | **Tinggi** | Diperbaiki |
+| T9 | `assets/app/db/database.json` (skema 112 KB) dan `installer/includes/*` bisa diakses langsung lewat web | **Rendah** | Diperbaiki |
 | T6 | Tabel tambahan hilang → semua halaman keuangan error `Table ... doesn't exist` | **Tinggi** | Diperbaiki (self-healing) |
 | S1 | Password siswa/guru tersimpan **plaintext** di `master_siswa`/`master_guru` dan ditampilkan di form | **Tinggi** | Terbuka |
 | S2 | ~5.000 keluaran `<?=` tanpa `html_escape()` di view (XSS) | **Sedang** | Sebagian |
@@ -155,6 +158,58 @@ mengunggah/menghapus file dari situs lain).
 (notifikasi server Midtrans) yang tersisa. Diuji: POST tanpa token → **403**,
 dengan token → diteruskan.
 
+### T7. Guru bisa mengubah akun siswa (Usersiswa)
+
+`Usersiswa::__construct` hanya memeriksa `logged_in()` — tidak ada cek admin.
+Method `edit($id)`, `update()` (mengganti `username` dan password siswa
+berdasarkan `id_siswa` dari POST), dan `delete()` dapat dipanggil guru mana pun.
+Method bantuan `is_has_access()` juga rusak (`!$group === "admin"` selalu
+bernilai salah) sehingga tidak pernah melindungi apa pun.
+
+**Perbaikan (Akses_hook):** `usersiswa` masuk `$khusus_admin_semua` (semua
+method hanya admin), dengan pengecualian `usersiswa/change_password` yang tetap
+boleh untuk semua pengguna karena hanya mengubah password **milik sendiri**
+(nilai `identity` diambil dari sesi, bukan dari input).
+
+Diuji: guru → 403 pada `usersiswa`, `usersiswa/edit/1`, dan POST
+`usersiswa/update`; siswa tetap bisa `change_password`; admin normal.
+
+### T8. Aksi pengubah data lewat GET (CSRF)
+
+Banyak endpoint mengubah data tetapi tidak memeriksa metode HTTP, dan UI-nya
+memanggil dengan GET:
+
+```
+GET pembayaran/verifikasi/{id}      (tautan <a href> — admin memverifikasi pembayaran)
+GET pengumuman/hapuspost/{id}       (AJAX type:"GET")
+GET cbtbanksoal/deleteBank?id_bank= (AJAX type:"GET")
+GET usersiswa/reset_login/{user}    (AJAX type:"GET")
+GET datamapel/aktifkan/{id}, cbtrekap/backupnilai/{id}, dbmanager/truncate, ...
+```
+
+GET tidak dilindungi token CSRF, sehingga halaman lain cukup memuat
+`<img src="http://localhost/cbt-sekolah/pembayaran/verifikasi/12">` untuk
+memaksa admin/guru yang sedang login melakukan aksi tersebut.
+
+**Perbaikan:**
+1. `Akses_hook` aturan 7: method mutasi (`delete`, `hapus*`, `activate`,
+   `reset_login`, `truncate`, `backupnilai`, `verifikasi`, `aktifkan`, …) hanya
+   boleh lewat **POST** atau **AJAX** (header `X-Requested-With`). Permintaan
+   GET biasa (tautan/gambar) → 403.
+2. Tombol **Verifikasi** pembayaran diubah dari `<a href>` menjadi form POST
+   (otomatis membawa token CSRF).
+
+Diuji: GET `/pembayaran/verifikasi/x` → 403; AJAX GET tetap 200 (fitur lama
+tidak rusak); POST ber-token → 303 dan pembayaran terverifikasi.
+
+### T9. Berkas internal terbuka lewat web
+
+`assets/app/db/database.json` (skema lengkap, 112 KB) dan
+`installer/includes/taskCoreClass.php` dapat diunduh langsung.
+
+**Perbaikan:** `assets/app/db/.htaccess` dan `installer/includes/.htaccess`
+menolak semua akses (403); aplikasi tetap membacanya lewat filesystem.
+
 ---
 
 ## 4. Ketersediaan data (bukan keamanan, tapi berdampak besar)
@@ -245,6 +300,8 @@ Uji langsung dengan akun admin, guru, dan siswa (`GET`, tanpa token):
 |---|---|---|
 | `settings`, `dbmanager`, `dbclear`, `useradmin`, `userguru`, `usersiswa` | 403 | 403 |
 | `datasiswa` | **403** (dulu 200) | 403 |
+| `usersiswa` (termasuk `edit`) | **403** (dulu 200) | 403 |
+| `usersiswa/change_password` | 200 (ganti password sendiri) | 200 |
 | `bukuinduk` | **403** (dulu 200) | 403 |
 | `bukurapor` (arsip) | 200 | 403 |
 | `bukurapor/editnilairapor` | **403** (dulu 200) | 403 |

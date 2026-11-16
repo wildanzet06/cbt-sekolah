@@ -125,9 +125,11 @@
                                 <td class="text-nowrap"><?= date('d/m/Y H:i', strtotime($row->tanggal_bayar)); ?></td>
                                 <td class="text-nowrap">
                                     <?php if($row->status_pembayaran == 'pending' && $row->metode_pembayaran == 'transfer_manual'): ?>
-                                        <a href="<?= site_url('pembayaran/verifikasi/'.$row->id); ?>" class="btn btn-sm btn-success mb-1" onclick="return confirm('Yakin ingin memverifikasi pembayaran ini?')">
-                                            <i class="fa fa-check"></i> Verifikasi
-                                        </a>
+                                        <?= form_open('pembayaran/verifikasi/'.$row->id, array('class' => 'd-inline', 'onsubmit' => "return confirm('Yakin ingin memverifikasi pembayaran ini?')")); ?>
+                                            <button type="submit" class="btn btn-sm btn-success mb-1">
+                                                <i class="fa fa-check"></i> Verifikasi
+                                            </button>
+                                        <?= form_close(); ?>
                                         <button type="button" class="btn btn-sm btn-danger mb-1" onclick="tolakPembayaran(<?= (int) $row->id; ?>)">
                                             <i class="fa fa-times"></i> Tolak
                                         </button>

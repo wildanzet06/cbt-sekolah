@@ -53,7 +53,14 @@ class Akses_hook {
      * Datasiswa: tambah/ubah/hapus siswa + ubah username/password siswa.
      * Bukuinduk: buku induk siswa (halaman admin, tidak ada di menu guru).
      */
-    private $khusus_admin_semua = array('datasiswa', 'bukuinduk');
+    private $khusus_admin_semua = array('datasiswa', 'bukuinduk', 'usersiswa');
+
+    /**
+     * Pengecualian dari aturan "controller khusus admin" di atas:
+     * ganti password sendiri (usersiswa/change_password) tetap boleh untuk
+     * semua pengguna yang login — nilainya diambil dari sesi, bukan dari input.
+     */
+    private $dikecualikan_admin_semua = array('usersiswa/change_password');
 
     /**
      * Controller dengan method tertentu yang hanya untuk admin,
@@ -76,6 +83,18 @@ class Akses_hook {
 
     /** Method yang menghapus file dari POST 'src' / URI (cek path traversal). */
     private $metode_hapus_file = array('deletefile', 'delete_file', 'hapusfile', 'hapusbackup');
+
+    /**
+     * Aksi yang mengubah data. Boleh dipanggil lewat AJAX (header
+     * X-Requested-With) atau POST, tetapi TIDAK lewat tautan/GET biasa —
+     * supaya tidak bisa dipicu dari halaman lain (CSRF) atau prefetch browser.
+     */
+    private $metode_mutasi = array(
+        'delete', 'deletebank', 'deletejadwal', 'hapus', 'hapuspost', 'hapuskomentar',
+        'hapusbalasan', 'hapusrunningtext', 'hapusjadwal', 'activate', 'deactivate',
+        'reset_login', 'truncate', 'hapusbackup', 'backupnilai', 'generatealumni',
+        'aktifkan', 'nonaktifkan', 'verifikasi'
+    );
 
     public function periksa() {
         $CI =& get_instance();
@@ -111,7 +130,8 @@ class Akses_hook {
             }
 
             // 3) Controller yang seluruhnya hanya untuk admin
-            if (!$admin && in_array($n, $this->khusus_admin_semua)) {
+            if (!$admin && in_array($n, $this->khusus_admin_semua)
+                && !in_array($n . '/' . $metode, $this->dikecualikan_admin_semua)) {
                 $this->tolak($CI, 'non-admin membuka ' . $n . '/' . $metode);
             }
 
@@ -136,6 +156,7 @@ class Akses_hook {
                     }
                 }
             }
+
             // 6) Cegah penghapusan file di luar folder uploads (path traversal).
             //    Beberapa controller memakai unlink(str_replace(base_url(),'', $_POST['src'])).
             if (in_array($metode, $this->metode_hapus_file)) {
@@ -150,6 +171,13 @@ class Akses_hook {
                         $this->tolak($CI, 'nama backup tidak valid: ' . $seg);
                     }
                 }
+            }
+
+            // 7) Aksi pengubah data tidak boleh dipicu tautan/GET biasa (CSRF).
+            if (in_array($metode, $this->metode_mutasi)
+                && $CI->input->method() !== 'post'
+                && !$CI->input->is_ajax_request()) {
+                $this->tolak($CI, 'aksi mutasi tanpa POST/AJAX: ' . $n . '/' . $metode);
             }
         }
     }
