@@ -11,6 +11,9 @@
                         <a href="<?= site_url('pembayaran/tunai'); ?>" class="btn btn-success">
                             <i class="fas fa-money-bill-wave"></i> Input Tunai
                         </a>
+                        <a href="<?= site_url('pembayaran/setting_spp'); ?>" class="btn btn-outline-primary" title="Nominal SPP dan rekening tujuan transfer">
+                            <i class="fas fa-cog"></i> Setting
+                        </a>
                         <a href="<?= site_url('pembayaran/laporan'); ?>" class="btn btn-info">
                             <i class="fa fa-file-text"></i> Laporan
                         </a>

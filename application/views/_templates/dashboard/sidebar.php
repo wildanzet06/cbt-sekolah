@@ -76,8 +76,8 @@
                         'name': 'Keuangan', 'icon': 'fas fa-money-bill-wave', 'cbt': '1',
                         'submenu': [
                             // Urut sesuai alur kerja keuangan:
-                            // persiapan -> penagihan -> pembayaran -> laporan
-                            {'name': 'Setting Pembayaran', 'link': 'pembayaran/setting_spp', 'icon': 'fas fa-cog'},
+                            // penagihan -> pembayaran -> laporan
+                            // (Setting Pembayaran kini berupa tombol di halaman Pembayaran SPP)
                             {'name': 'Jenis Tagihan', 'link': 'tagihan/jenis', 'icon': 'fas fa-tags'},
                             {'name': 'Keringanan Siswa', 'link': 'tagihan/keringanan', 'icon': 'fas fa-hand-holding-heart'},
                             {'name': 'Buat Tagihan', 'link': 'tagihan/buat', 'icon': 'fas fa-plus-circle'},
