@@ -30,7 +30,7 @@
                 </div>
                 <div class="card-body">
                     <form method="get" action="<?= site_url('pelanggaran/riwayat/' . (int) $siswa->id_siswa); ?>"
-                          class="form-row align-items-end mb-3">
+                          class="form-row align-items-end mb-3" data-auto-filter>
                         <div class="form-group col-6 col-md-3">
                             <label>Dari tanggal</label>
                             <input type="date" name="dari" class="form-control" value="<?= html_escape($dari); ?>">
@@ -39,11 +39,7 @@
                             <label>Sampai tanggal</label>
                             <input type="date" name="sampai" class="form-control" value="<?= html_escape($sampai); ?>">
                         </div>
-                        <div class="form-group col-12 col-md-2">
-                            <button type="submit" class="btn btn-primary btn-block">
-                                <i class="fas fa-filter"></i> Tampilkan
-                            </button>
-                        </div>
+
                     </form>
 
                     <div class="table-responsive">

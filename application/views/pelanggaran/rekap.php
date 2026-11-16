@@ -59,7 +59,7 @@ $riwayat_q = http_build_query(array('format' => 'json', 'dari' => $dari, 'sampai
 
             <div class="card card-outline card-primary">
                 <div class="card-body">
-                    <form method="get" action="<?= site_url('pelanggaran/rekap'); ?>" class="form-row align-items-end">
+                    <form method="get" action="<?= site_url('pelanggaran/rekap'); ?>" class="form-row align-items-end" data-auto-filter>
                         <div class="form-group col-12 col-md-4">
                             <label>Kelas</label>
                             <select name="kelas" class="form-control">
@@ -79,11 +79,7 @@ $riwayat_q = http_build_query(array('format' => 'json', 'dari' => $dari, 'sampai
                             <label>Sampai tanggal <small class="text-muted">(opsional)</small></label>
                             <input type="date" name="sampai" class="form-control" value="<?= html_escape($sampai); ?>">
                         </div>
-                        <div class="form-group col-12 col-md-2">
-                            <button type="submit" class="btn btn-primary btn-block">
-                                <i class="fas fa-filter"></i> Tampilkan
-                            </button>
-                        </div>
+
                     </form>
                 </div>
             </div>

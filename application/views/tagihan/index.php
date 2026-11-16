@@ -56,7 +56,7 @@ $qs_filter = http_build_query(array_filter($filter));
             <!-- Filter -->
             <div class="card card-outline card-primary">
                 <div class="card-body">
-                    <form method="get" action="<?= site_url('tagihan'); ?>" class="filter-keuangan">
+                    <form method="get" action="<?= site_url('tagihan'); ?>" class="filter-keuangan" data-auto-filter>
                         <div class="form-row">
                             <div class="col-6 col-md-3">
                                 <div class="form-group mb-2">
@@ -110,9 +110,11 @@ $qs_filter = http_build_query(array_filter($filter));
                                 <div class="form-group mb-2">
                                     <label class="d-none d-md-block">&nbsp;</label>
                                     <div class="d-flex">
-                                        <button type="submit" class="btn btn-primary btn-sm mr-2 flex-fill">
-                                            <i class="fas fa-filter"></i> Tampilkan
-                                        </button>
+                                        <noscript>
+                                            <button type="submit" class="btn btn-primary btn-sm mr-2 flex-fill">
+                                                <i class="fas fa-filter"></i> Tampilkan
+                                            </button>
+                                        </noscript>
                                         <a href="<?= site_url('tagihan'); ?>" class="btn btn-default btn-sm flex-fill">Reset</a>
                                     </div>
                                 </div>

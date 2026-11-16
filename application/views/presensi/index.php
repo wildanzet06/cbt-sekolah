@@ -54,7 +54,7 @@ $tgl_label = date('d/m/Y', strtotime($tanggal));
             <!-- Pilih sesi pelajaran -->
             <div class="card card-outline card-primary">
                 <div class="card-body">
-                    <form method="get" action="<?= site_url('presensi'); ?>" class="form-row align-items-end">
+                    <form method="get" action="<?= site_url('presensi'); ?>" class="form-row align-items-end" data-auto-filter>
                         <div class="form-group col-6 col-md-3">
                             <label>Kelas</label>
                             <select name="kelas" class="form-control" required>
@@ -78,11 +78,6 @@ $tgl_label = date('d/m/Y', strtotime($tanggal));
                                     <option value="<?= $j; ?>" <?= ($jam == $j) ? 'selected' : ''; ?>><?= $j; ?></option>
                                 <?php endfor; ?>
                             </select>
-                        </div>
-                        <div class="form-group col-6 col-md-2">
-                            <button type="submit" class="btn btn-primary btn-block">
-                                <i class="fas fa-search"></i> Tampilkan
-                            </button>
                         </div>
                     </form>
 
@@ -210,7 +205,7 @@ $tgl_label = date('d/m/Y', strtotime($tanggal));
                 <div class="alert alert-warning">Kelas ini belum memiliki siswa pada tahun pelajaran dan semester aktif.</div>
             <?php else: ?>
                 <div class="callout callout-info">
-                    Pilih <b>kelas</b>, <b>tanggal</b>, dan <b>jam pelajaran</b>, lalu klik <i>Tampilkan</i> untuk mulai memanggil nama siswa.
+                    Pilih <b>kelas</b>, <b>tanggal</b>, dan <b>jam pelajaran</b>, — daftar siswa langsung tampil.
                 </div>
             <?php endif; ?>
 

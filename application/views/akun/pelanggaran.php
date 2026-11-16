@@ -22,7 +22,7 @@ $ada_poin      = (int) $total_poin > 0;
                                 </div>
 
                                 <?php if (!empty($periode)): ?>
-                                    <form method="get" action="<?= base_url('akun/pelanggaran'); ?>" class="form-inline mb-3">
+                                    <form method="get" action="<?= base_url('akun/pelanggaran'); ?>" class="form-inline mb-3" data-auto-filter>
                                         <label class="mr-2 mb-1">Periode</label>
                                         <select name="periode" class="form-control mr-2 mb-1">
                                             <?php foreach ($periode as $p): ?>
@@ -32,7 +32,7 @@ $ada_poin      = (int) $total_poin > 0;
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
-                                        <button type="submit" class="btn btn-warning mb-1">Tampilkan</button>
+                                        <noscript><button type="submit" class="btn btn-warning mb-1">Tampilkan</button></noscript>
                                     </form>
                                 <?php endif; ?>
 

@@ -149,6 +149,7 @@
 
 </script>
 
+<script src="<?= base_url() ?>/assets/app/js/filter-auto.js"></script>
 </body>
 
 </html>

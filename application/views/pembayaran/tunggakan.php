@@ -37,7 +37,7 @@ $daftar_bulan = $this->Pembayaran_model->daftar_bulan;
             <!-- Filter -->
             <div class="card card-outline card-primary">
                 <div class="card-body">
-                    <form method="get" action="<?= site_url('tagihan'); ?>" class="filter-keuangan">
+                    <form method="get" action="<?= site_url('tagihan'); ?>" class="filter-keuangan" data-auto-filter>
                         <input type="hidden" name="status" value="tunggakan">
                         <div class="form-row">
                             <div class="col-6 col-md-3">
@@ -57,13 +57,6 @@ $daftar_bulan = $this->Pembayaran_model->daftar_bulan;
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
-                                </div>
-                            </div>
-                            <div class="col-12 col-md-3 d-flex align-items-end">
-                                <div class="form-group mb-2 w-100">
-                                    <button type="submit" class="btn btn-primary btn-sm btn-block">
-                                        <i class="fas fa-filter"></i> Tampilkan
-                                    </button>
                                 </div>
                             </div>
                         </div>

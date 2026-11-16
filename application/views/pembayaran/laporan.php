@@ -28,7 +28,7 @@
                     <h3 class="card-title mb-0">Filter Laporan</h3>
                 </div>
                 <div class="card-body">
-                    <form method="get" action="<?= site_url('pembayaran/laporan'); ?>" class="filter-keuangan">
+                    <form method="get" action="<?= site_url('pembayaran/laporan'); ?>" class="filter-keuangan" data-auto-filter>
                         <div class="form-row">
                             <div class="col-12 col-md-4">
                                 <div class="form-group mb-0">
@@ -63,7 +63,7 @@
                         </div>
                         <div class="mt-3">
                             <div class="page-aksi">
-                                <button type="submit" class="btn btn-primary"><i class="fa fa-filter"></i> Tampilkan</button>
+                                <noscript><button type="submit" class="btn btn-primary"><i class="fa fa-filter"></i> Tampilkan</button></noscript>
                                 <a href="<?= site_url('pembayaran/laporan'); ?>" class="btn btn-default"><i class="fa fa-refresh"></i> Reset</a>
                             </div>
                         </div>

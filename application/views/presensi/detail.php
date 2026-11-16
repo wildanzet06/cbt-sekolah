@@ -24,7 +24,7 @@ $warna = array('H' => 'success', 'I' => 'info', 'S' => 'warning', 'A' => 'danger
                     <h5 class="mb-1"><?= html_escape($siswa->nama); ?></h5>
                     <div class="text-muted mb-3">NIS <?= html_escape($siswa->nis); ?></div>
 
-                    <form method="get" action="<?= site_url('presensi/detail/' . (int) $siswa->id_siswa); ?>" class="form-inline">
+                    <form method="get" action="<?= site_url('presensi/detail/' . (int) $siswa->id_siswa); ?>" class="form-inline" data-auto-filter>
                         <input type="hidden" name="kelas" value="<?= (int) $kelas_id; ?>">
                         <select name="bulan" class="form-control form-control-sm mr-2">
                             <?php foreach ($daftar_bulan as $i => $nm): ?>
@@ -33,7 +33,7 @@ $warna = array('H' => 'success', 'I' => 'info', 'S' => 'warning', 'A' => 'danger
                         </select>
                         <input type="number" name="tahun" class="form-control form-control-sm mr-2" style="width:90px"
                                min="2000" max="2100" value="<?= (int) $tahun; ?>">
-                        <button type="submit" class="btn btn-primary btn-sm">Tampilkan</button>
+                        <noscript><button type="submit" class="btn btn-primary btn-sm">Tampilkan</button></noscript>
                     </form>
                 </div>
             </div>

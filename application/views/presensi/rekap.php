@@ -23,7 +23,7 @@
 
             <div class="card card-outline card-primary">
                 <div class="card-body">
-                    <form method="get" action="<?= site_url('presensi/rekap'); ?>" class="form-row align-items-end">
+                    <form method="get" action="<?= site_url('presensi/rekap'); ?>" class="form-row align-items-end" data-auto-filter>
                         <div class="form-group col-6 col-md-3">
                             <label>Kelas</label>
                             <select name="kelas" class="form-control" required>
@@ -46,9 +46,6 @@
                         <div class="form-group col-6 col-md-2">
                             <label>Tahun</label>
                             <input type="number" name="tahun" class="form-control" min="2000" max="2100" value="<?= (int) $tahun; ?>">
-                        </div>
-                        <div class="form-group col-6 col-md-2">
-                            <button type="submit" class="btn btn-primary btn-block"><i class="fas fa-filter"></i> Tampilkan</button>
                         </div>
                     </form>
                 </div>
@@ -107,7 +104,7 @@
                 </div>
             </div>
             <?php else: ?>
-                <div class="callout callout-info">Pilih kelas dan bulan, lalu klik <i>Tampilkan</i>.</div>
+                <div class="callout callout-info">Pilih kelas dan bulan — rekap langsung tampil.</div>
             <?php endif; ?>
 
         </div>

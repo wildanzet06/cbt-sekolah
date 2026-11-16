@@ -21,7 +21,7 @@ $hari  = array('Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu');
                                     <span class="text-muted">&middot; NIS <?= html_escape($siswa->nis); ?></span>
                                 </div>
 
-                                <form method="get" action="<?= base_url('akun/kehadiran'); ?>" class="form-inline mb-3">
+                                <form method="get" action="<?= base_url('akun/kehadiran'); ?>" class="form-inline mb-3" data-auto-filter>
                                     <select name="bulan" class="form-control mr-2 mb-1">
                                         <?php foreach ($daftar_bulan as $i => $nm): ?>
                                             <option value="<?= $i + 1; ?>" <?= ($bulan == $i + 1) ? 'selected' : ''; ?>><?= $nm; ?></option>
@@ -29,7 +29,7 @@ $hari  = array('Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu');
                                     </select>
                                     <input type="number" name="tahun" class="form-control mr-2 mb-1" style="width:95px"
                                            min="2000" max="2100" value="<?= (int) $tahun; ?>">
-                                    <button type="submit" class="btn btn-success mb-1">Tampilkan</button>
+                                    <noscript><button type="submit" class="btn btn-success mb-1">Tampilkan</button></noscript>
                                 </form>
 
                                 <div class="row text-center mb-2">

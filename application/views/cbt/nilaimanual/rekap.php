@@ -27,7 +27,7 @@ if (!function_exists('nm_fmt')) {
             <div class="card card-default my-shadow mb-4">
                 <div class="card-header"><h6 class="card-title"><?= html_escape($subjudul) ?></h6></div>
                 <div class="card-body">
-                    <form method="get" action="<?= base_url('nilaimanual/rekap') ?>" class="form-inline mb-3">
+                    <form method="get" action="<?= base_url('nilaimanual/rekap') ?>" class="form-inline mb-3" data-auto-filter>
                         <label class="mr-2" for="mapel">Mapel</label>
                         <select name="mapel" id="mapel" class="form-control form-control-sm mr-3">
                             <?php foreach ($opsi['mapel'] as $id => $nama): ?>
@@ -38,11 +38,11 @@ if (!function_exists('nm_fmt')) {
                         </select>
                         <label class="mr-2" for="kelas">Kelas</label>
                         <select name="kelas" id="kelas" class="form-control form-control-sm mr-3"></select>
-                        <button type="submit" class="btn btn-sm btn-primary">Tampilkan</button>
+                        <noscript><button type="submit" class="btn btn-sm btn-primary">Tampilkan</button></noscript>
                     </form>
 
                     <?php if ($rekap === null): ?>
-                        <div class="text-muted">Pilih mapel dan kelas, lalu klik <b>Tampilkan</b>.</div>
+                        <div class="text-muted">Pilih mapel dan kelas — rekap langsung tampil.</div>
                     <?php elseif (count($rekap['ujian']) === 0): ?>
                         <div class="alert alert-info mb-0">Belum ada ujian offline untuk mapel dan kelas ini.</div>
                     <?php else: ?>
