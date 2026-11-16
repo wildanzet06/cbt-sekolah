@@ -75,13 +75,15 @@
                     {
                         'name': 'Keuangan', 'icon': 'fas fa-money-bill-wave', 'cbt': '1',
                         'submenu': [
-                            {'name': 'Pembayaran SPP', 'link': 'pembayaran', 'icon': 'far fa-circle'},
-                            {'name': 'Pembayaran Tunai', 'link': 'pembayaran/tunai', 'icon': 'fas fa-money-bill-wave'},
-                            {'name': 'Daftar Tagihan', 'link': 'tagihan', 'icon': 'fas fa-file-invoice-dollar'},
-                            {'name': 'Buat Tagihan', 'link': 'tagihan/buat', 'icon': 'fas fa-plus-circle'},
+                            // Urut sesuai alur kerja keuangan:
+                            // persiapan -> penagihan -> pembayaran -> laporan
+                            {'name': 'Setting Pembayaran', 'link': 'pembayaran/setting_spp', 'icon': 'fas fa-cog'},
                             {'name': 'Jenis Tagihan', 'link': 'tagihan/jenis', 'icon': 'fas fa-tags'},
                             {'name': 'Keringanan Siswa', 'link': 'tagihan/keringanan', 'icon': 'fas fa-hand-holding-heart'},
-                            {'name': 'Setting Pembayaran', 'link': 'pembayaran/setting_spp', 'icon': 'fas fa-cog'},
+                            {'name': 'Buat Tagihan', 'link': 'tagihan/buat', 'icon': 'fas fa-plus-circle'},
+                            {'name': 'Daftar Tagihan', 'link': 'tagihan', 'icon': 'fas fa-file-invoice-dollar'},
+                            {'name': 'Pembayaran Tunai', 'link': 'pembayaran/tunai', 'icon': 'fas fa-money-bill-wave'},
+                            {'name': 'Pembayaran SPP', 'link': 'pembayaran', 'icon': 'fas fa-receipt'},
                             {'name': 'Laporan SPP', 'link': 'pembayaran/laporan', 'icon': 'fas fa-file-alt'}
                         ]
                     },
