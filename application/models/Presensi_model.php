@@ -3,6 +3,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Presensi_model extends CI_Model {
 
+    public function __construct() {
+        parent::__construct();
+        // Pastikan tabel tambahan (keuangan/tagihan/presensi) tersedia.
+        $this->load->helper('skema');
+        skema_tambahan_pastikan($this->db);
+    }
     // Kode status => nama
     public $status = array('H' => 'Hadir', 'I' => 'Izin', 'S' => 'Sakit', 'A' => 'Alpa');
 

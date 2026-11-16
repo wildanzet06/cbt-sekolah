@@ -3,6 +3,12 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Tagihan_model extends CI_Model {
 
+    public function __construct() {
+        parent::__construct();
+        // Pastikan tabel tambahan (keuangan/tagihan/presensi) tersedia.
+        $this->load->helper('skema');
+        skema_tambahan_pastikan($this->db);
+    }
     public $daftar_bulan = array(
         'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
         'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'

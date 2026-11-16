@@ -36,6 +36,12 @@ Fitur-fitur ini ditambahkan di atas GarudaCBT. Tidak ada tabel bawaan GarudaCBT 
 
 ## Catatan
 
+- Tabel tambahan (keuangan, tagihan, presensi) **dibuat otomatis** oleh aplikasi bila
+  hilang, lewat `application/helpers/skema_helper.php`. Jadi kalau database dipulihkan
+  dari dump lama atau tabelnya terhapus, halaman keuangan tidak lagi menampilkan
+  "Table ... doesn't exist" — cukup buka halamannya, tabel dan pengaturan awal SPP
+  (nominal Rp 500.000 + jenis "SPP") dibuat ulang. Isi/data lamanya tetap tidak ikut
+  kembali, jadi backup tetap penting.
 - Kunci Midtrans sandbox hanya bekerja dengan `midtrans_is_production = FALSE`; kunci produksi dengan `TRUE`.
 - Alamat notifikasi Midtrans harus alamat publik (HTTPS), bukan `localhost`.
 - Untuk server sungguhan, atur `ENVIRONMENT` di `index.php` menjadi `production`.
