@@ -236,14 +236,15 @@ $filter_q = array('kelas' => $kelas_id, 'dari' => $dari, 'sampai' => $sampai);
                 </div>
                 <div class="form-group">
                     <label>Jenis Pelanggaran <span class="text-danger">*</span></label>
-                    <input type="text" name="jenis_pelanggaran" id="f_jenis" class="form-control"
-                           list="daftarJenisPelanggaran" maxlength="150" placeholder="Tulis jenis pelanggaran" required>
-                    <datalist id="daftarJenisPelanggaran">
+                    <select name="jenis_pelanggaran" id="f_jenis" class="form-control" required>
+                        <option value=""></option>
                         <?php foreach ($jenis_umum as $j): ?>
-                            <option value="<?= html_escape($j); ?>"></option>
+                            <option value="<?= html_escape($j); ?>"><?= html_escape($j); ?></option>
                         <?php endforeach; ?>
-                    </datalist>
-                    <small class="text-muted">Ketik bebas atau pilih salah satu saran.</small>
+                    </select>
+                    <small class="text-muted">
+                        Pilih dari daftar, atau ketik sendiri lalu tekan <b>Enter</b> untuk memakainya.
+                    </small>
                 </div>
                 <div class="form-group">
                     <label>Keterangan <small class="text-muted">(opsional)</small></label>
@@ -293,6 +294,36 @@ document.addEventListener('DOMContentLoaded', function () {
         perbaruiKelas();
     }
 
+    // Jenis pelanggaran: bisa dipilih dari daftar ATAU diketik sendiri (tag).
+    if (window.jQuery && jQuery.fn.select2) {
+        jQuery('#f_jenis').select2({
+            dropdownParent: jQuery('#modalPelanggaran'),
+            placeholder: 'Ketik atau pilih jenis pelanggaran',
+            tags: true,
+            allowClear: true,
+            width: '100%',
+            maximumInputLength: 150,
+            createTag: function (params) {
+                var term = jQuery.trim(params.term);
+                if (term === '') return null;
+                return { id: term, text: term, newTag: true };
+            },
+            language: {
+                noResults: function () { return 'Tekan Enter untuk memakai teks ini'; },
+                searching: function () { return 'Mencari...'; }
+            }
+        });
+    }
+
+    // Setel nilai jenis pelanggaran (mendukung teks baru di luar daftar).
+    function setJenis(nilai) {
+        if (window.jQuery && jQuery.fn.select2) {
+            jQuery('#f_jenis').val(nilai === '' ? null : nilai).trigger('change');
+        } else {
+            document.getElementById('f_jenis').value = nilai;
+        }
+    }
+
     function perbaruiKelas() {
         var info = siswaMap[select.value];
         fieldKelas.value = info && info.nama_kelas ? info.nama_kelas : '-';
@@ -332,7 +363,7 @@ document.addEventListener('DOMContentLoaded', function () {
             fieldKelas.value = '-';
             document.getElementById('f_tanggal').value = <?= json_encode($tanggal_ini); ?>;
             document.getElementById('f_poin').value = '';
-            document.getElementById('f_jenis').value = '';
+            setJenis('');
             document.getElementById('f_ket').value = '';
             document.getElementById('judulModalPelanggaran').textContent = 'Tambah Pelanggaran';
         });
@@ -350,7 +381,7 @@ document.addEventListener('DOMContentLoaded', function () {
             select.value = String(d.id_siswa);
             sinkronSelect();
             document.getElementById('f_tanggal').value = d.tanggal;
-            document.getElementById('f_jenis').value = d.jenis;
+            setJenis(d.jenis);
             document.getElementById('f_poin').value = d.poin;
             document.getElementById('f_ket').value = d.keterangan;
             perbaruiKelas();

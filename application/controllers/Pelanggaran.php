@@ -12,18 +12,41 @@ class Pelanggaran extends CI_Controller {
 
     // Saran jenis pelanggaran (input tetap bebas)
     private $jenis_umum = array(
+        // Kehadiran
         'Terlambat masuk sekolah',
+        'Membolos / tidak masuk tanpa keterangan',
+        'Keluar kelas tanpa izin',
+        'Tidak mengikuti upacara / kegiatan sekolah',
+        // Atribut dan kerapian
         'Tidak memakai atribut sekolah lengkap',
         'Tidak memakai seragam sesuai ketentuan',
         'Rambut tidak rapi / melebihi ketentuan',
-        'Membuang sampah tidak pada tempatnya',
-        'Tidak mengerjakan tugas',
-        'Membolos / tidak masuk tanpa keterangan',
-        'Mengganggu ketenangan belajar',
+        'Memakai aksesoris / make up berlebihan',
+        'Sepatu atau kaos kaki tidak sesuai ketentuan',
+        // Sikap dan perilaku
         'Berbicara kasar / tidak sopan',
+        'Mengganggu ketenangan belajar',
+        'Membantah / melawan guru',
         'Berkelahi',
+        'Membuli teman',
+        'Berkata bohong / tidak jujur',
+        'Mencuri',
+        'Memalsukan tanda tangan / dokumen',
+        'Membawa atau menggunakan rokok / vape',
+        'Membawa atau mengonsumsi minuman keras',
+        'Membawa senjata tajam',
+        'Bermain judi',
+        'Menyebarkan konten tidak pantas',
+        'Perilaku tidak sopan kepada lawan jenis',
+        // Kebersihan dan fasilitas
+        'Membuang sampah tidak pada tempatnya',
         'Merusak fasilitas sekolah',
-        'Menggunakan telepon genggam saat pembelajaran'
+        'Mencoret-coret dinding / meja',
+        // Pembelajaran
+        'Tidak mengerjakan tugas',
+        'Tidak membawa buku / perlengkapan belajar',
+        'Menggunakan telepon genggam saat pembelajaran',
+        'Mencontek / bekerja sama saat ujian'
     );
 
     public function __construct() {
