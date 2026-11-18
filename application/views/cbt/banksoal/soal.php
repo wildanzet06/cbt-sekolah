@@ -329,12 +329,19 @@ foreach ($soal_ada as $key => $value) {
                                 <?php if (empty($__bacaan)): ?>
                                     <div class="text-muted small">Belum ada bacaan.</div>
                                 <?php else: ?>
-                                    <select class="form-control form-control-sm" id="bac-pilih">
-                                        <?php foreach ($__bacaan as $__b): ?>
-                                            <option value="<?= (int) $__b->id_bacaan ?>"><?= html_escape($__b->judul) ?></option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <div class="small text-muted mt-1">Centang "Bacaan stimulus" lalu klik Terapkan.</div>
+                                    <div class="input-group input-group-sm">
+                                        <select class="form-control form-control-sm" id="bac-pilih">
+                                            <?php foreach ($__bacaan as $__b): ?>
+                                                <option value="<?= (int) $__b->id_bacaan ?>"><?= html_escape($__b->judul) ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                        <div class="input-group-append">
+                                            <button type="button" class="btn btn-outline-danger" id="bac-hapus"
+                                                    title="Hapus bacaan tersimpan">&times;</button>
+                                        </div>
+                                    </div>
+                                    <div class="small text-muted mt-1">Centang "Bacaan stimulus" lalu klik Terapkan.
+                                        Tombol &times; menghapus bacaan dari daftar.</div>
                                 <?php endif; ?>
                             </div>
                         </div>
@@ -419,6 +426,22 @@ foreach ($soal_ada as $key => $value) {
                                 if (dari < 1 || sampai < dari) { alert('Nomor tidak valid.'); return; }
                                 if (!confirm('Lepas bacaan dari nomor ' + dari + ' - ' + sampai + '?')) { return; }
                                 kirim('bacaan/lepas', { id_bank: BANK, jenis: JENIS, dari: dari, sampai: sampai });
+                            });
+
+                            $('#bac-hapus').on('click', function () {
+                                var id = $('#bac-pilih').val();
+                                if (!id) { return; }
+                                var judul = $.trim($('#bac-pilih option:selected').text());
+                                if (!confirm('Hapus bacaan "' + judul + '"?\nBacaan akan dilepas dari semua soal yang memakainya.')) { return; }
+                                var data = {};
+                                data[CSRF] = HASH;
+                                $.post(BASE + 'bacaan/hapus/' + id, data, function (res) {
+                                    if (res && res.status) {
+                                        location.reload();
+                                    } else {
+                                        alert((res && res.msg) || 'Gagal menghapus.');
+                                    }
+                                }, 'json').fail(function () { alert('Gagal menghubungi server.'); });
                             });
 
                             $('#bac-tambah').on('click', function () {
