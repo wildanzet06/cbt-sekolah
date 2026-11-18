@@ -89,3 +89,5 @@ uploads/import/format/*
 # Berkas proteksi folder upload harus ikut ter-commit
 !uploads/.htaccess
 application/config/database.php.bak-*
+.dev-mode
+installer/TERPASANG

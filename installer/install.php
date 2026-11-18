@@ -33,5 +33,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_POST) {
             "ERROR#005<br>Gagal membuat database, pastikan semua parameter diisi dengan benar.");
     }
 
+    // Tandai instalasi selesai HANYA bila tidak ada pesan kesalahan.
+    if ($message === '') {
+        @file_put_contents(__DIR__ . '/TERPASANG', date('c'));
+    }
+
     echo $message;
 }

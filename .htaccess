@@ -24,7 +24,7 @@ RewriteRule ^(.*)$ index.php/$1 [L]
 # =====================================================================
 # Blokir ekstensi berbahaya (berlaku juga untuk subfolder)
 # =====================================================================
-<FilesMatch "\.(sql|md|log|lock|ini|bak|old|orig|sh|bat|ps1|dist)$">
+<FilesMatch "(^TERPASANG$|\.(sql|md|log|lock|ini|bak|old|orig|sh|bat|ps1|dist)$)">
     <IfModule mod_authz_core.c>
         Require all denied
     </IfModule>

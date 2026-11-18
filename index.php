@@ -164,24 +164,78 @@ if (!isset($view_folder[0]) && is_dir(APPPATH . 'views' . DIRECTORY_SEPARATOR)) 
 }
 
 define('VIEWPATH', $view_folder . DIRECTORY_SEPARATOR);
-//require_once BASEPATH . 'core/CodeIgniter.php';
+/*
+ * Pemeriksaan awal HANYA dijalankan bila aplikasi belum ditandai terpasang.
+ * Setelah ada penanda installer/TERPASANG, tidak ada koneksi database
+ * tambahan pada setiap request (penting saat ujian dengan banyak siswa).
+ */
+$__sudah_terpasang = is_file(__DIR__ . '/installer/TERPASANG');
 
-include 'application/config/database.php';
-$database = $db['default']['database'];
-if ($database == '') {
-    header("Location: installer");
-} else {
-    $data = $db['default'];
-    $mysqli = @new mysqli($data['hostname'], $data['username'], $data['password'], '');
-    $dbname = $data['database'];
-    if (empty (mysqli_fetch_array(mysqli_query($mysqli,"SHOW DATABASES LIKE '$dbname'"))))
-    {
-        $mysqli->close();
-        header("Location: installer");
+if (!$__sudah_terpasang) {
+    $__lanjut = (function () {
+        // include di dalam closure agar $db / $data (berisi password DB)
+        // tidak tertinggal di scope global.
+        $__cfg = __DIR__ . '/application/config/database.php';
+        if (!is_file($__cfg)) {
+            return 'belum';
+        }
+
+        $db = array();
+        include $__cfg;
+
+        if (empty($db['default']['database'])) {
+            return 'belum';
+        }
+        $d = $db['default'];
+
+        try {
+            $conn = @new mysqli(
+                $d['hostname'],
+                $d['username'],
+                isset($d['password']) ? $d['password'] : '',
+                '',
+                isset($d['port']) && $d['port'] ? (int) $d['port'] : 3306
+            );
+            if ($conn->connect_errno) {
+                // 1049 = database belum ada (instalasi baru), selain itu server bermasalah
+                return $conn->connect_errno === 1049 ? 'belum' : 'error';
+            }
+
+            // Bandingkan nama database secara persis (bukan LIKE, karena _ dan %
+            // adalah wildcard) dan tanpa menyisipkan nilai ke dalam query.
+            $stmt = $conn->prepare('SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?');
+            if (!$stmt) {
+                $conn->close();
+                return 'error';
+            }
+            $nama = (string) $d['database'];
+            $stmt->bind_param('s', $nama);
+            $stmt->execute();
+            $stmt->store_result();
+            $ada = $stmt->num_rows > 0;
+            $stmt->close();
+            $conn->close();
+
+            return $ada ? 'ok' : 'belum';
+        } catch (Throwable $e) {
+            return 'error'; // MySQL mati / kredensial salah
+        }
+    })();
+
+    if ($__lanjut === 'belum') {
+        header('Location: installer');
+        exit;
     }
-    else
-    {
-        $mysqli->close();
-        require_once BASEPATH . 'core/CodeIgniter.php';
+
+    if ($__lanjut === 'error') {
+        // Database tidak dapat dihubungi: jangan arahkan ke installer agar
+        // tidak terjadi instal ulang saat server database bermasalah.
+        header('HTTP/1.1 503 Service Unavailable.', TRUE, 503);
+        echo 'Database belum dapat dihubungi. Hubungi administrator sekolah.';
+        exit(1);
     }
 }
+
+unset($__sudah_terpasang, $__lanjut);
+
+require_once BASEPATH . 'core/CodeIgniter.php';

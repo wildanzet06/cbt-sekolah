@@ -3,7 +3,7 @@
 class Database {
 
     function create_database($data) {
-        $mysqli = new mysqli($data['hostname'], $data['username'], $data['password'], '');
+        try { $mysqli = new mysqli($data['hostname'], $data['username'], $data['password'], ''); } catch (Throwable $e) { return false; }
         if (mysqli_connect_errno()) return false;
 
         $mysqli->query("CREATE DATABASE IF NOT EXISTS " . $data['database']);
@@ -13,7 +13,7 @@ class Database {
     }
 
     function create_tables($data) {
-        $mysqli = new mysqli($data['hostname'], $data['username'], $data['password'], $data['database']);
+        try { $mysqli = new mysqli($data['hostname'], $data['username'], $data['password'], $data['database']); } catch (Throwable $e) { return false; }
         if (mysqli_connect_errno()) return false;
 
         $query = $mysqli->query("SHOW TABLES LIKE 'users'");

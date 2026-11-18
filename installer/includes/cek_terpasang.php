@@ -12,6 +12,12 @@
 if (!function_exists('installer_sudah_terpasang')) {
     function installer_sudah_terpasang()
     {
+        // Penanda dibuat setelah instalasi selesai. Bila ada, installer
+        // langsung ditutup tanpa perlu menghubungi database sama sekali.
+        if (is_file(__DIR__ . '/../TERPASANG')) {
+            return true;
+        }
+
         $cfg = dirname(__DIR__, 2) . '/application/config/database.php';
         if (!is_file($cfg)) {
             return false; // belum ada konfigurasi: anggap instalasi baru
@@ -40,14 +46,27 @@ if (!function_exists('installer_sudah_terpasang')) {
             return false;
         }
 
-        $mysqli = @new mysqli($host, $user, $pass, $name, $port);
-        if ($mysqli->connect_errno) {
-            return false; // database belum bisa dihubungi: biarkan installer jalan
+        try {
+            $mysqli = @new mysqli($host, $user, $pass, $name, $port);
+            if ($mysqli->connect_errno) {
+                // 1049 = database belum ada -> instalasi baru, izinkan.
+                // Error lain (server mati / akses ditolak) -> tidak bisa
+                // memverifikasi, jadi installer ditutup demi keamanan.
+                return $mysqli->connect_errno !== 1049;
+            }
+        } catch (Throwable $e) {
+            return true;
         }
         // Dianggap "sudah terpasang" hanya bila sudah ada akun (bukan sekadar
         // tabel users dibuat oleh master.sql saat instalasi baru).
         $q = @$mysqli->query("SELECT COUNT(*) AS c FROM users");
-        $ada = $q && ($row = $q->fetch_assoc()) && (int) $row['c'] > 0;
+        if (!$q) {
+            // Tabel users belum ada -> skema belum dipasang, izinkan installer.
+            $mysqli->close();
+            return false;
+        }
+        $row = $q->fetch_assoc();
+        $ada = $row && (int) $row['c'] > 0;
         $mysqli->close();
         return $ada;
     }

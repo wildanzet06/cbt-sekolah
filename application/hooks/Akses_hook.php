@@ -130,6 +130,13 @@ class Akses_hook {
 
         // Backup otomatis sekali sehari saat admin membuka halaman.
         if ($admin) {
+            // Tandai aplikasi sudah terpasang, agar index.php tidak lagi
+            // membuka koneksi database tambahan pada setiap request.
+            $penanda = FCPATH . 'installer/TERPASANG';
+            if (!is_file($penanda)) {
+                @file_put_contents($penanda, date('c'));
+            }
+
             if (!isset($CI->backup_model)) {
                 $CI->load->model('Backup_model', 'backup_model');
             }

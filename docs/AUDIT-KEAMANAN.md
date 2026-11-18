@@ -481,3 +481,37 @@ bisa berjalan.
 `/installer/` → 403. Pada database baru (users kosong) installer tetap terbuka.
 
 Panduan pemasangan di komputer sekolah lain ada di `docs/PANDUAN-INSTALASI.md`.
+---
+
+## 12. Audit pass 5 (18 November 2026) — index.php & jalur installer
+
+Laporan lanjutan menyoroti blok pemeriksaan database di `index.php` (warisan
+bawaan GarudaCBT). Semua temuan diverifikasi dan diperbaiki.
+
+| # | Temuan | Verifikasi | Perbaikan |
+|---|--------|------------|-----------|
+| P1 | Koneksi MySQL ekstra pada **setiap** request (termasuk AJAX polling ujian) | **BENAR** — `@new mysqli()` + `SHOW DATABASES LIKE` dijalankan sebelum CodeIgniter dimuat | Pemeriksaan hanya jalan **bila belum ada** `installer/TERPASANG`. Setelah penanda ada: **nol** koneksi tambahan. Penanda dibuat otomatis saat admin login pertama |
+| P2 | Tidak ada penanganan error koneksi (PHP 8.1+ melempar exception) | **BENAR** — `@new mysqli` tidak mencegah exception, hasilnya fatal error | Dibungkus `try/catch`; kegagalan = halaman **503** "Database belum dapat dihubungi", bukan fatal/blank |
+| P3 | `SHOW DATABASES LIKE '$dbname'` rawan wildcard `_`/`%` dan tanpa escape | **BENAR** | Diganti prepared statement: `SELECT SCHEMA_NAME ... WHERE SCHEMA_NAME = ?` (perbandingan persis, nilai di-bind) |
+| P4 | `header("Location: installer")` tanpa `exit`; redirect ke installer saat DB kosong bisa jadi jalur instal ulang | **BENAR** (tanpa exit) | Kedua redirect kini `exit`. Redirect ke installer **hanya** untuk error 1049 (database belum ada); error lain → 503. Guard installer menolak bila status tidak bisa diverifikasi (server DB mati / akses ditolak), jadi tidak ada jalur instal ulang |
+| P5 | `include 'application/config/database.php'` path relatif; `$db`/`$data` (berisi password DB) tertinggal di scope global | **BENAR** | Include memakai `__DIR__`, dilakukan **di dalam closure** sehingga variabel tidak bocor; variabel penanda di-`unset` |
+| P6 | `.dev-mode` bisa ikut ter-deploy | **BENAR** (belum diabaikan) | Ditambahkan ke `.gitignore`; file tidak ada di server. `.htaccess` juga memblokir akses langsung |
+
+### Penanda instalasi (`installer/TERPASANG`)
+
+- Ditulis oleh `installer/install.php` **hanya bila instalasi sukses**.
+- Dibuat otomatis oleh `Akses_hook` saat admin login (untuk instalasi yang sudah ada).
+- Diabaikan git dan diblokir dari akses web (403).
+- Bila penanda tidak ada (mis. dihapus), `index.php` memeriksa database sekali
+  per request — masih aman, hanya kehilangan optimasi.
+
+### Hasil uji
+
+| Skenario | Hasil |
+|---|---|
+| Normal (penanda ada) | `/auth` 200, `/install` 403, tanpa koneksi tambahan |
+| Tanpa penanda, DB normal | `/auth` 200, `/install` 403 |
+| Tanpa penanda, host DB salah (server mati) | `/auth` **503** (bukan redirect), `/installer/` **403** |
+| Tanpa penanda, database belum ada (1049) | `/auth` **302 → installer** (alur instalasi baru tetap jalan) |
+| Akses `installer/TERPASANG` lewat web | **403** |
+| Regresi 13 halaman utama (admin) | **0 error** |
