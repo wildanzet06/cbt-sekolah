@@ -102,6 +102,19 @@ class Akses_hook {
         if (!isset($CI->ion_auth)) {
             $CI->load->library('ion_auth');
         }
+
+        /*
+         * Installer/updater database ditutup segera setelah aplikasi terpasang.
+         * Pemeriksaan ini HARUS dijalankan sebelum cek login, karena kedua
+         * controller itu memang tidak memerlukan login (jalur instalasi).
+         */
+        $kelas_awal = strtolower((string) $CI->router->fetch_class());
+        if (in_array($kelas_awal, array('install', 'update')) && $CI->db->table_exists('users')) {
+            if ((int) $CI->db->count_all('users') > 0) {
+                $this->tolak($CI, 'installer/update setelah aplikasi terpasang');
+            }
+        }
+
         if (!$CI->ion_auth->logged_in()) {
             return; // belum login: biarkan controller yang menangani
         }
@@ -194,7 +207,10 @@ class Akses_hook {
 
             // 8) Installer / updater database tidak boleh dipakai setelah terpasang.
             if (in_array($n, array('install', 'update')) && $CI->db->table_exists('users')) {
-                $this->tolak($CI, 'installer/update setelah aplikasi terpasang');
+                $jumlah = (int) $CI->db->count_all('users');
+                if ($jumlah > 0) {
+                    $this->tolak($CI, 'installer/update setelah aplikasi terpasang');
+                }
             }
 
             // 9) Endpoint ujian: siswa hanya boleh menyentuh datanya sendiri.

@@ -44,8 +44,10 @@ if (!function_exists('installer_sudah_terpasang')) {
         if ($mysqli->connect_errno) {
             return false; // database belum bisa dihubungi: biarkan installer jalan
         }
-        $q = @$mysqli->query("SHOW TABLES LIKE 'users'");
-        $ada = $q && $q->num_rows > 0;
+        // Dianggap "sudah terpasang" hanya bila sudah ada akun (bukan sekadar
+        // tabel users dibuat oleh master.sql saat instalasi baru).
+        $q = @$mysqli->query("SELECT COUNT(*) AS c FROM users");
+        $ada = $q && ($row = $q->fetch_assoc()) && (int) $row['c'] > 0;
         $mysqli->close();
         return $ada;
     }

@@ -463,3 +463,21 @@ diperbaiki bila benar. Ringkasannya:
 - Backup manual tetap berhasil (kredensial lewat file).
 - QR kwitansi tetap terverifikasi dengan kunci baru.
 - Regresi: 24 halaman admin + 12 guru + 9 siswa → **0 error**.
+### Tambahan pass 4 (19 November 2026)
+
+Celah pada temuan #3 ternyata **lebih luas** dari perbaikan pertama: `Akses_hook`
+keluar lebih awal untuk pengunjung yang belum login, sehingga `/install` dan
+`/update` masih terbuka tanpa autentikasi pada aplikasi yang sudah terpasang
+(uji tanpa sesi: `/update` → 200).
+
+**Perbaikan:** pemeriksaan installer dipindah ke **awal** `Akses_hook`, sebelum
+cek login, dan menolak bila tabel `users` sudah **berisi akun**
+(`count_all('users') > 0`). Pemeriksaan "sudah terpasang" di
+`installer/includes/cek_terpasang.php` juga diubah dari "tabel users ada" menjadi
+"ada akun di tabel users", agar instalasi baru (tabel users masih kosong) tetap
+bisa berjalan.
+
+**Hasil uji tanpa login:** `/install` → 403, `/update` → 403, `/compare` → 404,
+`/installer/` → 403. Pada database baru (users kosong) installer tetap terbuka.
+
+Panduan pemasangan di komputer sekolah lain ada di `docs/PANDUAN-INSTALASI.md`.
