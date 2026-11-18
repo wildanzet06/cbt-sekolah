@@ -113,3 +113,9 @@ Tidak ada masa berlaku: QR valid selama data pembayaran masih ada di database.
 3. **Lepas bacaan** menghapus pemasangan pada rentang nomor tersebut.
 4. Ringkasan "Terpasang saat ini" menampilkan bacaan per rentang nomor.
 5. Dropdown bacaan per soal sudah dihapus; pengaturan hanya lewat panel ini.
+### Tombol Simpan & Buat Soal
+
+Di halaman **Buat/Edit Bank Soal** hanya ada satu tombol:
+**Simpan & Buat Soal**. Setelah bank disimpan, aplikasi langsung membuka
+halaman **Buat Soal** untuk bank tersebut (`cbtbanksoal/buatsoal/{id}?tab=1`),
+jadi tidak perlu kembali ke daftar lalu mencari bank lagi.

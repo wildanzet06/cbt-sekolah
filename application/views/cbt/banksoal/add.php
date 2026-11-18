@@ -35,11 +35,8 @@ $kelasSelected = json_encode(unserialize($bank->bank_kelas ?? '', ['allowed_clas
                         <h6><?= $subjudul . ' - ' . $bank->bank_kode ?></h6>
                     </div>
                     <div class="card-tools">
-                        <a href="<?= base_url('cbtbanksoal/buatsoal/' . $bank->id_bank) ?>" class="btn btn-success btn-sm mr-1">
-                            <i class="fa fa-edit mr-1"></i>Buat Soal
-                        </a>
                         <button type="submit" class="btn btn-primary btn-sm">
-                            <i class="fa fa-plus mr-1"></i>Simpan
+                            <i class="fa fa-save mr-1"></i>Simpan &amp; Buat Soal
                         </button>
                     </div>
                 </div>
@@ -331,18 +328,12 @@ $kelasSelected = json_encode(unserialize($bank->bank_kelas ?? '', ['allowed_clas
                 dataType: "JSON",
                 data: $(this).serialize(),
                 success: function (data) {
-                    swal.fire({
-                        title: "Sukses",
-                        html: 'Bank soal berhasil disimpan',
-                        icon: "success",
-                        showCancelButton: false,
-                        confirmButtonColor: "#3085d6",
-                        confirmButtonText: "OK"
-                    }).then(result => {
-                        if (result.value) {
-                            window.history.back();
-                        }
-                    });
+                    var idBank = parseInt((data && (data.id_bank || data.id)) || 0, 10);
+                    if (idBank > 0) {
+                        window.location.href = base_url + 'cbtbanksoal/buatsoal/' + idBank + '?tab=1';
+                    } else {
+                        window.location.href = base_url + 'cbtbanksoal';
+                    }
                 }, error: function (xhr, status, error) {
                     console.log("error", xhr.responseText);
                     const err = JSON.parse(xhr.responseText)
