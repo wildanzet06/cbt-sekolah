@@ -43,8 +43,14 @@ buka menu **Terminal**).
 
 1. Salin folder aplikasi ke `C:\laragon\www\cbt-sekolah`.
 2. Start Laragon (Apache + MySQL).
-3. Klik dua kali **`pasang.bat`** di folder aplikasi
-   (atau jalankan di terminal: `php tools/pasang.php`).
+3. Klik dua kali **`pasang.bat`** di folder aplikasi — skrip otomatis mencari
+   PHP (PATH / Laragon / XAMPP) dan selalu berjalan dari folder aplikasinya.
+   Bisa juga lewat Terminal Laragon: `php tools/pasang.php`.
+
+   > **Penting:** nama database yang diketik menentukan data mana yang dipakai.
+   > Ketik `cbt` untuk memakai database yang sudah ada, atau nama baru
+   > (mis. `testing`) untuk percobaan. `application/config/database.php`
+   > akan diarahkan ke database tersebut.
 4. Ikuti pertanyaan singkat (nama database & username admin) → selesai.
 5. Buka `http://localhost/cbt-sekolah/auth` → login:
 
