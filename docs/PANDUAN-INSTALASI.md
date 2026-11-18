@@ -1,5 +1,10 @@
 # Panduan Instalasi di Komputer Sekolah Lain
 
+> **Cari cara tercepat?** Lihat [INSTALASI-CEPAT.md](INSTALASI-CEPAT.md):
+> salin folder + restore backup (data ikut), atau jalankan pasang.bat satu klik.
+>
+> Panduan di bawah ini adalah versi lengkap/manual.
+
 Panduan ini untuk memasang aplikasi **CBT Sekolah** (repositori
 `https://github.com/wildanzet06/cbt-sekolah`) di komputer/server sekolah yang baru.
 
