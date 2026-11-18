@@ -102,11 +102,14 @@ Tidak ada masa berlaku: QR valid selama data pembayaran masih ada di database.
 
 1. Buka **Kumpulan Soal**, klik **Buat Soal** pada bank yang diinginkan.
    Tombol yang sama juga ada di halaman **Edit Bank Soal**.
-2. Di panel **Bacaan / Stimulus untuk beberapa nomor**:
-   - centang salah satu bacaan,
-   - isi **nomor dari ... s.d. ...**,
-   - klik **Terapkan ke soal**.
-3. Membuat bacaan baru: isi **Judul** dan **Isi bacaan** di kolom kanan,
-   lalu klik **Simpan bacaan** (langsung bisa dipilih).
-4. **Lepas bacaan** menghapus pemasangan pada rentang nomor tersebut.
-5. Ringkasan "Terpasang saat ini" menampilkan bacaan per rentang nomor.
+2. Di panel **Bacaan / Stimulus**:
+   - centang **Bacaan stimulus** (mengaktifkan isian nomor),
+   - isi **Berlaku untuk nomor** (dari ... sampai ...),
+   - untuk bacaan baru: isi **judul** + **isi bacaan** pada bagian
+     **Tambah bacaan baru** lalu klik **Simpan bacaan** (langsung diterapkan
+     ke nomor tersebut),
+   - untuk bacaan yang sudah tersimpan: pilih pada **Bacaan tersimpan**,
+     centang **Bacaan stimulus**, lalu klik **Terapkan**.
+3. **Lepas bacaan** menghapus pemasangan pada rentang nomor tersebut.
+4. Ringkasan "Terpasang saat ini" menampilkan bacaan per rentang nomor.
+5. Dropdown bacaan per soal sudah dihapus; pengaturan hanya lewat panel ini.
