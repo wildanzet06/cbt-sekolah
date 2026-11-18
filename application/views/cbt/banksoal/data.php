@@ -8,8 +8,6 @@ $allBanksIds = [];
             .card-header .card-tools { width: 100%; float: none !important; display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .5rem; }
             .card-header .card-tools > .btn,
             .card-header .card-tools > a.btn { flex: 1 1 calc(50% - .35rem); margin-left: 0 !important; font-size: .85rem; }
-            .card-header .card-tools > .btn-group { flex: 1 1 100%; }
-            .card-header .card-tools > .btn-group .btn { flex: 1; }
             #submit-hapus { width: 100%; }
             .table td, .table th { padding: .4rem; }
         }
@@ -45,15 +43,6 @@ $allBanksIds = [];
                         <button type="button" data-toggle="modal" data-target="#openAllBankSoal"
                                 class="btn btn-sm btn-success"><i class="fa fa-copy"></i> Copy Bank Soal
                         </button>
-                        <div class="btn-group">
-                            <?php $activeGrid = $mode == '1' ? ' active' : ''; ?>
-                            <?php $activeList = $mode == '2' ? ' active' : ''; ?>
-                            <a href="<?= base_url('cbtbanksoal?mode=1&id=' . $id_guru) ?>" type="button"
-                               class="btn btn-sm btn-outline-primary<?= $activeGrid ?>"><i class="fa fa-list"></i></a>
-                            <a href="<?= base_url('cbtbanksoal?mode=2&id=' . $id_guru) ?>" type="button"
-                               class="btn btn-sm btn-outline-primary<?= $activeList ?>"><i
-                                        class="fa fa-th-large"></i></a>
-                        </div>
                     </div>
                 </div>
                 <div class="card-body">
@@ -1042,7 +1031,7 @@ $allBanksIds = [];
                                 var bgkol = i === 0 ? 'lightgrey' : 'white';
                                 jawaban += '<tr style="background: ' + bgkol + '">';
                                 $.each(kolom, function (row, td) {
-                                    var val = td === "1" ? "✔" : (td === "0" || td === "#" ? "" : td);
+                                    var val = td === "1" ? "Ã¢Å“â€" : (td === "0" || td === "#" ? "" : td);
                                     var bg = row === 0 ? ' background: lightgrey;' : '';
                                     jawaban += '<td style="border: 1px solid black;border-collapse: collapse; text-align: center;' + bg + '">' + val + '</td>';
                                 });
