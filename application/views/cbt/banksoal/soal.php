@@ -54,14 +54,36 @@ foreach ($soal_ada as $key => $value) {
 ?>
 
 <div class="content-wrapper bg-white">
+    <style>
+        .bac-controls { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem .9rem; }
+        .bac-range { display: flex; align-items: center; gap: .4rem; }
+        .bac-range input { width: 76px; }
+        .bac-actions { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+        @media (max-width: 575.98px) {
+            .content-header h1 { font-size: 1.5rem; margin-bottom: .5rem; }
+            .content-header .btn-danger { width: 100%; display: block; }
+            .nav-pills { flex-wrap: wrap; gap: .25rem; }
+            .nav-pills .nav-item { flex: 1 1 46%; }
+            .nav-pills .nav-link { width: 100%; text-align: center; padding: .4rem .5rem; font-size: .875rem; }
+            .btn-circle-sm { width: 38px; height: 38px; padding: 0; margin: 3px; font-size: .9rem; }
+            .tab-pane .alert { font-size: .85rem; padding: .5rem .75rem; }
+            .bac-controls { display: block; }
+            .bac-controls .bac-cek { margin-bottom: .6rem; }
+            .bac-range { margin-bottom: .6rem; }
+            .bac-range input { width: calc(50% - 3.2rem); min-width: 64px; }
+            .bac-actions .btn { flex: 1 1 100%; }
+            #panel-bacaan .row > [class*="col-"] { flex: 0 0 100%; max-width: 100%; }
+            #panel-bacaan #bac-judul, #panel-bacaan #bac-isi, #panel-bacaan #bac-tambah { width: 100%; }
+        }
+    </style>
     <section class="content-header">
         <div class="container-fluid">
             <div class="d-sm-flex justify-content-between mb-2">
                 <h1><?= $subjudul ?></h1>
                 <a href="<?= base_url('cbtbanksoal/detail/' . $bank->id_bank) ?>" type="button"
                    class="btn btn-sm btn-danger float-right">
-                    <i class="fas fa-arrow-circle-left"></i><span
-                            class="d-none d-sm-inline-block ml-1">Kembali</span>
+                    <i class="fas fa-arrow-circle-left"></i><span class="ml-1">Kembali</span>
                 </a>
             </div>
         </div>
@@ -265,30 +287,23 @@ foreach ($soal_ada as $key => $value) {
                             </button>
                         </div>
                         <div id="bac-body" class="p-3">
-                        <div class="form-row align-items-center mb-2">
-                            <div class="col-auto">
-                                <div class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input" id="bac-aktif">
-                                    <label class="custom-control-label font-weight-bold" for="bac-aktif">Bacaan stimulus</label>
-                                </div>
+                        <div class="bac-controls mb-2">
+                            <div class="custom-control custom-checkbox bac-cek">
+                                <input type="checkbox" class="custom-control-input" id="bac-aktif">
+                                <label class="custom-control-label font-weight-bold" for="bac-aktif">Bacaan stimulus</label>
                             </div>
-                            <div class="col-auto">
+                            <div class="bac-range">
                                 <label class="mb-0" for="bac-dari">Berlaku untuk nomor</label>
-                            </div>
-                            <div class="col-auto">
                                 <input type="number" class="form-control form-control-sm" id="bac-dari"
-                                       min="1" value="1" style="width:80px;" disabled>
-                            </div>
-                            <div class="col-auto">
+                                       min="1" value="1" disabled>
+                                <span class="mx-1">s.d.</span>
                                 <input type="number" class="form-control form-control-sm" id="bac-sampai"
-                                       min="1" value="<?= max(1, (int) $bank->jml_soal) ?>" style="width:80px;" disabled>
+                                       min="1" value="<?= max(1, (int) $bank->jml_soal) ?>" disabled>
                             </div>
-                            <div class="col-auto ml-2">
+                            <div class="bac-actions">
                                 <button type="button" class="btn btn-outline-primary btn-sm" id="bac-terapkan" disabled>
                                     Terapkan
                                 </button>
-                            </div>
-                            <div class="col-auto">
                                 <button type="button" class="btn btn-outline-secondary btn-sm" id="bac-lepas">
                                     Lepas bacaan
                                 </button>

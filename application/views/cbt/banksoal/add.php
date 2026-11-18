@@ -10,6 +10,14 @@ $kelasSelected = json_encode(unserialize($bank->bank_kelas ?? '', ['allowed_clas
 ?>
 
 <div class="content-wrapper bg-white pt-4">
+    <style>
+        @media (max-width: 575.98px) {
+            .content-header .btn-danger { width: 100%; display: block; margin-top: .5rem; }
+            .card-header { flex-wrap: wrap; }
+            .card-header .card-tools { width: 100%; float: none; margin-top: .5rem; }
+            .card-header .card-tools .btn { width: 100%; }
+        }
+    </style>
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
