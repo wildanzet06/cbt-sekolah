@@ -255,7 +255,16 @@ foreach ($soal_ada as $key => $value) {
                         $__peta[(int) $__a->id_bacaan][] = (int) $__a->nomor_soal;
                     }
                     ?>
-                    <div class="border rounded p-3 mb-4" style="background:#fbfcfd;">
+                    <div class="border rounded mb-4" id="panel-bacaan" style="background:#fbfcfd;">
+                        <div class="d-flex justify-content-between align-items-center px-3 py-2"
+                             style="border-bottom:1px solid #e3e6ea;">
+                            <span class="font-weight-bold"><i class="fas fa-book-open mr-1"></i>Bacaan / Stimulus</span>
+                            <button type="button" class="btn btn-sm btn-light border" id="bac-toggle"
+                                    title="Perkecil / perbesar panel">
+                                <i class="fas fa-chevron-up" id="bac-toggle-icon"></i>
+                            </button>
+                        </div>
+                        <div id="bac-body" class="p-3">
                         <div class="form-row align-items-center mb-2">
                             <div class="col-auto">
                                 <div class="custom-control custom-checkbox">
@@ -346,6 +355,7 @@ foreach ($soal_ada as $key => $value) {
                                 <?php endforeach; ?>
                             </div>
                         <?php endif; ?>
+                        </div><!-- /bac-body -->
                     </div>
                     <script>
                         (function () {
@@ -415,6 +425,21 @@ foreach ($soal_ada as $key => $value) {
                                         setTimeout(function () { location.reload(); }, 600);
                                     }
                                 }, 'json').fail(function () { alert('Gagal menghubungi server.'); });
+                            });
+                            var $bacBody = $('#bac-body');
+                            var $bacIcon = $('#bac-toggle-icon');
+                            try {
+                                if (localStorage.getItem('bac_panel_min') === '1') {
+                                    $bacBody.hide();
+                                    $bacIcon.removeClass('fa-chevron-up').addClass('fa-chevron-down');
+                                }
+                            } catch (e) {}
+
+                            $('#bac-toggle').on('click', function () {
+                                $bacBody.slideToggle(150);
+                                var kecil = $bacBody.is(':hidden');
+                                $bacIcon.toggleClass('fa-chevron-up', !kecil).toggleClass('fa-chevron-down', kecil);
+                                try { localStorage.setItem('bac_panel_min', kecil ? '1' : '0'); } catch (e) {}
                             });
                         })();
                     </script>
