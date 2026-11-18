@@ -84,9 +84,11 @@
                             {'name': 'Jenis Tagihan', 'link': 'tagihan/jenis', 'icon': 'fas fa-tags'},
                             {'name': 'Keringanan Siswa', 'link': 'tagihan/keringanan', 'icon': 'fas fa-hand-holding-heart'},
                             {'name': 'Laporan SPP', 'link': 'pembayaran/laporan', 'icon': 'fas fa-file-alt'},
-                            {'name': 'Buku Kas', 'link': 'kas', 'icon': 'fas fa-cash-register'},
-                            {'name': 'Statistik', 'link': 'statistik', 'icon': 'fas fa-chart-pie'}
+                            {'name': 'Buku Kas', 'link': 'kas', 'icon': 'fas fa-cash-register'}
                         ]
+                    },
+                    {
+                        'name': 'Statistik Sekolah', 'link': 'statistik', 'icon': 'fas fa-chart-pie', 'cbt': '1'
                     },
                     {
                         'name': 'Data Umum', 'icon': 'fas fa-server', 'cbt': '1',
