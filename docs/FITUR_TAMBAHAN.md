@@ -69,7 +69,7 @@ Fitur-fitur ini ditambahkan di atas GarudaCBT. Tidak ada tabel bawaan GarudaCBT 
 
 ## Bacaan/Stimulus bersama untuk beberapa soal
 
-Menu: **Ujian Sekolah → Bacaan Soal** (`/bacaan`), bisa diakses admin dan guru.
+Tidak ada menu terpisah. Pengaturan dilakukan langsung di halaman **Kumpulan Soal → Buat Soal** atau dari tombol **Buat Soal** di halaman **Edit Bank Soal**.
 
 - Satu bacaan (mis. "Text 1: My Trip to the Beach") dapat dipakai oleh banyak soal.
 - Saat membuat soal di **Kumpulan Soal → Buat Soal**, pilih bacaan pada dropdown
@@ -97,3 +97,16 @@ Halaman verifikasi tetap menerima kode lama:
 3. kunci lama sebelum rotasi (kwitansi paling lama).
 
 Tidak ada masa berlaku: QR valid selama data pembayaran masih ada di database.
+
+### Cara pakai (tanpa menu terpisah)
+
+1. Buka **Kumpulan Soal**, klik **Buat Soal** pada bank yang diinginkan.
+   Tombol yang sama juga ada di halaman **Edit Bank Soal**.
+2. Di panel **Bacaan / Stimulus untuk beberapa nomor**:
+   - centang salah satu bacaan,
+   - isi **nomor dari ... s.d. ...**,
+   - klik **Terapkan ke soal**.
+3. Membuat bacaan baru: isi **Judul** dan **Isi bacaan** di kolom kanan,
+   lalu klik **Simpan bacaan** (langsung bisa dipilih).
+4. **Lepas bacaan** menghapus pemasangan pada rentang nomor tersebut.
+5. Ringkasan "Terpasang saat ini" menampilkan bacaan per rentang nomor.

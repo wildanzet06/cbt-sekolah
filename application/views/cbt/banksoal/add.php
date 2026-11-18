@@ -35,6 +35,9 @@ $kelasSelected = json_encode(unserialize($bank->bank_kelas ?? '', ['allowed_clas
                         <h6><?= $subjudul . ' - ' . $bank->bank_kode ?></h6>
                     </div>
                     <div class="card-tools">
+                        <a href="<?= base_url('cbtbanksoal/buatsoal/' . $bank->id_bank) ?>" class="btn btn-success btn-sm mr-1">
+                            <i class="fa fa-edit mr-1"></i>Buat Soal
+                        </a>
                         <button type="submit" class="btn btn-primary btn-sm">
                             <i class="fa fa-plus mr-1"></i>Simpan
                         </button>

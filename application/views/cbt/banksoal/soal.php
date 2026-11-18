@@ -236,6 +236,166 @@ foreach ($soal_ada as $key => $value) {
                     </div>
                 </div>
                 <div class="card-body">
+                    <?php
+                    $__bank_id = (int) $bank->id_bank;
+                    $__jenis = (int) ($this->input->get('tab') ?: $this->input->get('jns') ?: 1);
+                    if (!$this->db->table_exists('cbt_bacaan')) {
+                        $this->load->model('Bacaan_model', 'bacaan_model');
+                    }
+                    $__bacaan = $this->db->order_by('judul', 'ASC')->get('cbt_bacaan')->result();
+                    $__assign = $this->db->select('nomor_soal, id_bacaan')
+                        ->where('bank_id', $__bank_id)
+                        ->where('jenis', $__jenis)
+                        ->where('id_bacaan IS NOT NULL', null, false)
+                        ->order_by('nomor_soal', 'ASC')
+                        ->get('cbt_soal')->result();
+                    $__peta = array();
+                    foreach ($__assign as $__a) {
+                        $__peta[(int) $__a->id_bacaan][] = (int) $__a->nomor_soal;
+                    }
+                    ?>
+                    <div class="card card-outline card-info mb-3">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-book-open mr-1"></i>Bacaan / Stimulus untuk beberapa nomor</h3>
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <label class="mb-1">Pilih bacaan <span class="text-muted">(centang satu)</span></label>
+                                    <div class="border rounded p-2" style="max-height:160px;overflow:auto;">
+                                        <?php if (empty($__bacaan)): ?>
+                                            <div class="text-muted small">Belum ada bacaan. Tambah di kolom kanan.</div>
+                                        <?php endif; ?>
+                                        <?php foreach ($__bacaan as $__b): ?>
+                                            <div class="custom-control custom-radio">
+                                                <input type="radio" class="custom-control-input"
+                                                       id="bac-pilih-<?= (int) $__b->id_bacaan ?>"
+                                                       name="bacaan_pilih" value="<?= (int) $__b->id_bacaan ?>">
+                                                <label class="custom-control-label" for="bac-pilih-<?= (int) $__b->id_bacaan ?>">
+                                                    <?= html_escape($__b->judul) ?>
+                                                </label>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm mt-2" id="bac-lepas">
+                                        <i class="fas fa-eraser mr-1"></i>Lepas bacaan pada nomor ini
+                                    </button>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="mb-1">Berlaku untuk nomor</label>
+                                    <div class="input-group">
+                                        <input type="number" class="form-control" id="bac-dari" min="1" value="1">
+                                        <div class="input-group-prepend input-group-prepend">
+                                            <span class="input-group-text">s.d.</span>
+                                        </div>
+                                        <input type="number" class="form-control" id="bac-sampai" min="1"
+                                               value="<?= max(1, (int) $bank->jml_soal) ?>">
+                                    </div>
+                                    <button type="button" class="btn btn-primary btn-sm mt-2" id="bac-terapkan">
+                                        <i class="fas fa-check mr-1"></i>Terapkan ke soal
+                                    </button>
+                                    <div class="small text-muted mt-2" id="bac-status"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="mb-1">Tambah bacaan baru</label>
+                                    <input type="text" class="form-control form-control-sm mb-1" id="bac-judul"
+                                           placeholder="Judul, mis. Text 1: My Trip">
+                                    <textarea class="form-control form-control-sm mb-1" id="bac-isi" rows="3"
+                                              placeholder="Isi bacaan (boleh HTML sederhana)"></textarea>
+                                    <button type="button" class="btn btn-success btn-sm" id="bac-tambah">
+                                        <i class="fas fa-save mr-1"></i>Simpan bacaan
+                                    </button>
+                                </div>
+                            </div>
+                            <?php if (!empty($__peta)): ?>
+                                <div class="mt-3 small">
+                                    <b>Terpasang saat ini:</b>
+                                    <?php
+                                    $__judul = array();
+                                    foreach ($__bacaan as $__b) {
+                                        $__judul[(int) $__b->id_bacaan] = $__b->judul;
+                                    }
+                                    foreach ($__peta as $__idb => $__nomor):
+                                        $__nomor = array_values(array_unique($__nomor));
+                                        sort($__nomor);
+                                        $__teks = array();
+                                        $__mulai = $__nomor[0];
+                                        $__akhir = $__nomor[0];
+                                        for ($__i = 1; $__i < count($__nomor); $__i++) {
+                                            if ($__nomor[$__i] === $__akhir + 1) {
+                                                $__akhir = $__nomor[$__i];
+                                            } else {
+                                                $__teks[] = $__mulai === $__akhir ? (string) $__mulai : $__mulai . '–' . $__akhir;
+                                                $__mulai = $__akhir = $__nomor[$__i];
+                                            }
+                                        }
+                                        $__teks[] = $__mulai === $__akhir ? (string) $__mulai : $__mulai . '–' . $__akhir;
+                                        ?>
+                                        <span class="badge badge-info mr-1 mb-1">
+                                            <?= html_escape(isset($__judul[$__idb]) ? $__judul[$__idb] : ('#' . $__idb)) ?>:
+                                            nomor <?= html_escape(implode(', ', $__teks)) ?>
+                                        </span>
+                                    <?php endforeach; ?>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                    <script>
+                        (function () {
+                            var BASE = '<?= base_url() ?>';
+                            var CSRF = '<?= $this->security->get_csrf_token_name() ?>';
+                            var HASH = '<?= $this->security->get_csrf_hash() ?>';
+                            var BANK = <?= $__bank_id ?>;
+                            var JENIS = <?= $__jenis ?>;
+
+                            function angka(sel) {
+                                var v = parseInt($(sel).val(), 10);
+                                return isNaN(v) ? 0 : v;
+                            }
+
+                            function kirim(url, data, ok) {
+                                data[CSRF] = HASH;
+                                $.post(BASE + url, data, function (res) {
+                                    if (res && res.status) {
+                                        $('#bac-status').text(res.msg || 'Berhasil.');
+                                        setTimeout(function () { location.reload(); }, 700);
+                                    } else {
+                                        alert((res && res.msg) || 'Gagal.');
+                                    }
+                                }, 'json').fail(function () {
+                                    alert('Gagal menghubungi server.');
+                                });
+                            }
+
+                            $('#bac-terapkan').on('click', function () {
+                                var idb = $('input[name=bacaan_pilih]:checked').val();
+                                if (!idb) { alert('Pilih salah satu bacaan dulu.'); return; }
+                                var dari = angka('#bac-dari'), sampai = angka('#bac-sampai');
+                                if (dari < 1 || sampai < dari) { alert('Nomor tidak valid.'); return; }
+                                kirim('bacaan/terapkan', {
+                                    id_bank: BANK, jenis: JENIS, id_bacaan: idb, dari: dari, sampai: sampai
+                                });
+                            });
+
+                            $('#bac-lepas').on('click', function () {
+                                var dari = angka('#bac-dari'), sampai = angka('#bac-sampai');
+                                if (dari < 1 || sampai < dari) { alert('Nomor tidak valid.'); return; }
+                                if (!confirm('Lepas bacaan dari nomor ' + dari + '–' + sampai + '?')) { return; }
+                                kirim('bacaan/lepas', { id_bank: BANK, jenis: JENIS, dari: dari, sampai: sampai });
+                            });
+
+                            $('#bac-tambah').on('click', function () {
+                                var judul = $.trim($('#bac-judul').val());
+                                if (judul === '') { alert('Judul bacaan wajib diisi.'); return; }
+                                kirim('bacaan/simpan', { judul: judul, isi: $('#bac-isi').val(), id_bacaan: 0 });
+                            });
+                        })();
+                    </script>
                     <div class="soal-area mt-4">
                         <div class="row">
                             <div class="col-md-6" id="soal-area">
