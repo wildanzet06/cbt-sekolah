@@ -111,7 +111,7 @@ class Akses_hook {
         $kelas_awal = strtolower((string) $CI->router->fetch_class());
         if (in_array($kelas_awal, array('install', 'update')) && $CI->db->table_exists('users')) {
             if ((int) $CI->db->count_all('users') > 0) {
-                $this->tolak($CI, 'installer/update setelah aplikasi terpasang');
+                $this->tolak_terpasang($CI);
             }
         }
 
@@ -205,14 +205,6 @@ class Akses_hook {
                 $this->tolak($CI, 'aksi mutasi tanpa POST/AJAX: ' . $n . '/' . $metode);
             }
 
-            // 8) Installer / updater database tidak boleh dipakai setelah terpasang.
-            if (in_array($n, array('install', 'update')) && $CI->db->table_exists('users')) {
-                $jumlah = (int) $CI->db->count_all('users');
-                if ($jumlah > 0) {
-                    $this->tolak($CI, 'installer/update setelah aplikasi terpasang');
-                }
-            }
-
             // 9) Endpoint ujian: siswa hanya boleh menyentuh datanya sendiri.
             if ($siswa && $n === 'siswa') {
                 $id_login = $this->id_siswa_login($CI);
@@ -304,6 +296,27 @@ class Akses_hook {
             ->where('username', $user->username)
             ->get('master_siswa')->row();
         return $cache = $row ? (int) $row->id_siswa : null;
+    }
+
+    /** Halaman ramah saat installer/updater dibuka pada aplikasi yang sudah terpasang. */
+    private function tolak_terpasang($CI) {
+        log_message('error', 'AKSES DITOLAK: installer/update setelah aplikasi terpasang');
+
+        if ($CI->input->is_ajax_request()) {
+            header('Content-Type: application/json');
+            http_response_code(403);
+            echo json_encode(array('status' => false, 'msg' => 'Aplikasi sudah terpasang.'));
+            exit;
+        }
+
+        show_error(
+            'Aplikasi ini <b>sudah terpasang</b>, jadi halaman instalasi/update sudah dinonaktifkan.'
+            . '<br><br>Silakan masuk lewat halaman login: '
+            . '<a href="' . site_url('auth') . '">' . site_url('auth') . '</a>'
+            . '<br><br>Bila ingin memasang ulang dari nol, kosongkan dulu database-nya.',
+            403,
+            'Sudah Terpasang'
+        );
     }
 
     private function tolak($CI, $alasan) {

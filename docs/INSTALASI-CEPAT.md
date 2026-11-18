@@ -67,6 +67,7 @@ buka menu **Terminal**).
 - mengimpor `docs/database_gabungan.sql` (keuangan, tagihan, presensi,
   pelanggaran, nilai manual, ujian sekolah, kas, ambang SP),
 - menulis `application/config/database.php`,
+- mengisi profil sekolah awal + memastikan ada tahun pelajaran & semester aktif,
 - membuat akun administrator + grup admin,
 - menyiapkan folder `uploads/`, `backups/`, `logs/`, `cache/`.
 

@@ -27,6 +27,7 @@ if (PHP_SAPI !== 'cli') {
 
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
+mysqli_report(MYSQLI_REPORT_OFF); // pakai kode error, bukan exception
 
 // ---------------------------------------------------------------------
 // Argumen
@@ -94,7 +95,7 @@ if (!$mysqli->select_db($db_aman)) {
     fwrite(STDERR, "Tidak bisa memilih database $db_aman: " . $mysqli->error . "\n");
     exit(1);
 }
-echo "[1/6] Database siap.\n";
+echo "[1/7] Database siap.\n";
 
 // ---------------------------------------------------------------------
 // 3. Impor skema / cadangan
@@ -108,13 +109,17 @@ function impor_sql(mysqli $db, $path)
     $sql = preg_replace('/^\xEF\xBB\xBF/', '', $sql);
     $sql = preg_replace('/^(?:(?:WARNING|mysqldump|mariadb-dump)[^\r\n]*\r?\n)+/i', '', $sql);
     if (!@$db->multi_query($sql)) {
-        return array(false, $db->error);
+        $err = $db->error;
+        while ($db->more_results() && @$db->next_result()) {
+            if ($r = @$db->store_result()) { $r->free(); }
+        }
+        return array(false, $err);
     }
     do {
-        if ($res = $db->store_result()) {
+        if ($res = @$db->store_result()) {
             $res->free();
         }
-    } while ($db->more_results() && $db->next_result());
+    } while (@$db->more_results() && @$db->next_result());
     if ($db->errno) {
         return array(false, $db->error);
     }
@@ -129,7 +134,7 @@ if ($cek && $cek->num_rows > 0) {
 }
 
 if ($sudah_terpasang && $opt['pulihkan'] === '') {
-    echo "[2/6] Database sudah berisi akun — impor skema dilewati.\n";
+    echo "[2/7] Database sudah berisi akun — impor skema dilewati.\n";
 } elseif ($opt['pulihkan'] !== '') {
     $path = $opt['pulihkan'];
     if (!is_file($path)) {
@@ -139,7 +144,7 @@ if ($sudah_terpasang && $opt['pulihkan'] === '') {
         fwrite(STDERR, "Berkas cadangan tidak ditemukan: {$opt['pulihkan']}\n");
         exit(1);
     }
-    echo "[2/6] Memulihkan dari " . basename($path) . " ... ";
+    echo "[2/7] Memulihkan dari " . basename($path) . " ... ";
     list($ok, $err) = impor_sql($mysqli, $path);
     if (!$ok) {
         fwrite(STDERR, "GAGAL: $err\n");
@@ -147,7 +152,7 @@ if ($sudah_terpasang && $opt['pulihkan'] === '') {
     }
     echo "selesai.\n";
 } else {
-    echo "[2/6] Mengimpor skema dasar (master.sql) ... ";
+    echo "[2/7] Mengimpor skema dasar (master.sql) ... ";
     list($ok, $err) = impor_sql($mysqli, $akar . '/assets/app/db/master.sql');
     if (!$ok) {
         fwrite(STDERR, "GAGAL: $err\n");
@@ -161,7 +166,7 @@ if ($sudah_terpasang && $opt['pulihkan'] === '') {
 // ---------------------------------------------------------------------
 $tambahan = $akar . '/docs/database_gabungan.sql';
 if (is_file($tambahan)) {
-    echo "[3/6] Mengimpor tabel tambahan ... ";
+    echo "[3/7] Mengimpor tabel tambahan ... ";
     list($ok, $err) = impor_sql($mysqli, $tambahan);
     if (!$ok) {
         echo "sebagian gagal ($err) — aman, aplikasi membuatnya otomatis.\n";
@@ -169,7 +174,7 @@ if (is_file($tambahan)) {
         echo "selesai.\n";
     }
 } else {
-    echo "[3/6] docs/database_gabungan.sql tidak ada — dilewati.\n";
+    echo "[3/7] docs/database_gabungan.sql tidak ada — dilewati.\n";
 }
 
 // ---------------------------------------------------------------------
@@ -214,17 +219,84 @@ $isi = str_replace(
     $tpl
 );
 file_put_contents($config_path, $isi . "\n");
-echo "[4/6] application/config/database.php ditulis.\n";
+echo "[4/7] application/config/database.php ditulis.\n";
 
+// ---------------------------------------------------------------------
+// 5b. Data awal (sekolah, tahun pelajaran, semester)
+// ---------------------------------------------------------------------
+function seed_awal(mysqli $db)
+{
+    $hasil = array();
+
+    // Profil sekolah
+    $q = $db->query("SELECT COUNT(*) AS c FROM setting");
+    if ($q && (int) $q->fetch_assoc()['c'] === 0) {
+        $tahun = (int) date('Y');
+        $bulan = (int) date('n');
+        $ta = $bulan >= 7 ? $tahun . '/' . ($tahun + 1) : ($tahun - 1) . '/' . $tahun;
+
+        $stmt = $db->prepare(
+            "INSERT INTO setting (id_setting, sekolah, jenjang, satuan_pendidikan, alamat, desa, kota, kecamatan, provinsi, kepsek, nama_aplikasi)
+             VALUES (1, ?, 2, '2', '', '', '', '', '', '', 'CBT Sekolah')"
+        );
+        $nama = 'Sekolah';
+        $stmt->bind_param('s', $nama);
+        $stmt->execute();
+        $stmt->close();
+        $hasil[] = 'profil sekolah';
+    }
+
+    // Tahun pelajaran aktif
+    $q = $db->query("SELECT COUNT(*) AS c FROM master_tp");
+    $jml_tp = $q ? (int) $q->fetch_assoc()['c'] : 0;
+    if ($jml_tp === 0) {
+        $tahun = (int) date('Y');
+        $bulan = (int) date('n');
+        $ta = $bulan >= 7 ? $tahun . '/' . ($tahun + 1) : ($tahun - 1) . '/' . $tahun;
+        $stmt = $db->prepare("INSERT INTO master_tp (tahun, active) VALUES (?, 1)");
+        $stmt->bind_param('s', $ta);
+        $stmt->execute();
+        $stmt->close();
+        $hasil[] = "tahun pelajaran $ta";
+    } else {
+        $q = $db->query("SELECT COUNT(*) AS c FROM master_tp WHERE active = 1");
+        if ($q && (int) $q->fetch_assoc()['c'] === 0) {
+            $db->query("UPDATE master_tp SET active = 1 ORDER BY tahun DESC LIMIT 1");
+            $hasil[] = 'tahun pelajaran aktif';
+        }
+    }
+
+    // Pastikan ada semester aktif
+    $q = $db->query("SELECT COUNT(*) AS c FROM master_smt");
+    if ($q && (int) $q->fetch_assoc()['c'] > 0) {
+        $q = $db->query("SELECT COUNT(*) AS c FROM master_smt WHERE active = 1");
+        if ($q && (int) $q->fetch_assoc()['c'] === 0) {
+            $db->query("UPDATE master_smt SET active = 1 WHERE smt = 'Ganjil' LIMIT 1");
+            $hasil[] = 'semester aktif';
+        }
+    }
+
+    // Semester
+    $q = $db->query("SELECT COUNT(*) AS c FROM master_smt");
+    if ($q && (int) $q->fetch_assoc()['c'] === 0) {
+        $db->query("INSERT INTO master_smt (smt, nama_smt, active) VALUES ('Ganjil', 'I (satu)', 1), ('Genap', 'II (dua)', 0)");
+        $hasil[] = 'semester Ganjil/Genap';
+    }
+
+    return $hasil;
+}
+
+$seed = seed_awal($mysqli);
+echo "[5/7] Data awal: " . ($seed ? implode(', ', $seed) : 'sudah ada') . ".\n";
 // ---------------------------------------------------------------------
 // 6. Akun administrator (hanya instalasi baru)
 // ---------------------------------------------------------------------
 if ($sudah_terpasang) {
-    echo "[5/6] Akun administrator tidak diubah (sudah ada).\n";
+    echo "[6/7] Akun administrator tidak diubah (sudah ada).\n";
 } else {
     $r = $mysqli->query("SELECT COUNT(*) AS c FROM users")->fetch_assoc();
     if ((int) $r['c'] > 0) {
-        echo "[5/6] Sudah ada akun — pembuatan admin dilewati.\n";
+        echo "[6/7] Sudah ada akun — pembuatan admin dilewati.\n";
     } else {
         $sandi = password_hash($opt['sandi'], PASSWORD_BCRYPT);
         $nama  = trim($opt['nama']);
@@ -244,7 +316,7 @@ if ($sudah_terpasang) {
         $id_admin = $stmt->insert_id;
         $stmt->close();
         $mysqli->query("INSERT INTO users_groups (user_id, group_id) VALUES (" . (int) $id_admin . ", 1)");
-        echo "[5/6] Akun administrator dibuat: {$opt['admin']} / {$opt['sandi']}\n";
+        echo "[6/7] Akun administrator dibuat: {$opt['admin']} / {$opt['sandi']}\n";
         echo "       (segera ganti password setelah login)\n";
     }
 }
@@ -258,7 +330,7 @@ foreach (array('uploads', 'backups', 'application/logs', 'application/cache') as
         @mkdir($p, 0775, true);
     }
 }
-echo "[6/6] Folder uploads/backups/logs/cache siap.\n\n";
+echo "[7/7] Folder uploads/backups/logs/cache siap.\n\n";
 
 echo "SELESAI.\n";
 echo "Buka: http://localhost/cbt-sekolah/auth\n";
