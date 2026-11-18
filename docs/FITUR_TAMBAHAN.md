@@ -18,6 +18,21 @@ Fitur-fitur ini ditambahkan di atas GarudaCBT. Tidak ada tabel bawaan GarudaCBT 
 - **Akun siswa:** ganti password sendiri, tampilan dashboard yang ramah HP.
 - **Keamanan:** penjaga akses (`application/hooks/Akses_hook.php`) agar siswa tidak bisa membuka halaman admin.
 
+- **Backup otomatis & restore:** menu *Pengaturan → Database → Backup Otomatis*.
+  Backup dibuat sekali sehari (otomatis saat admin membuka halaman), disimpan 14 hari,
+  dan bisa dipulihkan satu klik (dibuat backup pengaman sebelum restore).
+- **Pengingat SPP via WhatsApp:** tombol **WA** di Daftar Tagihan membuka WhatsApp
+  dengan pesan tagihan siap kirim (nama, jumlah, jatuh tempo, rekening). Tanpa API.
+- **Kwitansi ber-QR:** kwitansi (layar & cetak) memuat QR menuju halaman publik
+  `/cekkwitansi/{id}/{kode}` untuk memeriksa keaslian; nama siswa disamarkan.
+- **Surat Peringatan otomatis:** menu *Poin Pelanggaran → Surat Peringatan*.
+  Ambang poin SP1/SP2/SP3 dapat diatur; siswa otomatis masuk level SP dan bisa
+  dicetak surat resmi berkop sekolah (SP1/SP2/SP3).
+- **Buku Kas Sekolah:** menu *Keuangan → Buku Kas*. Catat pengeluaran & pemasukan
+  lain; pemasukan SPP dihitung otomatis, ada saldo dan rekap bulanan + ekspor CSV.
+- **Statistik:** menu *Keuangan → Statistik*. Grafik penerimaan SPP 12 bulan,
+  tunggakan per kelas, kehadiran per bulan (H/I/S/A), dan jenis pelanggaran terbanyak.
+
 ## Cara memasang
 
 1. Pasang GarudaCBT seperti biasa lewat folder `installer`.

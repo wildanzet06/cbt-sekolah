@@ -18,8 +18,8 @@
 </head>
 <body>
     <div class="no-print" style="text-align: center; margin-bottom: 20px;">
-        <button onclick="window.print()" style="padding: 10px 20px; font-size: 16px;">🖨️ Print</button>
-        <button onclick="window.close()" style="padding: 10px 20px; font-size: 16px;">✕ Close</button>
+        <button onclick="window.print()" style="padding: 10px 20px; font-size: 16px;">ðŸ–¨ï¸ Print</button>
+        <button onclick="window.close()" style="padding: 10px 20px; font-size: 16px;">âœ• Close</button>
     </div>
     
     <div class="kwitansi">
@@ -67,16 +67,32 @@
         </div>
         
         <div class="footer">
+        <div style="margin-top:20px; display:flex; align-items:center; gap:12px; justify-content:center;">
+            <div id="qr-kwitansi" style="width:100px;height:100px;"></div>
+            <div style="font-size:10px; color:#555; text-align:left; max-width:260px;">
+                <strong>Scan untuk verifikasi</strong><br>
+                <span style="word-break:break-all;"><?= html_escape($url_verifikasi); ?></span>
+            </div>
+        </div>
+        
             <p>Kwitansi ini dicetak secara otomatis oleh sistem</p>
             <p>Dicetak pada: <?= date('d/m/Y H:i:s'); ?></p>
         </div>
     </div>
     
+    <script src="<?= base_url() ?>/assets/app/js/qrcode.min.js"></script>
     <script>
-        window.onload = function() {
-            // Auto print saat halaman dibuka (opsional)
-            // window.print();
-        }
+        window.onload = function () {
+            var el = document.getElementById('qr-kwitansi');
+            if (el && window.QRCode) {
+                new QRCode(el, {
+                    text: <?= json_encode($url_verifikasi, JSON_UNESCAPED_SLASHES); ?>,
+                    width: 100,
+                    height: 100,
+                    correctLevel: QRCode.CorrectLevel.M
+                });
+            }
+        };
     </script>
 </body>
 </html>

@@ -328,4 +328,56 @@ class Pelanggaran_model extends CI_Model {
         }
         return $r;
     }
+    // =====================================================================
+    // SURAT PERINGATAN (SP) — ambang poin
+    // =====================================================================
+    private function pastikan_setting_poin() {
+        if (!$this->db->table_exists('cbt_setting_poin')) {
+            $this->db->query("CREATE TABLE IF NOT EXISTS cbt_setting_poin (
+                id INT NOT NULL AUTO_INCREMENT,
+                sp1 INT NOT NULL DEFAULT 25,
+                sp2 INT NOT NULL DEFAULT 50,
+                sp3 INT NOT NULL DEFAULT 75,
+                updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+    }
+
+    /** Ambang poin SP (dibuat default 25/50/75 bila belum ada). */
+    public function setting_sp() {
+        $this->pastikan_setting_poin();
+        $row = $this->db->get('cbt_setting_poin')->row();
+        if (!$row) {
+            $this->db->insert('cbt_setting_poin', array('sp1' => 25, 'sp2' => 50, 'sp3' => 75));
+            $row = $this->db->get('cbt_setting_poin')->row();
+        }
+        return $row;
+    }
+
+    public function simpan_setting_sp($sp1, $sp2, $sp3) {
+        $this->pastikan_setting_poin();
+        $data = array(
+            'sp1' => max(1, (int) $sp1),
+            'sp2' => max(1, (int) $sp2),
+            'sp3' => max(1, (int) $sp3)
+        );
+        $row = $this->db->get('cbt_setting_poin')->row();
+        if ($row) {
+            $this->db->where('id', $row->id)->update('cbt_setting_poin', $data);
+        } else {
+            $this->db->insert('cbt_setting_poin', $data);
+        }
+        return true;
+    }
+
+    /** Level SP berdasarkan total poin: 0 = belum, 1..3 = SP1..SP3. */
+    public function level_sp($poin, $setting) {
+        $poin = (int) $poin;
+        if (!$setting) return 0;
+        if ($poin >= (int) $setting->sp3) return 3;
+        if ($poin >= (int) $setting->sp2) return 2;
+        if ($poin >= (int) $setting->sp1) return 1;
+        return 0;
+    }
 }

@@ -115,6 +115,14 @@ class Akses_hook {
         $admin = $CI->ion_auth->is_admin();
         $siswa = !$admin && $CI->ion_auth->in_group(array(3, 'siswa'));
 
+        // Backup otomatis sekali sehari saat admin membuka halaman.
+        if ($admin) {
+            if (!isset($CI->backup_model)) {
+                $CI->load->model('Backup_model', 'backup_model');
+            }
+            $CI->backup_model->buat_otomatis();
+        }
+
         foreach ($nama as $n) {
             if ($n === '') continue;
 

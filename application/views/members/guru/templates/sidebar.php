@@ -49,7 +49,8 @@
                     'name': 'Poin Pelanggaran', 'icon': 'fas fa-exclamation-triangle', 'cbt': '1',
                     'submenu': [
                         {'name': 'Input Pelanggaran', 'link': 'pelanggaran', 'icon': 'fas fa-edit'},
-                        {'name': 'Rekap Pelanggaran', 'link': 'pelanggaran/rekap', 'icon': 'fas fa-chart-bar'}
+                        {'name': 'Rekap Pelanggaran', 'link': 'pelanggaran/rekap', 'icon': 'fas fa-chart-bar'},
+                        {'name': 'Surat Peringatan', 'link': 'pelanggaran/surat', 'icon': 'fas fa-file-alt'}
                     ]
                 },
                 {

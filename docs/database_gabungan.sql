@@ -113,6 +113,34 @@ CREATE TABLE IF NOT EXISTS cbt_setting_spp (
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Ambang poin Surat Peringatan (SP1/SP2/SP3)
+CREATE TABLE IF NOT EXISTS cbt_setting_poin (
+    id         INT NOT NULL AUTO_INCREMENT,
+    sp1        INT NOT NULL DEFAULT 25,
+    sp2        INT NOT NULL DEFAULT 50,
+    sp3        INT NOT NULL DEFAULT 75,
+    updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+INSERT INTO cbt_setting_poin (sp1, sp2, sp3)
+SELECT 25, 50, 75 FROM DUAL
+WHERE NOT EXISTS (SELECT 1 FROM cbt_setting_poin);
+
+-- Buku kas sekolah (pemasukan lain & pengeluaran)
+CREATE TABLE IF NOT EXISTS cbt_kas (
+    id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    tanggal     DATE NOT NULL,
+    jenis       ENUM('masuk','keluar') NOT NULL DEFAULT 'keluar',
+    kategori    VARCHAR(60)  NOT NULL,
+    keterangan  VARCHAR(255) NULL,
+    nominal     DECIMAL(15,2) NOT NULL DEFAULT 0,
+    dibuat_oleh VARCHAR(100) NULL,
+    created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY idx_tanggal (tanggal),
+    KEY idx_jenis (jenis)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 -- Rekening tujuan transfer manual (boleh lebih dari satu bank)
 CREATE TABLE IF NOT EXISTS cbt_rekening (
     id         INT UNSIGNED NOT NULL AUTO_INCREMENT,

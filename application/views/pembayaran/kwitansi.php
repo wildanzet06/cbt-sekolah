@@ -67,6 +67,16 @@
                         <p>Admin Keuangan</p>
                     </div>
                     
+                    <div style="margin-top: 24px; display: flex; align-items: center; gap: 14px; justify-content: center;">
+                        <div id="qr-kwitansi" style="width:110px;height:110px;"></div>
+                        <div style="font-size: 11px; color:#555; text-align:left; max-width:280px;">
+                            <strong>Scan untuk verifikasi</strong><br>
+                            Keaslian kwitansi ini dapat dicek dengan memindai QR di samping,
+                            atau membuka tautan berikut:
+                            <div style="word-break: break-all; color:#0a58ca;"><?= html_escape($url_verifikasi); ?></div>
+                        </div>
+                    </div>
+                     
                     <div style="margin-top: 30px; padding-top: 20px; border-top: 1px dashed #999; text-align: center; font-size: 11px; color: #666;">
                         <p>Kwitansi ini dicetak secara otomatis oleh sistem</p>
                         <p>Dicetak pada: <?= date('d/m/Y H:i:s'); ?></p>
@@ -77,3 +87,18 @@
         </div>
     </section>
 </div>
+
+<script src="<?= base_url() ?>/assets/app/js/qrcode.min.js"></script>
+<script>
+(function () {
+    var el = document.getElementById('qr-kwitansi');
+    if (el && window.QRCode) {
+        new QRCode(el, {
+            text: <?= json_encode($url_verifikasi, JSON_UNESCAPED_SLASHES); ?>,
+            width: 110,
+            height: 110,
+            correctLevel: QRCode.CorrectLevel.M
+        });
+    }
+})();
+</script>

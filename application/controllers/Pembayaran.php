@@ -560,7 +560,17 @@ class Pembayaran extends CI_Controller {
         $data = $this->_admin_data('Kwitansi Pembayaran');
         $data['pembayaran'] = $pembayaran;
 
+        // Kode verifikasi: hash id + encryption_key (tidak bisa ditebak).
+        $data['kode_verifikasi'] = self::kode_kwitansi($pembayaran->id);
+        $data['url_verifikasi']  = site_url('cekkwitansi/' . (int) $pembayaran->id . '/' . $data['kode_verifikasi']);
+
         $this->_render_admin('pembayaran/kwitansi', $data);
+    }
+
+    /** Kode verifikasi kwitansi (dipakai QR & halaman cek keaslian). */
+    public static function kode_kwitansi($id) {
+        $kunci = (string) config_item('encryption_key');
+        return substr(hash_hmac('sha256', 'kwitansi-' . (int) $id, $kunci), 0, 16);
     }
 
     public function cetak_kwitansi($id) {
@@ -572,6 +582,9 @@ class Pembayaran extends CI_Controller {
         if (!$data['pembayaran']) {
             show_error('Data pembayaran tidak ditemukan');
         }
+
+        $data['kode_verifikasi'] = self::kode_kwitansi($id);
+        $data['url_verifikasi']  = site_url('cekkwitansi/' . (int) $id . '/' . $data['kode_verifikasi']);
 
         $this->load->view('pembayaran/cetak_kwitansi', $data);
     }

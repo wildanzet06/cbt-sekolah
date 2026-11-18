@@ -466,6 +466,91 @@ class Pelanggaran extends CI_Controller {
     // EKSPOR EXCEL (.xlsx)
     // =====================================================================
 
+    // =====================================================================
+    // SURAT PERINGATAN (SP1/SP2/SP3)
+    // =====================================================================
+    public function surat() {
+        list($tp, $smt) = $this->_periode();
+
+        $kelas_id = (int) $this->input->get('kelas');
+        if ($kelas_id && !$this->Pelanggaran_model->kelas_valid($kelas_id, $tp->id_tp, $smt->id_smt)) {
+            $kelas_id = 0;
+        }
+
+        $setting_sp = $this->Pelanggaran_model->setting_sp();
+        $semua      = $this->Pelanggaran_model->rekap_siswa($tp->id_tp, $smt->id_smt, $kelas_id);
+
+        $rows = array();
+        foreach ($semua as $s) {
+            $level = $this->Pelanggaran_model->level_sp($s->total_poin, $setting_sp);
+            if ($level === 0 && (int) $s->total_poin === 0) {
+                continue; // tidak perlu ditampilkan
+            }
+            $s->level = $level;
+            $rows[] = $s;
+        }
+
+        $data = $this->_base_data('Surat Peringatan Siswa');
+        $data['daftar_kelas'] = $this->Pelanggaran_model->daftar_kelas($tp->id_tp, $smt->id_smt);
+        $data['kelas_id']     = $kelas_id;
+        $data['setting_sp']   = $setting_sp;
+        $data['rows']         = $rows;
+
+        $this->_render('pelanggaran/surat', $data);
+    }
+
+    public function simpan_setting_sp() {
+        if (!$this->ion_auth->is_admin()) {
+            show_error('Akses Ditolak', 403);
+        }
+        $this->_harus_post();
+
+        $this->Pelanggaran_model->simpan_setting_sp(
+            $this->input->post('sp1'),
+            $this->input->post('sp2'),
+            $this->input->post('sp3')
+        );
+        $this->session->set_flashdata('success', 'Ambang poin Surat Peringatan disimpan.');
+        redirect('pelanggaran/surat');
+    }
+
+    public function cetak_sp($id_siswa = 0) {
+        list($tp, $smt) = $this->_periode();
+
+        $siswa = $this->Pelanggaran_model->siswa_by_id($id_siswa);
+        if (!$siswa) {
+            show_error('Data siswa tidak ditemukan', 404);
+        }
+
+        $setting_sp = $this->Pelanggaran_model->setting_sp();
+        $riwayat    = $this->Pelanggaran_model->riwayat_siswa($id_siswa, $tp->id_tp, $smt->id_smt);
+        $total      = 0;
+        foreach ($riwayat as $r) {
+            $total += (int) $r->poin;
+        }
+        $level = $this->Pelanggaran_model->level_sp($total, $setting_sp);
+
+        if ($level === 0) {
+            $this->session->set_flashdata('error', 'Siswa ini belum mencapai ambang poin untuk Surat Peringatan.');
+            redirect('pelanggaran/surat');
+            return;
+        }
+
+        $data = array(
+            'siswa'       => $siswa,
+            'kelas'       => $this->Pelanggaran_model->kelas_siswa($id_siswa, $tp->id_tp, $smt->id_smt),
+            'riwayat'     => $riwayat,
+            'total_poin'  => $total,
+            'level'       => $level,
+            'setting_sp'  => $setting_sp,
+            'setting'     => $this->dashboard->getSetting(),
+            'tp_active'   => $tp,
+            'smt_active'  => $smt
+        );
+
+        $this->load->view('pelanggaran/cetak_sp', $data);
+    }
+
     public function export() {
         list($tp, $smt) = $this->_periode();
         list($dari, $sampai) = $this->_rentang_get();

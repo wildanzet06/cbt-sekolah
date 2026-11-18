@@ -83,7 +83,9 @@
                             {'name': 'Buat Tagihan', 'link': 'tagihan/buat', 'icon': 'fas fa-plus-circle'},
                             {'name': 'Jenis Tagihan', 'link': 'tagihan/jenis', 'icon': 'fas fa-tags'},
                             {'name': 'Keringanan Siswa', 'link': 'tagihan/keringanan', 'icon': 'fas fa-hand-holding-heart'},
-                            {'name': 'Laporan SPP', 'link': 'pembayaran/laporan', 'icon': 'fas fa-file-alt'}
+                            {'name': 'Laporan SPP', 'link': 'pembayaran/laporan', 'icon': 'fas fa-file-alt'},
+                            {'name': 'Buku Kas', 'link': 'kas', 'icon': 'fas fa-cash-register'},
+                            {'name': 'Statistik', 'link': 'statistik', 'icon': 'fas fa-chart-pie'}
                         ]
                     },
                     {
@@ -135,7 +137,8 @@
                         'name': 'Poin Pelanggaran', 'icon': 'fas fa-exclamation-triangle', 'cbt': '1',
                         'submenu': [
                             {'name': 'Input Pelanggaran', 'link': 'pelanggaran', 'icon': 'fas fa-edit'},
-                            {'name': 'Rekap Pelanggaran', 'link': 'pelanggaran/rekap', 'icon': 'fas fa-chart-bar'}
+                            {'name': 'Rekap Pelanggaran', 'link': 'pelanggaran/rekap', 'icon': 'fas fa-chart-bar'},
+                            {'name': 'Surat Peringatan', 'link': 'pelanggaran/surat', 'icon': 'fas fa-file-alt'}
                         ]
                     },
                     {
@@ -173,6 +176,7 @@
                         'name': 'Database', 'icon': 'fa fa-users-cog', 'cbt': '1',
                         'submenu': [
                             {'name': 'Backup', 'link':"dbmanager", 'icon': 'fas fa-database'},
+                            {'name': 'Backup Otomatis', 'link':"backup", 'icon': 'fas fa-clock'},
                             {'name': 'Data Manager', 'link':"dbclear", 'icon': 'fas fa-database'},
                         ]
                     },

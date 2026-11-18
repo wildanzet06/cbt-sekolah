@@ -23,7 +23,7 @@ if (!function_exists('skema_tambahan_pastikan')) {
 
         $tabel = array(
             'cbt_pembayaran_spp', 'cbt_setting_spp', 'cbt_jenis_tagihan', 'cbt_tagihan',
-            'cbt_keringanan', 'cbt_password_diganti', 'cbt_presensi_sesi', 'cbt_presensi',
+            'cbt_keringanan', 'cbt_password_diganti', 'cbt_presensi_sesi', 'cbt_presensi', 'cbt_setting_poin',
             'cbt_rekening'
         );
 
@@ -153,6 +153,15 @@ if (!function_exists('skema_tambahan_pastikan')) {
                 KEY idx_siswa (siswa_id)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
 
+            "CREATE TABLE IF NOT EXISTS cbt_setting_poin (
+                id         INT NOT NULL AUTO_INCREMENT,
+                sp1        INT NOT NULL DEFAULT 25,
+                sp2        INT NOT NULL DEFAULT 50,
+                sp3        INT NOT NULL DEFAULT 75,
+                updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (id)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4",
+
             "CREATE TABLE IF NOT EXISTS cbt_rekening (
                 id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
                 bank       VARCHAR(50)  NOT NULL,
@@ -192,6 +201,9 @@ if (!function_exists('skema_tambahan_pastikan')) {
         }
 
         // Isi awal (sama seperti docs/database_gabungan.sql), hanya bila kosong.
+        $db->query("INSERT INTO cbt_setting_poin (sp1, sp2, sp3)
+                    SELECT 25, 50, 75 FROM DUAL
+                    WHERE NOT EXISTS (SELECT 1 FROM cbt_setting_poin)");
         $db->query("INSERT INTO cbt_setting_spp (nominal_spp, keterangan)
                     SELECT 500000, 'SPP Bulanan Default' FROM DUAL
                     WHERE NOT EXISTS (SELECT 1 FROM cbt_setting_spp)");

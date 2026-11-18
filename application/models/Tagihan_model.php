@@ -271,7 +271,7 @@ class Tagihan_model extends CI_Model {
     //         status (belum | cicilan | lunas | tunggakan)
     // "tunggakan" = belum + cicilan (semua yang belum lunas)
     public function list_tagihan($filter = array()) {
-        $sql = "SELECT t.*, s.nis, s.nama,
+        $sql = "SELECT t.*, s.nis, s.nama, s.hp,
                        j.nama AS jenis_nama, j.kode AS jenis_kode, j.boleh_cicil,
                        (SELECT COALESCE(SUM(p.jumlah_bayar), 0)
                           FROM cbt_pembayaran_spp p

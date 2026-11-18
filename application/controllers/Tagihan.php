@@ -5,7 +5,7 @@ class Tagihan extends CI_Controller {
 
     public function __construct() {
         parent::__construct();
-        $this->load->helper(array('form', 'url', 'text'));
+        $this->load->helper(array('form', 'url', 'text', 'wa'));
         $this->load->library(array('ion_auth', 'session'));
 
         if (!$this->ion_auth->logged_in()) {
@@ -67,6 +67,10 @@ class Tagihan extends CI_Controller {
         $data = $this->_admin_data('Daftar Tagihan');
         $data['filter']       = $filter;
         $data['jenis']        = $this->Tagihan_model->jenis_all();
+        $this->load->model('Pembayaran_model');
+        $setting_spp = $this->Pembayaran_model->setting_spp();
+        $data['rekening']     = $this->Pembayaran_model->rekening_all();
+        $data['instruksi_wa'] = ($setting_spp && !empty($setting_spp->instruksi_transfer)) ? $setting_spp->instruksi_transfer : '';
         $data['tagihan']      = $this->Tagihan_model->list_tagihan($filter);
         $data['daftar_bulan'] = $this->Tagihan_model->daftar_bulan;
 

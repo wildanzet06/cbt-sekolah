@@ -215,6 +215,26 @@ $qs_filter = http_build_query(array_filter($filter));
                                                 <i class="fas fa-money-bill-wave"></i> Tunai
                                             </a>
                                         <?php endif; ?>
+                                            <?php
+                                            // Tombol pengingat WhatsApp (wa.me) untuk tagihan yang belum lunas.
+                                            $wa_hp   = isset($t->hp) ? wa_nomor($t->hp) : '';
+                                            $wa_link = '';
+                                            if ($wa_hp !== '') {
+                                                $wa_pesan = wa_pesan_tagihan(
+                                                    $t,
+                                                    isset($setting->nama_aplikasi) ? $setting->nama_aplikasi : '',
+                                                    isset($rekening) ? $rekening : array(),
+                                                    isset($instruksi_wa) ? $instruksi_wa : ''
+                                                );
+                                                $wa_link = 'https://wa.me/' . $wa_hp . '?text=' . rawurlencode($wa_pesan);
+                                            }
+                                            ?>
+                                            <?php if ($wa_link !== '' && $t->status != 'lunas' && !$t->gratis): ?>
+                                                <a href="<?= $wa_link; ?>" target="_blank" rel="noopener"
+                                                   class="btn btn-outline-success btn-xs" title="Kirim pengingat WhatsApp">
+                                                    <i class="fab fa-whatsapp"></i> WA
+                                                </a>
+                                            <?php endif; ?>
                                         <?php if ($t->status != 'lunas' || $t->gratis): ?>
                                             <button type="button" class="btn btn-warning btn-xs"
                                                     onclick="ubahDiskon(<?= (int) $t->id; ?>, <?= (int) $t->nominal; ?>, <?= (int) $t->diskon; ?>, '<?= html_escape(addslashes($t->nama)); ?>')">
