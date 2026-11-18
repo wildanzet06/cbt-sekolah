@@ -24,7 +24,7 @@ if (!function_exists('skema_tambahan_pastikan')) {
         $tabel = array(
             'cbt_pembayaran_spp', 'cbt_setting_spp', 'cbt_jenis_tagihan', 'cbt_tagihan',
             'cbt_keringanan', 'cbt_password_diganti', 'cbt_presensi_sesi', 'cbt_presensi', 'cbt_setting_poin',
-            'cbt_rekening'
+            'cbt_rekening', 'cbt_bacaan'
         );
 
         $in  = "'" . implode("','", $tabel) . "'";
@@ -184,6 +184,7 @@ if (!function_exists('skema_tambahan_pastikan')) {
             array('cbt_pembayaran_spp', 'diverifikasi_oleh', 'ALTER TABLE cbt_pembayaran_spp ADD COLUMN diverifikasi_oleh VARCHAR(100) DEFAULT NULL'),
             array('cbt_pembayaran_spp', 'diverifikasi_pada', 'ALTER TABLE cbt_pembayaran_spp ADD COLUMN diverifikasi_pada DATETIME DEFAULT NULL'),
             array('cbt_setting_spp',    'instruksi_transfer', 'ALTER TABLE cbt_setting_spp ADD COLUMN instruksi_transfer TEXT NULL'),
+            array('cbt_setting_spp',    'kunci_kwitansi',    'ALTER TABLE cbt_setting_spp ADD COLUMN kunci_kwitansi VARCHAR(64) NULL'),
             array('cbt_jenis_tagihan',  'boleh_cicil',       'ALTER TABLE cbt_jenis_tagihan ADD COLUMN boleh_cicil TINYINT(1) NOT NULL DEFAULT 0')
         );
 
@@ -211,6 +212,22 @@ if (!function_exists('skema_tambahan_pastikan')) {
                     VALUES ('SPP', 'SPP Bulanan', 'bulanan', 500000, 1)");
         $db->query("UPDATE cbt_jenis_tagihan SET nominal_default = 500000
                     WHERE kode = 'SPP' AND nominal_default = 0");
+
+        // Bacaan/stimulus bersama untuk beberapa soal.
+        if (!$db->table_exists('cbt_bacaan')) {
+            $db->query("CREATE TABLE IF NOT EXISTS `cbt_bacaan` (
+                `id_bacaan` INT NOT NULL AUTO_INCREMENT,
+                `judul` VARCHAR(255) NOT NULL,
+                `isi` LONGTEXT NULL,
+                `created_by` INT NULL,
+                `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+                `updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id_bacaan`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+        if ($db->table_exists('cbt_soal') && !$db->field_exists('id_bacaan', 'cbt_soal')) {
+            $db->query("ALTER TABLE `cbt_soal` ADD COLUMN `id_bacaan` INT NULL");
+        }
 
         $db->db_debug = $debug;
         return true;

@@ -247,6 +247,28 @@ foreach ($soal_ada as $key => $value) {
                                               placeholder="Tulis soal disini"
                                               style="width:100%;"></textarea>
                                 </div>
+                                <div class="form-group">
+                                    <label>Bacaan / Stimulus <small class="text-muted">(opsional)</small></label>
+                                    <?php
+                                    $daftar_bacaan = array();
+                                    if ($this->db->table_exists('cbt_bacaan')) {
+                                        $daftar_bacaan = $this->db->order_by('judul', 'ASC')->get('cbt_bacaan')->result();
+                                    }
+                                    $id_bacaan_soal = isset($soal->id_bacaan) ? (int) $soal->id_bacaan : 0;
+                                    ?>
+                                    <select name="id_bacaan" id="id_bacaan" class="form-control select2">
+                                        <option value="0">— Tanpa bacaan —</option>
+                                        <?php foreach ($daftar_bacaan as $b): ?>
+                                            <option value="<?= (int) $b->id_bacaan ?>" <?= $id_bacaan_soal === (int) $b->id_bacaan ? 'selected' : '' ?>>
+                                                <?= html_escape($b->judul) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <small class="text-muted">
+                                        Bacaan tampil di atas soal saat ujian (satu bacaan untuk beberapa soal).
+                                        <a href="<?= site_url('bacaan') ?>" target="_blank">Kelola bacaan</a>.
+                                    </small>
+                                </div>
                             </div>
                             <div class="col-md-6" id="jawaban-area">
                                 <?php

@@ -65,3 +65,35 @@ Fitur-fitur ini ditambahkan di atas GarudaCBT. Tidak ada tabel bawaan GarudaCBT 
 - Kunci Midtrans sandbox hanya bekerja dengan `midtrans_is_production = FALSE`; kunci produksi dengan `TRUE`.
 - Alamat notifikasi Midtrans harus alamat publik (HTTPS), bukan `localhost`.
 - Untuk server sungguhan, atur `ENVIRONMENT` di `index.php` menjadi `production`.
+---
+
+## Bacaan/Stimulus bersama untuk beberapa soal
+
+Menu: **Ujian Sekolah → Bacaan Soal** (`/bacaan`), bisa diakses admin dan guru.
+
+- Satu bacaan (mis. "Text 1: My Trip to the Beach") dapat dipakai oleh banyak soal.
+- Saat membuat soal di **Kumpulan Soal → Buat Soal**, pilih bacaan pada dropdown
+  **Bacaan / Stimulus (opsional)**.
+- Halaman ujian menampilkan bacaan di atas soal sesuai pilihan tersebut, sehingga
+  tidak perlu menempel teks bacaan berulang di setiap soal.
+- Bacaan mendukung HTML sederhana (`<p>`, `<strong>`, `<br>`, `<table>`).
+- Menghapus bacaan tidak menghapus soal; soal hanya kehilangan bacaannya.
+
+Tabel: `cbt_bacaan`; kolom penghubung: `cbt_soal.id_bacaan`.
+
+## Kode QR kwitansi
+
+Kode verifikasi kwitansi = HMAC-SHA256 dari id pembayaran dengan **kunci khusus
+yang disimpan di database** (`cbt_setting_spp.kunci_kwitansi`), bukan dari
+`encryption_key` di config.
+
+Alasannya: dulu kunci memakai `encryption_key`. Saat kunci itu dirotasi
+(untuk keamanan), semua QR kwitansi yang sudah dicetak menjadi tidak valid.
+Sekarang rotasi `encryption_key` tidak lagi memengaruhi kwitansi.
+
+Halaman verifikasi tetap menerima kode lama:
+1. kunci khusus database (kwitansi baru),
+2. `encryption_key` saat ini (kwitansi sebelum perbaikan),
+3. kunci lama sebelum rotasi (kwitansi paling lama).
+
+Tidak ada masa berlaku: QR valid selama data pembayaran masih ada di database.

@@ -457,4 +457,28 @@ class Pembayaran_model extends CI_Model {
         $this->pastikan_tabel_rekening();
         return $this->db->get('cbt_setting_spp')->row();
     }
+    /**
+     * Kunci khusus kode kwitansi (disimpan di database, bukan di config).
+     * Rotasi encryption_key tidak lagi membuat QR kwitansi lama menjadi invalid.
+     */
+    public function kunci_kwitansi() {
+        if (!$this->db->field_exists('kunci_kwitansi', 'cbt_setting_spp')) {
+            $this->db->query("ALTER TABLE `cbt_setting_spp` ADD COLUMN `kunci_kwitansi` VARCHAR(64) NULL");
+        }
+
+        $row = $this->db->select('id, kunci_kwitansi')->get('cbt_setting_spp')->row();
+        if (!$row) {
+            $this->db->insert('cbt_setting_spp', array('nominal_spp' => 0, 'keterangan' => 'SPP'));
+            $row = $this->db->select('id, kunci_kwitansi')->get('cbt_setting_spp')->row();
+        }
+        if (!$row) {
+            return (string) config_item('encryption_key');
+        }
+        if (empty($row->kunci_kwitansi)) {
+            $baru = bin2hex(random_bytes(16));
+            $this->db->where('id', $row->id)->update('cbt_setting_spp', array('kunci_kwitansi' => $baru));
+            return $baru;
+        }
+        return (string) $row->kunci_kwitansi;
+    }
 }

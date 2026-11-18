@@ -27,9 +27,14 @@ class Cekkwitansi extends CI_Controller {
         $sah  = false;
         $bayar = null;
 
-        if ($id > 0 && $kode !== '' && hash_equals($this->kode($id), $kode)) {
-            $bayar = $this->Pembayaran_model->get_pembayaran_by_id($id);
-            $sah   = (bool) $bayar;
+        if ($id > 0 && $kode !== '') {
+            foreach ($this->kunci_kandidat() as $kunci) {
+                if ($kunci !== '' && hash_equals($this->kode($id, $kunci), $kode)) {
+                    $bayar = $this->Pembayaran_model->get_pembayaran_by_id($id);
+                    $sah   = (bool) $bayar;
+                    break;
+                }
+            }
         }
 
         $nama = '-';
@@ -49,8 +54,29 @@ class Cekkwitansi extends CI_Controller {
         $this->load->view('pembayaran/cekkwitansi', $data);
     }
 
-    private function kode($id) {
-        $kunci = (string) config_item('encryption_key');
+    /**
+     * Kunci yang diterima untuk memverifikasi kode kwitansi:
+     * 1) kunci khusus di database (dipakai sejak perbaikan ini),
+     * 2) encryption_key saat ini (kwitansi yang dicetak sebelum perbaikan),
+     * 3) encryption_key lama (kwitansi yang dicetak sebelum rotasi kunci).
+     * Dengan begitu kwitansi lama tetap sah.
+     */
+    private function kunci_kandidat() {
+        $kandidat = array();
+        try {
+            $kandidat[] = (string) $this->Pembayaran_model->kunci_kwitansi();
+        } catch (Throwable $e) {
+            // abaikan
+        }
+        $kandidat[] = (string) config_item('encryption_key');
+        $kandidat[] = '498f8140edc311eb94b9c83dd4416dc8'; // kunci lama (sebelum rotasi)
+        return array_unique(array_filter($kandidat, function ($k) { return $k !== ''; }));
+    }
+
+    private function kode($id, $kunci = null) {
+        if ($kunci === null) {
+            $kunci = (string) config_item('encryption_key');
+        }
         return substr(hash_hmac('sha256', 'kwitansi-' . (int) $id, $kunci), 0, 16);
     }
 

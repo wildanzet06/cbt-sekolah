@@ -65,6 +65,14 @@
                             <div class="zoom-tool-bar"></div>
                             <div style="border: 1px solid; border-color: #D3D3D3;">
                                 <div class="konten-soal-jawab">
+                                    <div class="row p-2 ml-1">
+                                        <div id="konten-bacaan" class="table-responsive"></div>
+                                    </div>
+                                    <style>
+                                        .bacaan-soal { border: 1px solid #d9dee3; border-left: 4px solid #007bff; background: #f8f9fa; padding: 12px 16px; margin-bottom: 8px; border-radius: 4px; }
+                                        .bacaan-judul { font-weight: 700; margin-bottom: 6px; }
+                                        .bacaan-isi p:last-child { margin-bottom: 0; }
+                                    </style>
                                     <div class="row p-2 mb-4 ml-1">
                                         <div id="konten-soal" class="table-responsive"></div>
                                     </div>
@@ -309,6 +317,11 @@
         }
 
         $('#nomor-soal').html(nomorSoal);
+        if (data.soal_bacaan) {
+            $('#konten-bacaan').html(data.soal_bacaan).show();
+        } else {
+            $('#konten-bacaan').hide().empty();
+        }
         $('#konten-soal').html(data.soal_soal);
         var jenis = data.soal_jenis;
         var html = '';

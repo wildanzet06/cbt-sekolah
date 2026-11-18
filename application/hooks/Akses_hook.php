@@ -33,7 +33,9 @@ class Akses_hook {
         // Keuangan sisi admin
         'tagihan',
         // Poin pelanggaran (sisi admin/guru)
-        'pelanggaran'
+        'pelanggaran',
+        // Bacaan/stimulus soal (sisi admin/guru)
+        'bacaan'
     );
 
     // Pengecualian: method yang tetap boleh diakses siswa

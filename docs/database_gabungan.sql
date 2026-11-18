@@ -109,6 +109,7 @@ CREATE TABLE IF NOT EXISTS cbt_setting_spp (
     nominal_spp  DECIMAL(15,2) NOT NULL,
     keterangan   VARCHAR(255)  DEFAULT NULL,
     instruksi_transfer TEXT    NULL,
+  kunci_kwitansi     VARCHAR(64) NULL,
     updated_at   TIMESTAMP     NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -164,6 +165,14 @@ SET @sql = (SELECT IF(COUNT(*) = 0,
     FROM information_schema.COLUMNS
     WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_setting_spp'
       AND COLUMN_NAME = 'instruksi_transfer');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+-- Kolom kunci_kwitansi (kunci QR kwitansi stabil, tidak ikut rotasi encryption_key)
+SET @sql = (SELECT IF(COUNT(*) = 0,
+'ALTER TABLE cbt_setting_spp ADD COLUMN kunci_kwitansi VARCHAR(64) NULL',
+'SELECT ''kunci_kwitansi sudah ada'' AS info')
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_setting_spp'
+AND COLUMN_NAME = 'kunci_kwitansi');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 -- ---------------------------------------------------------------------
@@ -436,4 +445,21 @@ CREATE TABLE IF NOT EXISTS `cbt_jadwal_meta` (
     `updated`   DATETIME    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id_jadwal`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- Bacaan/stimulus bersama untuk beberapa soal
+CREATE TABLE IF NOT EXISTS cbt_bacaan (
+    id_bacaan  INT          NOT NULL AUTO_INCREMENT,
+    judul      VARCHAR(255) NOT NULL,
+    isi        LONGTEXT     NULL,
+    created_by INT          NULL,
+    created_at TIMESTAMP    NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP    NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id_bacaan)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+SET @sql = (SELECT IF(COUNT(*) = 0,
+'ALTER TABLE cbt_soal ADD COLUMN id_bacaan INT NULL',
+'SELECT ''id_bacaan sudah ada'' AS info')
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_soal'
+AND COLUMN_NAME = 'id_bacaan');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
