@@ -41,7 +41,7 @@ class Bacaan_model extends CI_Model {
     public function simpan($judul, $isi, $id = 0) {
         $data = array(
             'judul' => trim((string) $judul),
-            'isi'   => (string) $isi,
+            'isi'   => bacaan_isi_aman($isi),
         );
         if ((int) $id > 0) {
             $this->db->where('id_bacaan', (int) $id)->update('cbt_bacaan', $data);

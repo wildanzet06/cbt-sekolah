@@ -550,3 +550,35 @@ Sembilan area yang diminta diperiksa. Hasilnya:
 - Setelah `selesai` diisi → jawaban ditolak `{"status":false,"msg":"Ujian sudah selesai."}`.
 - `durasi_ujian=5` menit dengan waktu berjalan 10 menit → ditolak & status ujian ditutup.
 - Regresi 13 halaman admin → **0 error**.
+---
+
+## 14. Audit pass 7 (18 November 2026) — otorisasi bank soal, XSS bacaan, sesi
+
+Pemeriksaan menyeluruh ulang pada fitur baru (bacaan, bank soal, simpan & buat
+soal) dan jalur otorisasi.
+
+### Temuan & perbaikan
+
+| ID | Temuan | Risiko | Perbaikan |
+|----|--------|--------|-----------|
+| H1 | **IDOR bank soal**: guru bisa mengubah bank soal milik guru lain. Diuji dengan guru kedua: `POST cbtbanksoal/saveBank` dengan `id_bank` milik guru lain mengubah `bank_kode` (HTTP 200, data berubah). Halaman `buatsoal/{id}` dan `detail/{id}` juga bisa dibuka. | **Tinggi** | `Akses_hook` menolak guru yang mengakses bank soal guru lain (semua method bank: buatsoal, detail, saveBank, deleteBank, saveSoal, hapusSoal, import, dst). Ditambah pemeriksaan langsung di `Cbtbanksoal::buatsoal()` dan `detail()` lewat `cek_bank_guru()`. Diuji: guru lain → **403**; pemilik → **200**; `saveSoal` lintas guru → **403** |
+| H2 | **Stored XSS pada bacaan**: isi bacaan (`cbt_bacaan.isi`) disimpan sebagai HTML dan ditampilkan di halaman ujian siswa. Guru yang akunnya dibobol bisa menyisipkan `<script>`/`onerror`. | **Sedang–Tinggi** | Helper baru `bacaan_isi_aman()` (allowlist tag aman, buang script/style/iframe/on*, href/src/javascript:) dipakai saat **menyimpan** dan saat **menampilkan** di ujian. Uji: `<script>` dan `<img onerror>` hilang, `<strong>` tetap |
+| H3 | **Session fixation**: tidak ada regenerasi ID sesi setelah login berhasil. | **Rendah–Sedang** | `Auth::cek_login` memanggil `$this->session->sess_regenerate(TRUE)` setelah login sukses. Login tetap berjalan normal |
+
+### Yang diverifikasi aman
+
+- Semua POST mutasi tanpa login → **403** (CSRF/guard), GET halaman admin tanpa login → **307 ke /auth**.
+- Batas percobaan login 3x sudah ada (ion_auth `is_max_login_attempts_exceeded`).
+- `Cekkwitansi` meng-escape nama, bulan, metode, dan kode; hanya menampilkan data pembayaran.
+- `Backup_model::pulihkan/hapus` memakai `basename()` + validasi nama + folder `backups/`.
+- `uploads/.htaccess` menolak `.php` (403) dan mesin PHP dimatikan.
+- QR kwitansi: kode baru (kunci database) dan kode lama (kunci sebelum rotasi) sama-sama valid; kode acak tidak valid.
+- Timer/jawaban ujian tetap ditegakkan server (elapsed dari `mulai`, tolak setelah selesai, batas `durasi_ujian`).
+
+### Sisa risiko (belum diperbaiki)
+
+1. Password siswa/guru masih plaintext di `master_siswa`/`master_guru`.
+2. Konten soal (rich text) masih HTML mentah dari guru — vektor XSS internal bila akun guru dibobol.
+3. Deteksi pindah tab berbasis JS.
+4. Aturan `.htaccess` tidak berlaku di nginx.
+5. Beberapa endpoint riwayat (cbtcetak/cbtstatus) memakai `id` bank/kelas tanpa pemeriksaan kepemilikan menyeluruh.

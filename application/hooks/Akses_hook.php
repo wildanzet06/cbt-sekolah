@@ -130,6 +130,11 @@ class Akses_hook {
         $admin = $CI->ion_auth->is_admin();
         $siswa = !$admin && $CI->ion_auth->in_group(array(3, 'siswa'));
 
+        // 10) Guru hanya boleh mengelola bank soalnya sendiri.
+        if (!$admin && $CI->ion_auth->in_group(array(2, 'guru'))) {
+            $this->batasi_bank_soal($CI);
+        }
+
         // Backup otomatis sekali sehari saat admin membuka halaman.
         if ($admin) {
             // Tandai aplikasi sudah terpasang, agar index.php tidak lagi
@@ -312,6 +317,89 @@ class Akses_hook {
         return $cache = $row ? (int) $row->id_siswa : null;
     }
 
+    /**
+     * Guru hanya boleh membuka/mengubah bank soal miliknya sendiri.
+     * Admin bebas. Dipanggil untuk controller cbtbanksoal.
+     */
+    private function batasi_bank_soal($CI) {
+        if (strtolower((string) $CI->router->fetch_class()) !== 'cbtbanksoal') {
+            return;
+        }
+        $metode = strtolower((string) $CI->router->fetch_method());
+        $diawasi = array('buatsoal', 'detail', 'savebank', 'deletebank', 'saveselected',
+            'copybanksoal', 'import', 'importsoal', 'savesoal', 'hapussoal',
+            'tambahsoal', 'getsoalbynomor', 'deleteallbank');
+        if (!in_array($metode, $diawasi, true)) {
+            return;
+        }
+
+        $user = $CI->ion_auth->user()->row();
+        if (!$user) {
+            return;
+        }
+        if (!isset($CI->dashboard)) {
+            $CI->load->model('Dashboard_model', 'dashboard');
+        }
+        $tp  = $CI->dashboard->getTahunActive();
+        $smt = $CI->dashboard->getSemesterActive();
+        if (!$tp || !$smt) {
+            return;
+        }
+        $guru = $CI->dashboard->getDataGuruByUserId($user->id, $tp->id_tp, $smt->id_smt);
+        if (!$guru) {
+            return;
+        }
+        $gid = (int) $guru->id_guru;
+
+        if ($metode === 'deleteallbank') {
+            $this->tolak($CI, 'guru mencoba menghapus semua bank soal');
+        }
+
+        $bank_id = (int) $CI->input->post('id_bank');
+        if (!$bank_id) {
+            $bank_id = (int) $CI->input->post('bank_id');
+        }
+        if (!$bank_id) {
+            $bank_id = (int) $CI->input->get('id_bank');
+        }
+        if (!$bank_id && in_array($metode, array('buatsoal', 'detail'), true)) {
+            // Ambil angka setelah nama method dari path URL. Cara ini aman
+            // untuk instalasi di subfolder dan mengabaikan query string.
+            $path = parse_url(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '', PHP_URL_PATH);
+            $bagian = array_values(array_filter(explode('/', (string) $path), 'strlen'));
+            $pos = array_search($metode, $bagian, true);
+            if ($pos !== false && isset($bagian[$pos + 1])) {
+                $bank_id = (int) $bagian[$pos + 1];
+            }
+        }
+        if ($metode === 'hapussoal') {
+            $id_soal = (int) $CI->input->post('id');
+            if (!$id_soal) {
+                $id_soal = (int) $CI->input->get('id');
+            }
+            if ($id_soal) {
+                $row = $CI->db->select('bank_id')->where('id_soal', $id_soal)->get('cbt_soal')->row();
+                if ($row) {
+                    $bank_id = (int) $row->bank_id;
+                }
+            }
+        }
+
+        if ($bank_id > 0) {
+            $bank = $CI->db->select('bank_guru_id')->where('id_bank', $bank_id)->get('cbt_bank_soal')->row();
+            if ($bank && (int) $bank->bank_guru_id !== $gid) {
+                $this->tolak($CI, 'guru mengakses bank soal guru lain: ' . $bank_id);
+            }
+            return;
+        }
+
+        if ($metode === 'savebank') {
+            $post_guru = (int) $CI->input->post('guru');
+            if ($post_guru > 0 && $post_guru !== $gid) {
+                $this->tolak($CI, 'guru menyimpan bank soal untuk guru lain');
+            }
+        }
+    }
     /** Halaman ramah saat installer/updater dibuka pada aplikasi yang sudah terpasang. */
     private function tolak_terpasang($CI) {
         log_message('error', 'AKSES DITOLAK: installer/update setelah aplikasi terpasang');
