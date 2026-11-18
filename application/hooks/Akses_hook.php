@@ -188,7 +188,12 @@ class Akses_hook {
             // 6) Cegah penghapusan file di luar folder uploads (path traversal).
             //    Beberapa controller memakai unlink(str_replace(base_url(),'', $_POST['src'])).
             if (in_array($metode, $this->metode_hapus_file)) {
+                // Sebagian controller (mis. Guruview) mengambil 'src' dari GET,
+                // jadi keduanya harus diperiksa.
                 $src = (string) $CI->input->post('src', true);
+                if ($src === '') {
+                    $src = (string) $CI->input->get('src', true);
+                }
                 if ($src !== '' && $this->path_mencurigakan($src)) {
                     $this->tolak($CI, 'path traversal hapus file: ' . $src);
                 }

@@ -515,3 +515,38 @@ bawaan GarudaCBT). Semua temuan diverifikasi dan diperbaiki.
 | Tanpa penanda, database belum ada (1049) | `/auth` **302 → installer** (alur instalasi baru tetap jalan) |
 | Akses `installer/TERPASANG` lewat web | **403** |
 | Regresi 13 halaman utama (admin) | **0 error** |
+---
+
+## 13. Audit pass 6 (18 November 2026) — verifikasi daftar area lanjutan
+
+Sembilan area yang diminta diperiksa. Hasilnya:
+
+| # | Area | Hasil |
+|---|------|-------|
+| 1 | `csrf_protection` | **TRUE**; `csrf_regenerate` FALSE (token tidak berubah tiap request agar AJAX stabil) |
+| 2 | `encryption_key`, `sess_*`, database.php | Kunci sudah dirotasi; sesi `files`, 4 jam, `HttpOnly`, `Secure` otomatis di HTTPS. `database.php` di repo masih berisi kredensial lokal bawaan (`root`, tanpa sandi) — aman untuk lokal, **jangan** deploy apa adanya tanpa menjalankan installer |
+| 3 | Query mentah dengan input user | Tidak ditemukan lagi yang bisa disuntik. `Auth` memakai `where()` ber-binding; sisa `get_where` mentah di `Cbt_model` sudah diubah menjadi array binding (pass 4) |
+| 4 | Role tiap controller / IDOR | `Kelasmateri`: guru **selalu** memakai `id_guru` dari sesi; parameter `?id=` hanya berlaku untuk admin → klaim "guru membaca kelas lain" tidak berlaku di versi ini. `Cbtpengawas` hanya admin; guru memakai `getPengawasByGuru` (jadwalnya sendiri) |
+| 5 | Validasi upload | `uploads/.htaccess` menolak `.php/.phtml/.html/.svg/.xml` dan mematikan mesin PHP; uji langsung `uploads/x.php` → **403**. Ekstensi ganda (`x.php.jpg`) hanya dilayani sebagai gambar (tidak dieksekusi). `Cbtbanksoal` memakai `encrypt_name`; `allowed_types` tidak memuat php/html/svg. Import Excel/CSV diproses di sisi klien (array dikirim ke server), bukan file yang dieksekusi |
+| 6 | Backup/Restore | Folder `backups/` → **403** dari web; tidak ada endpoint unduh; halaman backup hanya untuk admin dan POST. File dump memakai nama ber-timestamp |
+| 7 | Timer/jawaban/deteksi pindah tab | **Diperbaiki**: `saveJawaban` kini mengabaikan `elapsed` dari klien dan menghitung dari `cbt_durasi_siswa.mulai`; jawaban setelah ujian selesai **ditolak**; bila waktu melebihi `cbt_jadwal.durasi_ujian` (+120 detik toleransi) ujian otomatis ditutup dan jawaban ditolak. Deteksi pindah tab tetap di sisi klien (`visibilitychange` → `leavecbt`), sehingga masih bisa diakali dengan mematikan JS — namun batas waktu & penolakan setelah selesai sekarang ditegakkan server |
+| 8 | Token ujian | Dibuat 6 karakter A–Z. Generator diubah dari `mt_rand()` ke **`random_int()`** (CSPRNG). Validasi dilakukan di server (`cbt_jadwal.token_ujian` / `cbt_token`) dan dibandingkan di `validasiSiswa` |
+| 9 | Berkas sensitif via web | `composer.json`, `composer.lock`, `options.json`, `README.md`, `docs/`, `application/`, `system/`, `uploads/`, `backups/` → **403**. Path seperti `logs/` dan `.dev-mode` yang tidak ada hanya menampilkan halaman login (CI `404_override`), bukan berkasnya. Catatan: aturan ini dari `.htaccess` (Apache); untuk nginx perlu konfigurasi manual (ada contoh di `docs/PANDUAN-INSTALASI.md`) |
+
+### Temuan baru yang diperbaiki (pass 6)
+
+| ID | Temuan | Risiko | Perbaikan |
+|----|--------|--------|-----------|
+| G1 | `Guruview::deleteFile()` mengambil `src` dari **GET**, sedangkan hook hanya memeriksa POST → guru bisa menghapus file sembarang lewat URL (mis. `?src=application/config/database.php`) | **Tinggi** | Hook memeriksa `src` dari POST **dan** GET, tetap wajib berada di folder `uploads/` |
+| G2 | `saveJawaban` menyimpan `lama_ujian` dari `elapsed` kiriman klien | **Sedang** | Dihitung ulang dari `mulai` di server |
+| G3 | Jawaban masih bisa disimpan setelah ujian selesai | **Sedang** | Ditolak dengan pesan "Ujian sudah selesai" |
+| G4 | Batas durasi ujian hanya di sisi klien | **Sedang** | Server menolak & menutup ujian bila melewati `durasi_ujian` + toleransi |
+| G5 | Token memakai `mt_rand()` (bukan CSPRNG) | **Rendah** | Diganti `random_int()` |
+
+### Uji
+
+- `Guruview/deletefile?src=application/config/database.php` → **403**, file utuh.
+- `saveJawaban` dengan `elapsed=00:00:01` → tersimpan `lama_ujian=00:10:01` (waktu asli server).
+- Setelah `selesai` diisi → jawaban ditolak `{"status":false,"msg":"Ujian sudah selesai."}`.
+- `durasi_ujian=5` menit dengan waktu berjalan 10 menit → ditolak & status ujian ditutup.
+- Regresi 13 halaman admin → **0 error**.
