@@ -116,7 +116,7 @@
                                                 </ol>
                                             </td>
                                             <td class="text-center"><?= strtoupper($s->jawaban_alias ?? '') ?></td>
-                                            <td class="text-center"><?= strtoupper($s->jawaban_siswa ?? '') ?></td>
+                                            <td class="text-center"><?= html_escape(strtoupper((string) ($s->jawaban_siswa ?? ''))) ?></td>
                                             <td class="text-center"><?= $s->jawaban_siswa == null ? '...' : (strtoupper($s->jawaban_siswa ?? '') == strtoupper($s->jawaban ?? '') ? 'BENAR' : 'SALAH') ?></td>
                                         </tr>
                                     <?php endif; endforeach; ?>

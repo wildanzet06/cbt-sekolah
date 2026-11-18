@@ -97,18 +97,24 @@ class Backup_model extends CI_Model {
         $bin = $this->mysqldump();
 
         if ($bin) {
-            $pass = (string) $db->password;
+            // Kredensial lewat file sementara, bukan argumen -p (agar tidak
+            // terlihat di daftar proses).
+            $cnf = @tempnam(sys_get_temp_dir(), 'mybak');
+            @file_put_contents($cnf, "[client]" . "\n"
+                . 'user=' . $db->username . "\n"
+                . 'password=' . $db->password . "\n"
+                . 'host=' . $db->hostname . "\n"
+                . 'port=' . ($db->port ? $db->port : 3306) . "\n");
+
             $cmd  = escapeshellarg($bin)
-                . ' -h' . escapeshellarg((string) $db->hostname)
-                . ' -P' . (int) ($db->port ? $db->port : 3306)
-                . ' -u' . escapeshellarg((string) $db->username)
-                . ($pass !== '' ? ' -p' . escapeshellarg($pass) : '')
+                . ' --defaults-extra-file=' . escapeshellarg($cnf)
                 . ' --single-transaction --skip-lock-tables --routines --events'
                 . ' ' . escapeshellarg((string) $db->database)
                 . ' > ' . escapeshellarg($path)
                 . (PHP_OS_FAMILY === 'Windows' ? ' 2>NUL' : ' 2>/dev/null');
 
             @exec($cmd, $keluaran, $kode);
+            @unlink($cnf);
             if ($kode === 0 && is_file($path) && filesize($path) > 1024) {
                 $this->pangkas();
                 return array('ok' => true, 'file' => $nama);

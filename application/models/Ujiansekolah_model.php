@@ -113,7 +113,7 @@ class Ujiansekolah_model extends CI_Model
             if (empty($row->mapel_kelas)) {
                 continue;
             }
-            $list = @unserialize($row->mapel_kelas);
+            $list = @unserialize($row->mapel_kelas, ['allowed_classes' => ['stdClass']]);
             if (!is_array($list)) {
                 continue;
             }
@@ -352,7 +352,7 @@ class Ujiansekolah_model extends CI_Model
     {
         $kelas = [];
         if (!empty($row->id_bank) && !empty($row->bank_kelas)) {
-            $list = @unserialize($row->bank_kelas);
+            $list = @unserialize($row->bank_kelas, ['allowed_classes' => ['stdClass']]);
             if (is_array($list)) {
                 foreach ($list as $k) {
                     $k = (array)$k;

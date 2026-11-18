@@ -401,3 +401,65 @@ merusak halaman).
   sehingga fitur tetap berjalan tanpa internet.
 - Folder `backups/` tetap ditolak akses web (403) dan file `.sql` tidak ikut repo.
 - Regresi setelah perbaikan: 15 halaman admin + 13 guru + 6 siswa → **0 error**.
+---
+
+## 11. Audit pass 4 (18 November 2026) — verifikasi laporan eksternal
+
+Laporan audit independen (dari clone repo publik) berisi 6 temuan kritis dan
+beberapa temuan menengah. Semua diverifikasi terhadap kode aktual, lalu
+diperbaiki bila benar. Ringkasannya:
+
+### Enam temuan kritis
+
+| # | Temuan | Verifikasi | Perbaikan |
+|---|--------|------------|-----------|
+| 1 | SQLi `Siswa::getPost` lewat `?kelas=` | **BENAR**. `Post_model::getPostForUser` menyambung `"... LIKE " . $kelas` mentah | `getPostForUser` memakai `group_start()->like()->or_like()->group_end()`; nilai `kelas` dibatasi 50 karakter |
+| 2 | `Siswa::deleteFile` menghapus file sembarang | **SEBAGIAN**. Method `deleteFile` tidak ada di `Siswa`, tetapi pola `unlink(str_replace(base_url(),'',$src))` ada di 5 controller lain | Hook kini menolak `src` yang tidak mengandung `uploads/` (selain `..`/path absolut) |
+| 3 | Install/Update tanpa autentikasi | **BENAR**. Route hanya dijaga `REMOTE_ADDR`; di balik tunnel semua terlihat `127.0.0.1` | `Akses_hook` menolak `install` & `update` (403) bila tabel `users` sudah ada; `compare` sudah ditutup total |
+| 4 | Endpoint ujian tanpa cek peran/kepemilikan | **BENAR untuk** `resetTimer`, `applyAction`, `leavecbt`, `olahNilai`, `id_soal_siswa` pada `saveJawaban`. `saveSoalSiswa` mengambil `id_siswa` dari server (`$shuffle[0]->id_siswa`), bukan dari klien | Hook memeriksa pemilik `id_soal_siswa` (tabel `cbt_soal_siswa`) dan `id_durasi` (`cbt_durasi_siswa`), segmen URI `leavecbt`/`olahNilai`, memblokir `applyAction` untuk siswa, dan memblokir `saveSoalSiswa` bila mengirim `id_siswa` orang lain |
+| 5 | Stored XSS jawaban siswa → guru/admin | **BENAR**. `views/cbt/nilai/detail.php` (4 titik) & `views/cbt/status/detail.php` (1 titik) mencetak jawaban mentah | Semua keluaran jawaban dibungkus `html_escape()` |
+| 6 | PHP Object Injection `unserialize(jawaban_siswa)` | **BENAR**. Ada 335 panggilan `unserialize()` pada data DB | Semua diberi `['allowed_classes' => ['stdClass']]` (252 di controller/model + 83 di view); objek kelas lain tidak lagi dihidupkan |
+
+### Temuan menengah
+
+| Temuan | Verifikasi | Perbaikan |
+|--------|------------|-----------|
+| Query mentah `Cbt_model` dengan `$jadwal` | **BENAR** untuk 6 `get_where(..., "id_...=" . $var)` | Diubah menjadi `get_where($table, array($key => $var))` |
+| Mode development dari header Host | **BENAR**. `ENVIRONMENT` menjadi development bila `HTTP_HOST=localhost` | Environment hanya `production`, kecuali `CI_ENV` atau file `.dev-mode` |
+| `base_url` dari `HTTP_HOST` | **BENAR** (risiko injeksi Host) | Host disanitasi regex `^[A-Za-z0-9.-]+(:\d{1,5})?$`, fallback `SERVER_NAME` |
+| `encryption_key` statis di repo | **BENAR** | Kunci dirotasi (`31382675…`). Catatan: QR kwitansi yang sudah dicetak sebelum rotasi menjadi tidak valid |
+| `Datasiswa::update_foto` path traversal (`nis` + `ext`) | **BENAR** | `nis` disanitasi `[A-Za-z0-9_-]`, ekstensi dibatasi jpg/jpeg/png/gif |
+| Lockout DoS lewat IP bersama (tunnel) | **Masuk akal** | `track_login_ip_address = FALSE` → lockout per akun, bukan per IP |
+| `mysqldump -p<pass>` terlihat di daftar proses | **BENAR** | Kredensial dikirim lewat `--defaults-extra-file` sementara yang langsung dihapus |
+| Sesi 24 jam vs komentar "1 jam" | **BENAR** | `sess_expiration` = 14400 (4 jam) + komentar diperbaiki |
+| Tidak ada CSP/HSTS/SameSite | **BENAR** | Ditambahkan di `.htaccess`: CSP, HSTS (env HTTPS), `SameSite=Lax`, `Permissions-Policy` |
+| `docs/backup/Siswa.php.sebelum-patch` di repo publik | **BENAR** | `docs/backup/` dihapus dari repo |
+
+### Yang tidak diubah / catatan
+
+- **Password siswa/guru plaintext** (`master_siswa.password`, `master_guru.password`)
+  tetap seperti sebelumnya; perlu migrasi ke bcrypt + ubah alur login/reset. Ini
+  prioritas berikutnya (lihat S1).
+- **Komentar & balasan siswa** serta **materi guru** adalah HTML kaya; escaping
+  massal akan merusak tampilan. XSS di area itu perlu pembersih HTML
+  (HTMLPurifier) sebagai langkah terpisah.
+- **Ketergantungan header keamanan pada Apache**: `.htaccess` tidak berlaku di
+  nginx/IIS. Untuk nginx, tambahkan header dan `location ~* ^/(uploads|backups|docs)/ { deny all; }`.
+- `composer.json` masih memuat paket 2022 (dompdf, PhpSpreadsheet, PhpWord) yang
+  tidak dipakai runtime; boleh dihapus.
+- Pola hook saat ini *deny-list*; controller baru otomatis terbuka untuk siswa
+  kecuali ditambahkan. Disarankan pindah ke base controller dengan peran wajib.
+- CodeIgniter 3.1.13 adalah rilis terakhir seri 3 (EOL); pertimbangkan upgrade
+  jangka panjang.
+
+### Hasil uji setelah perbaikan
+
+- `saveJawaban`/`resetTimer` dengan ID milik siswa lain → **403**; dengan ID
+  sendiri → **200** dan tersimpan.
+- `leavecbt`, `olahNilai`, `applyAction`, `saveSoalSiswa` (ID asing) → **403**.
+- `deletefile` dengan `src=application/config/database.php` → **403**;
+  `database.php` utuh.
+- `/install` dan `/update` → **403** setelah aplikasi terpasang.
+- Backup manual tetap berhasil (kredensial lewat file).
+- QR kwitansi tetap terverifikasi dengan kunci baru.
+- Regresi: 24 halaman admin + 12 guru + 9 siswa → **0 error**.

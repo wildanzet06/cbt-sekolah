@@ -8,7 +8,7 @@
 
 function unserialize_with_key($serialized)
 {
-    $arr = unserialize($serialized ?? '');
+    $arr = unserialize($serialized ?? '', ['allowed_classes' => ['stdClass']]);
     $result = [];
     foreach ($arr as $value) {
         $result[$value['no_soal']] = $value['jawab'];

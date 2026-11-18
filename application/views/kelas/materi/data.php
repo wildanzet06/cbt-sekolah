@@ -136,7 +136,7 @@ foreach ($materi as $k => $m) {
                                     <?php
                                     $no = 1;
                                     foreach ($curr_materi as $key => $value) :
-                                        $arr = unserialize($value->materi_kelas ?? '');
+                                        $arr = unserialize($value->materi_kelas ?? '', ['allowed_classes' => ['stdClass']]);
                                         $arrIds[] = $value->id_materi;
                                         $rows = count($arr) > 1 ? count($arr) : '1';
                                         ?>
@@ -309,7 +309,7 @@ foreach ($materi as $k => $m) {
                         <?php
                         $no = 1;
                         foreach ($all_materi as $am) :
-                            $arr = unserialize($am->materi_kelas ?? '');
+                            $arr = unserialize($am->materi_kelas ?? '', ['allowed_classes' => ['stdClass']]);
                             $skelas = '';
                             for ($i = 0; $i < count($arr); $i++) {
                                 $skelas .= $kelas[$arr[$i]] ?? "-";

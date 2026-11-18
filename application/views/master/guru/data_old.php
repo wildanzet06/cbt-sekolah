@@ -54,8 +54,8 @@ function sortByPosition($a, $b)
                             if (count($gurus) > 0) :
                                 //usort($gurus, 'sortByPosition');
                                 foreach ($gurus as $guru):
-                                    $mapels_guru = json_decode(json_encode(unserialize($guru->mapel_kelas ?? '')));
-                                    $ekstras_guru = json_decode(json_encode(unserialize($guru->ekstra_kelas ?? '')));
+                                    $mapels_guru = json_decode(json_encode(unserialize($guru->mapel_kelas ?? '', ['allowed_classes' => ['stdClass']])));
+                                    $ekstras_guru = json_decode(json_encode(unserialize($guru->ekstra_kelas ?? '', ['allowed_classes' => ['stdClass']])));
                                     ?>
                                     <div class="col-md-6 col-xl-4 d-flex align-items-stretch">
                                         <div class="card flex-fill">

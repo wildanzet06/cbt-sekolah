@@ -116,7 +116,7 @@ foreach ($materi as $k => $m) {
                         $arrIds = [];
                         if (count($materi) > 0) :
                             foreach ($materi as $key => $value) :
-                                $arr = unserialize($value->materi_kelas ?? '');
+                                $arr = unserialize($value->materi_kelas ?? '', ['allowed_classes' => ['stdClass']]);
                                 array_push($arrIds, $value->id_materi);
                                 ?>
                                 <div class="col-md-6 col-lg-4">
@@ -211,9 +211,9 @@ foreach ($materi as $k => $m) {
                                                     <br>
                                                     <?php
                                                     $dataFileAttach = [];
-                                                    $att = @unserialize($value->file ?? '');
+                                                    $att = @unserialize($value->file ?? '', ['allowed_classes' => ['stdClass']]);
                                                     if ($att !== false) {
-                                                        $dataFileAttach = unserialize($value->file ?? '');
+                                                        $dataFileAttach = unserialize($value->file ?? '', ['allowed_classes' => ['stdClass']]);
                                                     } else {
                                                         if ($value->file != null) {
                                                             $file = $value->file;
@@ -230,7 +230,7 @@ foreach ($materi as $k => $m) {
                                                         }
                                                     }
 
-                                                    //$dataFileAttach = unserialize($value->file);
+                                                    //$dataFileAttach = unserialize($value->file, ['allowed_classes' => ['stdClass']]);
                                                     foreach ($dataFileAttach as $f) :
                                                         $icon = 'fa-file';
                                                         $arrFile = ['jpg', 'jpeg', 'png', 'gif'];
@@ -438,7 +438,7 @@ foreach ($materi as $k => $m) {
                         <?php
                         $no = 1;
                         foreach ($all_materi as $am) :
-                            $arr = unserialize($am->materi_kelas ?? '');
+                            $arr = unserialize($am->materi_kelas ?? '', ['allowed_classes' => ['stdClass']]);
                             $skelas = '';
                             for ($i = 0; $i < count($arr); $i++) {
                                 $skelas .= isset($kelas[$arr[$i]]) ? $kelas[$arr[$i]] : "-";

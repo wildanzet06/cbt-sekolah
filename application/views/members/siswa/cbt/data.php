@@ -126,7 +126,7 @@ $jadwal_selesai = [];
                                     $jamSesi = $cbt_info == null ? '0' : (isset($cbt_info->sesi_id) ? $cbt_info->sesi_id : $cbt_info->id_sesi);
                                     if (isset($cbt_jadwal[date('Y-m-d')]) && count($cbt_jadwal[date('Y-m-d')]) > 0) :
                                         foreach ($cbt_jadwal[date('Y-m-d')] as $key => $jadwal)  :
-                                            $kk = unserialize($jadwal->bank_kelas ?? '');
+                                            $kk = unserialize($jadwal->bank_kelas ?? '', ['allowed_classes' => ['stdClass']]);
                                             $arrKelasCbt = [];
                                             foreach ($kk as $k) {
                                                 array_push($arrKelasCbt, $k['kelas_id']);
@@ -303,7 +303,7 @@ $jadwal_selesai = [];
                                             <?php
                                             foreach ($jadwals as $key => $jadwal)  :
                                                 $jam_ke = $jadwal->jam_ke == '0' ? '1' : $jadwal->jam_ke;
-                                                $kk = unserialize($jadwal->bank_kelas ?? '');
+                                                $kk = unserialize($jadwal->bank_kelas ?? '', ['allowed_classes' => ['stdClass']]);
                                                 $arrKelasCbt = [];
                                                 foreach ($kk as $k) {
                                                     array_push($arrKelasCbt, $k['kelas_id']);

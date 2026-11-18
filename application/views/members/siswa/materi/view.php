@@ -80,7 +80,7 @@ $ada_nilai = $logs != null && $logs->nilai != null && $logs->nilai != '0';
                             <img id="img1"/>
                             <ul class="clearfix media-list">
                                 <?php
-                                $files = unserialize($materi->file ?? '');
+                                $files = unserialize($materi->file ?? '', ['allowed_classes' => ['stdClass']]);
                                 foreach ($files as $file) : ?>
                                     <?php
                                     $temp = explode('.', $file["src"] ?? '');

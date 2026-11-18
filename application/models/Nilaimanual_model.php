@@ -99,7 +99,7 @@ class Nilaimanual_model extends CI_Model
             if (empty($row->mapel_kelas)) {
                 continue;
             }
-            $list = @unserialize($row->mapel_kelas);
+            $list = @unserialize($row->mapel_kelas, ['allowed_classes' => ['stdClass']]);
             if (!is_array($list)) {
                 continue;
             }

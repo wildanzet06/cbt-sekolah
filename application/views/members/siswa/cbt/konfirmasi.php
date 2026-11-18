@@ -32,7 +32,7 @@
                                     <br>
                                     <?php
                                     $jk = json_decode(json_encode($bank->bank_kelas));
-                                    $jumlahKelas = json_decode(json_encode(unserialize($jk ?? '')));
+                                    $jumlahKelas = json_decode(json_encode(unserialize($jk ?? '', ['allowed_classes' => ['stdClass']])));
 
                                     $kelasbank = '';
                                     $no = 1;

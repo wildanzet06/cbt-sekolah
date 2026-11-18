@@ -61,7 +61,7 @@ function getWeeksOfMonth($date)
 
 if (isset($jadwal_kbm)) {
     $ist = json_decode(json_encode($jadwal_kbm->istirahat));
-    $jmlIst = json_decode(json_encode(unserialize($ist ?? '')));
+    $jmlIst = json_decode(json_encode(unserialize($ist ?? '', ['allowed_classes' => ['stdClass']])));
     $jmlMapelPerHari = $jadwal_kbm->kbm_jml_mapel_hari;
 } else {
     $jmlMapelPerHari = 0;
@@ -130,7 +130,7 @@ $tempIdSelected = $id_kelas . $tp_active->id_tp . $smt_active->id_smt;
                         $arrKelasGuru = [];
                         $arr_id_kelas_guru = [];
                         if (isset($guru)) {
-                            $mapel_guru = $guru->mapel_kelas == null ? [] : unserialize($guru->mapel_kelas ?? '');
+                            $mapel_guru = $guru->mapel_kelas == null ? [] : unserialize($guru->mapel_kelas ?? '', ['allowed_classes' => ['stdClass']]);
                             foreach ($mapel_guru as $mg) {
                                 $arr_id_kelas_guru[$mg['id_mapel']] = $mg;
 

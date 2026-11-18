@@ -18,7 +18,12 @@ if ((!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off')
     || (!empty($_SERVER['HTTP_FRONT_END_HTTPS']) && strtolower($_SERVER['HTTP_FRONT_END_HTTPS']) !== 'off')) {
     $scheme = 'https';
 }
-$config['base_url'] = "$scheme://".$_SERVER['HTTP_HOST'];
+// Sanitasi Host: cegah penyisipan karakter aneh (kutip/CRLF) ke URL aplikasi.
+$__host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
+if (!preg_match('/^[A-Za-z0-9.\-]+(:\d{1,5})?$/', $__host)) {
+    $__host = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost';
+}
+$config['base_url'] = "$scheme://" . $__host;
 $config['base_url'] .= preg_replace('@/+$@','',dirname($_SERVER['SCRIPT_NAME'])).'/';
 
 $config['index_page'] = '';
@@ -50,7 +55,7 @@ $config['cache_path'] = '';
 $config['cache_query_string'] = FALSE;
 
 //$config['encryption_key'] = '';
-$config['encryption_key'] = '498f8140edc311eb94b9c83dd4416dc8';
+$config['encryption_key'] = '31382675909195ecd6b1263dcf81a32b';
 
 /*
 |--------------------------------------------------------------------------
@@ -105,7 +110,7 @@ $config['encryption_key'] = '498f8140edc311eb94b9c83dd4416dc8';
 */
 $config['sess_driver'] = 'files';
 $config['sess_cookie_name'] = 'ci_session';
-$config['sess_expiration'] = 7200 * 12; // 1 jam
+$config['sess_expiration'] = 14400; // 4 jam (naikkan bila perlu sesi lebih panjang)
 $config['sess_save_path'] = NULL;
 $config['sess_match_ip'] = FALSE;
 $config['sess_time_to_update'] = 3000;

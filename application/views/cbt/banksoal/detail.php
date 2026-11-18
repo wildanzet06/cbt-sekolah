@@ -107,7 +107,7 @@
                     $bg_color = $total_soal_tampil < $total_soal_seharusnya_tampil ? 'bg-danger' : 'bg-success';
 
                     $jk = json_decode(json_encode($bank->bank_kelas));
-                    $jumlahKelas = json_decode(json_encode(unserialize($jk ?? '')));
+                    $jumlahKelas = json_decode(json_encode(unserialize($jk ?? '', ['allowed_classes' => ['stdClass']])));
 
                     $kelasbank = '';
                     $no = 1;
@@ -457,8 +457,8 @@
                                                     </div>
                                                     <br>
                                                     <?php
-                                                    $opsis = unserialize($s->opsi_a ?? '');
-                                                    $jawabs = unserialize($s->jawaban ?? '');
+                                                    $opsis = unserialize($s->opsi_a ?? '', ['allowed_classes' => ['stdClass']]);
+                                                    $jawabs = unserialize($s->jawaban ?? '', ['allowed_classes' => ['stdClass']]);
                                                     $jwb_pg2 = '';
                                                     if ($jawabs) {
                                                         $jwb_pg2 = implode(', ', array_filter($jawabs));
@@ -604,7 +604,7 @@
                                                         <br>
                                                     </div>
                                                     <br>
-                                                    <?php $jawaban = unserialize($s->jawaban ?? '');
+                                                    <?php $jawaban = unserialize($s->jawaban ?? '', ['allowed_classes' => ['stdClass']]);
                                                     if (!isset($jawaban['jawaban'])) $jawaban['jawaban'] = [];
                                                     ?>
                                                     <div class="mb-2 mt-2"><b>Jawaban:</b></div>
@@ -1009,10 +1009,10 @@
                             'soal' => '',
                             'opsi_a' => serialize(['a' => '', 'b' => '', 'c' => ''])
                         ]));
-                        $opsis = unserialize($s->opsi_a ?? '');
+                        $opsis = unserialize($s->opsi_a ?? '', ['allowed_classes' => ['stdClass']]);
                         $opsis = $opsis ? $opsis : ['a'=>'','b'=>'','c'=>''];
                         $rows = $opsis ? count($opsis) : 3;
-                        $jawabs = $opsis ? unserialize($s->jawaban ?? '') : [];
+                        $jawabs = $opsis ? unserialize($s->jawaban ?? '', ['allowed_classes' => ['stdClass']]) : [];
                         $bg = $s->nomor_soal % 2 == 0 ? '#FFFFFF' : '#F2F2F2';
                         //if ($opsis) :
                         ?>
@@ -1121,7 +1121,7 @@
                         $count++;
                         $bg = $count % 2 == 0 ? '#FFFFFF' : '#F2F2F2';
 
-                        $jawaban = isset($s->jawaban) ? unserialize($s->jawaban ?? '') : [];
+                        $jawaban = isset($s->jawaban) ? unserialize($s->jawaban ?? '', ['allowed_classes' => ['stdClass']]) : [];
                         if (isset($jawaban['jawaban']) && $jawaban['jawaban'] != null) {
                             foreach ($jawaban['jawaban'] as $kk => $jwbn) {
                                 $jawaban['jawaban'][$kk] = (array)$jwbn;

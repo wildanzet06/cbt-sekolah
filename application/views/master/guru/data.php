@@ -62,8 +62,8 @@ function sortByPosition($a, $b)
                             </thead>
                             <tbody class="row">
                             <?php foreach ($gurus as $guru):
-                                $mapels_guru = json_decode(json_encode(unserialize($guru->mapel_kelas ?? '')));
-                                $ekstras_guru = json_decode(json_encode(unserialize($guru->ekstra_kelas ?? ''))); ?>
+                                $mapels_guru = json_decode(json_encode(unserialize($guru->mapel_kelas ?? '', ['allowed_classes' => ['stdClass']])));
+                                $ekstras_guru = json_decode(json_encode(unserialize($guru->ekstra_kelas ?? '', ['allowed_classes' => ['stdClass']]))); ?>
                                 <tr role="row" class="col-md-6 col-xl-4 p-0 d-flex align-items-stretch">
                                     <td class="sorting_1 flex-fill">
                                         <div class="card card-primary card-outline m-0">

@@ -172,6 +172,10 @@ class Akses_hook {
                 if ($src !== '' && $this->path_mencurigakan($src)) {
                     $this->tolak($CI, 'path traversal hapus file: ' . $src);
                 }
+                // Hanya file di dalam folder uploads yang boleh dihapus.
+                if ($src !== '' && stripos($src, 'uploads/') === false) {
+                    $this->tolak($CI, 'hapus file di luar uploads: ' . $src);
+                }
                 // hapusBackup($src): nama file backup dari URI
                 if ($metode === 'hapusbackup') {
                     $seg = (string) $CI->uri->segment(3);
@@ -186,6 +190,76 @@ class Akses_hook {
                 && $CI->input->method() !== 'post'
                 && !$CI->input->is_ajax_request()) {
                 $this->tolak($CI, 'aksi mutasi tanpa POST/AJAX: ' . $n . '/' . $metode);
+            }
+
+            // 8) Installer / updater database tidak boleh dipakai setelah terpasang.
+            if (in_array($n, array('install', 'update')) && $CI->db->table_exists('users')) {
+                $this->tolak($CI, 'installer/update setelah aplikasi terpasang');
+            }
+
+            // 9) Endpoint ujian: siswa hanya boleh menyentuh datanya sendiri.
+            if ($siswa && $n === 'siswa') {
+                $id_login = $this->id_siswa_login($CI);
+                if ($id_login) {
+                    // Kepemilikan lembar soal (id_soal_siswa) pada simpan/muat jawaban
+                    if (in_array($metode, array('savejawaban', 'loadnomorsoal'))) {
+                        $ids = $CI->input->post('id_soal_siswa');
+                        if (is_scalar($ids) && $ids !== '') {
+                            $row = $CI->db->select('id_siswa')
+                                ->where('id_soal_siswa', (string) $ids)
+                                ->get('cbt_soal_siswa')->row();
+                            if ($row && (int) $row->id_siswa !== $id_login) {
+                                $this->tolak($CI, 'id_soal_siswa milik siswa lain: ' . $ids);
+                            }
+                        }
+                    }
+
+                    // Kepemilikan timer (id_durasi) pada reset/ulangi ujian
+                    if (in_array($metode, array('resettimer', 'ulangiujian'))) {
+                        $idd = $CI->input->post('id_durasi');
+                        if (!is_scalar($idd) || $idd === '') {
+                            $idd = $CI->uri->segment(3);
+                        }
+                        if (is_scalar($idd) && $idd !== '') {
+                            $row = $CI->db->select('id_siswa')
+                                ->where('id_durasi', (string) $idd)
+                                ->get('cbt_durasi_siswa')->row();
+                            if ($row && (int) $row->id_siswa !== $id_login) {
+                                $this->tolak($CI, 'id_durasi milik siswa lain: ' . $idd);
+                            }
+                        }
+                    }
+
+                    // leavecbt/{jadwal}/{id_siswa}
+                    if ($metode === 'leavecbt') {
+                        $seg = $CI->uri->segment(4);
+                        if ($seg !== null && $seg !== '' && (string) (int) $seg !== (string) $id_login) {
+                            $this->tolak($CI, 'leavecbt untuk siswa lain: ' . $seg);
+                        }
+                    }
+
+                    // olahNilai/{id_siswa}/{id_jadwal}
+                    if ($metode === 'olahnilai') {
+                        $seg = $CI->uri->segment(3);
+                        if ($seg !== null && $seg !== '' && (string) (int) $seg !== (string) $id_login) {
+                            $this->tolak($CI, 'olahNilai untuk siswa lain: ' . $seg);
+                        }
+                    }
+
+                    // Aksi destruktif massal: hanya admin
+                    if ($metode === 'applyaction') {
+                        $this->tolak($CI, 'applyAction hanya untuk admin');
+                    }
+
+                    // saveSoalSiswa: bila mengirim id_siswa, harus dirinya sendiri
+                    if ($metode === 'savesoalsiswa') {
+                        $p = $CI->input->post('id_siswa');
+                        if ($p === null) $p = $CI->input->post('siswa');
+                        if ($p !== null && $p !== '' && (string) (int) $p !== (string) $id_login) {
+                            $this->tolak($CI, 'saveSoalSiswa untuk siswa lain: ' . $p);
+                        }
+                    }
+                }
             }
         }
     }

@@ -6,12 +6,12 @@
  * Time: 22:29
  */
 
-$kelas_pilih = unserialize($materi->materi_kelas ?? '');
+$kelas_pilih = unserialize($materi->materi_kelas ?? '', ['allowed_classes' => ['stdClass']]);
 
 $dataFileAttach = [];
-$att = @unserialize($materi->file ?? '');
+$att = @unserialize($materi->file ?? '', ['allowed_classes' => ['stdClass']]);
 if ($att !== false) {
-    $dataFileAttach = unserialize($materi->file ?? '');
+    $dataFileAttach = unserialize($materi->file ?? '', ['allowed_classes' => ['stdClass']]);
 } else {
     if ($materi->file != null) {
         $file = $materi->file;

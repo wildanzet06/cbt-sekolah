@@ -223,7 +223,7 @@
                                             </ol>
                                         </td>
                                         <td class="text-center d-none"><?= strtoupper($s->jawaban_alias ?? '') ?></td>
-                                        <td class="text-center"><?= strtoupper($s->jawaban_siswa ?? '') ?></td>
+                                        <td class="text-center"><?= html_escape(strtoupper((string) ($s->jawaban_siswa ?? ''))) ?></td>
                                         <td class="text-center"><?= $s->analisa ?></td>
                                         <td class="text-center"><?= $s->point ?></td>
                                     </tr>
@@ -298,7 +298,7 @@
                                             </ol>
                                         </td>
                                         <td class="text-center"><?= strtoupper(implode(", ", $s->jawaban_benar ?? [''])) ?></td>
-                                        <td class="text-center"><?= $s->jawaban_siswa ? strtoupper(implode(", ", $s->jawaban_siswa)) : '' ?></td>
+                                        <td class="text-center"><?= $s->jawaban_siswa ? html_escape(strtoupper(implode(", ", (array) $s->jawaban_siswa))) : '' ?></td>
                                         <td class="text-center"><?= $s->analisa ?></td>
                                         <td class="text-center">
                                             <input id="input<?= $s->id_soal_siswa ?>"
@@ -558,8 +558,8 @@
                                     <tr>
                                         <td class="text-center"><?= $ns ?></td>
                                         <td><?= $s->soal ?></td>
-                                        <td class="text-center"><?= $s->jawaban_benar ?></td>
-                                        <td class="text-center"><?= $s->jawaban_siswa ?></td>
+                                        <td class="text-center"><?= html_escape((string) $s->jawaban_benar) ?></td>
+                                        <td class="text-center"><?= html_escape((string) $s->jawaban_siswa) ?></td>
                                         <td class="text-center"><?= $s->analisa ?></td>
                                         <td class="text-center">
                                             <input id="input<?= $s->id_soal_siswa ?>"
@@ -648,8 +648,8 @@
                                     <tr>
                                         <td class="text-center"><?= $ns ?></td>
                                         <td><?= $s->soal ?></td>
-                                        <td class="text-center"><?= $s->jawaban_benar ?></td>
-                                        <td class="text-center"><?= $s->jawaban_siswa ?></td>
+                                        <td class="text-center"><?= html_escape((string) $s->jawaban_benar) ?></td>
+                                        <td class="text-center"><?= html_escape((string) $s->jawaban_siswa) ?></td>
                                         <td class="text-center"><?= $s->analisa ?></td>
                                         <td class="text-center">
                                             <input id="input<?= $s->id_soal_siswa ?>"

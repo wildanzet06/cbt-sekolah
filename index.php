@@ -49,16 +49,10 @@ if ($__env === false || $__env === '') {
     $__env = isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : '';
 }
 if ($__env === '') {
-    $__host = isset($_SERVER['HTTP_HOST']) ? strtolower($_SERVER['HTTP_HOST']) : '';
-    $__host = preg_replace('/:\d+$/', '', $__host);
-    $__lokal = ($__host === '')
-        || $__host === 'localhost'
-        || $__host === '127.0.0.1'
-        || $__host === '[::1]'
-        || $__host === '::1'
-        || substr($__host, -5) === '.test'
-        || substr($__host, -6) === '.local';
-    $__env = $__lokal ? 'development' : 'production';
+    // Jangan memakai Host/REMOTE_ADDR sebagai penentu: di balik tunnel/proxy
+    // semua pengunjung bisa tampak 127.0.0.1. Development harus diaktifkan
+    // sadar lewat env CI_ENV atau file .dev-mode.
+    $__env = is_file(__DIR__ . '/.dev-mode') ? 'development' : 'production';
 }
 define('ENVIRONMENT', in_array($__env, $envs, true) ? $__env : 'production');
 
