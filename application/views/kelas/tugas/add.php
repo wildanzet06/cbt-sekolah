@@ -150,12 +150,12 @@ if (empty($kelas_pilih)) {
 </div>
 
 <script>
-    const kls = JSON.parse('<?=json_encode($kelas)?>');
+    const kls = <?= json_encode($kelas, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
     var arrJadwal = [];
     var arrKelas = [];
     var arrKelasMapel = [];
     var dataFiles = [];
-    var arrFileAttach = JSON.parse('<?= json_encode($dataFileAttach)?>');
+    var arrFileAttach = <?= json_encode($dataFileAttach, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
     dataFiles = $.merge(dataFiles, arrFileAttach);
 
     $.map(kls, function (value, index) {
@@ -308,7 +308,7 @@ if (empty($kelas_pilih)) {
         var selKelas = $('#kelas');
         selKelas.html('').select2({data: null}).trigger('change');
 
-        var kelas = JSON.parse('<?= json_encode($arrKelasSelected) ?>');
+        var kelas = <?= json_encode($arrKelasSelected, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
         var as = [];
         for (let i = 0; i < kelas.length; i++) {
             if (kelas[i].mapel === mapel) {

@@ -228,7 +228,7 @@
 </div>
 
 <script>
-    var arrKelas = JSON.parse('<?= json_encode($kelas)?>');
+    var arrKelas = <?= json_encode($kelas, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
     var mplSelected = '<?= isset($mapel_selected) ? $mapel_selected : ''?>';
     var klsSelected = '<?= isset($kelas_selected) ? $kelas_selected : ''?>';
 

@@ -160,13 +160,19 @@ class Kas extends CI_Controller {
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="kas-' . $tahun . '-' . sprintf('%02d', $bulan) . '.csv"');
         $out = fopen('php://output', 'w');
+        // Cegah CSV formula injection: sel yang diawali = + - @ diberi awalan '
+        $aman = function ($v) {
+            $v = (string) $v;
+            return ($v !== '' && strpos('=+-@', $v[0]) !== false) ? "'" . $v : $v;
+        };
+
         fputcsv($out, array('Tanggal', 'Jenis', 'Kategori', 'Keterangan', 'Nominal', 'Dicatat oleh'));
         foreach ($rows as $r) {
             fputcsv($out, array(
                 date('d/m/Y', strtotime($r->tanggal)),
-                $r->jenis, $r->kategori, $r->keterangan,
+                $aman($r->jenis), $aman($r->kategori), $aman($r->keterangan),
                 number_format((float) $r->nominal, 2, '.', ''),
-                $r->dibuat_oleh
+                $aman($r->dibuat_oleh)
             ));
         }
         fclose($out);

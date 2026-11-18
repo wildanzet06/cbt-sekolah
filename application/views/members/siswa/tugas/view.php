@@ -123,7 +123,7 @@ $dataFileAttach = $log_selesai != null && $log_selesai->file != null ? unseriali
     var jamKe = '<?= $jamke ?>';
 
     var dataFiles = [];
-    var arrFileAttach = JSON.parse('<?= json_encode($dataFileAttach)?>');
+    var arrFileAttach = <?= json_encode($dataFileAttach, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
     dataFiles = $.merge(dataFiles, arrFileAttach);
 
     console.log(logMulai);

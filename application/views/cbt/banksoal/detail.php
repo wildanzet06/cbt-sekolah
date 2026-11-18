@@ -609,7 +609,7 @@
                                                     ?>
                                                     <div class="mb-2 mt-2"><b>Jawaban:</b></div>
                                                     <div class='list-jodohkan' data-nomor="<?= $s->nomor_soal ?>"
-                                                         data-list='<?= json_encode($jawaban) ?>'>
+                                                         data-list='<?= json_encode($jawaban, JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_TAG|JSON_HEX_AMP) ?>'>
                                                     </div>
                                                 </div>
                                                 <div class="rTableCell text-right pt-2" style="width: 60px">

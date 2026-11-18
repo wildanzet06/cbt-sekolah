@@ -239,7 +239,7 @@ $ada_nilai = $logs != null && $logs->nilai != null && $logs->nilai != '0';
 
 <script>
     var adaNilai = '<?=$ada_nilai?>' == '1';
-    var logMateri = JSON.parse('<?= json_encode($logs) ?>');
+    var logMateri = <?= json_encode($logs, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
     var logMulai = '<?= $logs != null && $logs->log_time != null ? $logs->log_time : '' ?>';
     var logSelesai = '<?= $logs != null && $logs->finish_time != null ? $logs->finish_time : '' ?>';
     var idSiswa = '<?= $siswa->id_siswa ?>';

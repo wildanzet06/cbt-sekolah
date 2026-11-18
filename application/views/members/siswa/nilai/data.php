@@ -286,9 +286,9 @@
     var arrbulan = ['', 'Januari', 'Februari', 'Maret', 'April',
         'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
     var arrhari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jum\'at', 'Sabtu'];
-    var skores = JSON.parse('<?= json_encode($skor)?>');
-    var durasies = JSON.parse('<?= json_encode($durasi)?>');
-    var jadwals = JSON.parse('<?= json_encode($jadwal)?>');
+    var skores = <?= json_encode($skor, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
+    var durasies = <?= json_encode($durasi, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
+    var jadwals = <?= json_encode($jadwal, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
 
     $(document).ready(function () {
         $('#table-nilai-materi').DataTable();

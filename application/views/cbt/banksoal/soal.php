@@ -408,14 +408,14 @@ foreach ($soal_ada as $key => $value) {
     console.log('jns', jenis);
 
     var dataFiles = [];
-    var arrFileAttach = JSON.parse('<?= json_encode($dataFileAttach)?>');
+    var arrFileAttach = <?= json_encode($dataFileAttach, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
     dataFiles = $.merge(dataFiles, arrFileAttach);
 
-    var adaPg = JSON.parse('<?= json_encode($soal_pg_ada)?>');
-    var adaPg2 = JSON.parse('<?= json_encode($soal_pg2_ada)?>');
-    var adaJodohkan = JSON.parse('<?= json_encode($soal_jodohkan_ada)?>');
-    var adaIsian = JSON.parse('<?= json_encode($soal_isian_ada)?>');
-    var adaEssai = JSON.parse('<?= json_encode($soal_esai_ada)?>');
+    var adaPg = <?= json_encode($soal_pg_ada, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
+    var adaPg2 = <?= json_encode($soal_pg2_ada, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
+    var adaJodohkan = <?= json_encode($soal_jodohkan_ada, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
+    var adaIsian = <?= json_encode($soal_isian_ada, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
+    var adaEssai = <?= json_encode($soal_esai_ada, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
     console.log('adaPg', adaIsian);
 
     $(function () {

@@ -34,7 +34,7 @@
 <script>
     $.widget.bridge('uibutton', $.ui.button);
 
-    var runningText = JSON.parse('<?= json_encode($running_text) ?>');
+    var runningText = <?= json_encode($running_text, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
     //console.log('runn', runningText);
     var teks = '';
     $.each(runningText, function (i, v) {

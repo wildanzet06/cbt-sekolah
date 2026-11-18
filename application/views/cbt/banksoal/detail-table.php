@@ -552,7 +552,7 @@
                                                 <div class="mb-2 mt-2"><b>Jawaban:</b></div>
                                                 <?php if (isset($jawaban['model']) && $jawaban['model'] == '1') : ?>
                                                     <div class='list-jodohkan'
-                                                         data-list='<?= json_encode($jawaban['jawaban']) ?>'>
+                                                         data-list='<?= json_encode($jawaban['jawaban'], JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_TAG|JSON_HEX_AMP) ?>'>
                                                         <div class="bonds" id="soal<?= $s->id_soal ?>"
                                                              style="display:block;"></div>
                                                     </div>

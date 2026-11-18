@@ -355,3 +355,49 @@ Semua perbaikan sudah diuji regresi: 28 halaman admin, 15 halaman guru, dan
 6 halaman siswa — **0 error/warning PHP**. Dua area yang sebaiknya dikerjakan
 berikutnya adalah **S1 (password plaintext)** dan **S5 (integritas waktu ujian)**,
 karena keduanya berdampak langsung pada data akademik.
+---
+
+## 10. Audit pass 3 (18 November 2026) — modul baru & pengerasan XSS
+
+Audit difokuskan pada enam fitur yang baru ditambahkan (backup, WA, QR kwitansi,
+surat peringatan, buku kas, statistik) dan pola keluaran JSON di seluruh view.
+
+### Yang diperiksa dan hasilnya
+
+| Area baru | Uji | Hasil |
+|-----------|-----|-------|
+| `Kas`, `Statistik`, `Backup` | akses guru & siswa | **403** (hanya admin) |
+| `pelanggaran/surat` | akses guru | 200 (memang untuk guru) |
+| `simpan_setting_sp`, `backup/buat`, `backup/pulihkan`, `kas/simpan` | POST oleh guru | **403**, data tidak berubah |
+| `kas/simpan` | nominal `-5000`, `0`, tanggal besok | ditolak (303 + pesan), **0 baris tersimpan** |
+| `backup/pulihkan` | nama `../config/database.php`, `../../index.php` | ditolak; `database.php` utuh |
+| `cekkwitansi` | id `0`, `-1`, `abc`, kode salah | halaman "Tidak Valid", tanpa error |
+| injeksi SQL | `bulan=1' OR 1=1--`, `tahun=2026' OR 1=1--`, `kelas=…'` | tidak ada error SQL, data tetap |
+| kwitansi publik | kode benar vs salah | **Asli** vs **Tidak Valid**, nama disamarkan |
+
+### Temuan baru & perbaikan
+
+| ID | Temuan | Risiko | Status |
+|----|--------|--------|--------|
+| X1 | Pola `JSON.parse('<?= json_encode(...) ?>')` di **18 file / 35 titik**: data yang mengandung apostrof (mis. nama "Ma'ruf") merusak JavaScript, dan bila data berasal dari input guru/admin bisa menjadi celah injeksi | **Sedang** | Diperbaiki |
+| X2 | `data-list='<?= json_encode(...) ?>'` pada detail bank soal: apostrof pada opsi jawaban keluar dari atribut | **Sedang** | Diperbaiki |
+| X3 | Ekspor CSV buku kas rawan **CSV formula injection** (sel diawali `=`, `+`, `-`, `@`) | **Rendah** | Diperbaiki |
+
+**Perbaikan X1:** semua pola diubah menjadi objek JSON langsung dengan flag
+`JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT`, sehingga apostrof, `<`,
+`>`, `&`, dan kutip di-escape menjadi `\u0027`, `\u003C`, dst. Diuji dengan
+running text berisi `Ma'ruf & <b>sekolah</b>` → keluar sebagai
+`"Uji Ma\u0027ruf \u0026 \u003Cb\u003Esekolah\u003C\/b\u003E"` (aman, tidak
+merusak halaman).
+
+**Perbaikan X2:** atribut `data-list` memakai `JSON_HEX_APOS|JSON_HEX_QUOT|JSON_HEX_TAG|JSON_HEX_AMP`.
+**Perbaikan X3:** nilai sel yang diawali `= + - @` diberi awalan `'`.
+
+### Catatan
+
+- Format fallback backup CI `dbutil` dengan `format=txt` sudah menghasilkan SQL
+  yang bisa dipulihkan (diperiksa di `system/database/DB_utility.php`).
+- File QR (`assets/app/js/qrcode.min.js`) memakai lisensi MIT dan disimpan lokal
+  sehingga fitur tetap berjalan tanpa internet.
+- Folder `backups/` tetap ditolak akses web (403) dan file `.sql` tidak ikut repo.
+- Regresi setelah perbaikan: 15 halaman admin + 13 guru + 6 siswa → **0 error**.

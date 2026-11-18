@@ -400,10 +400,10 @@ foreach ($materi as $k => $m) {
     var subjudul = '<?=$subjudul?>';
     var urlJenis = '<?=$jenis == "1" ? "materi" : "tugas"?>';
     var jenis = '<?=$jenis?>';
-    const mapelJam = JSON.parse('<?= json_encode($tanggal_jadwal) ?>');
-    const thn = JSON.parse('<?= json_encode($tp_active) ?>');
-    const smt = JSON.parse('<?= json_encode($smt_active) ?>');
-    const days = JSON.parse('<?= json_encode($disabledDay) ?>');
+    const mapelJam = <?= json_encode($tanggal_jadwal, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
+    const thn = <?= json_encode($tp_active, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
+    const smt = <?= json_encode($smt_active, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
+    const days = <?= json_encode($disabledDay, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
     $(document).ready(function () {
         ajaxcsrf();
 

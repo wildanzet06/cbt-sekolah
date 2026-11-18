@@ -174,8 +174,8 @@
 </div>
 
 <script>
-    const ruangs = JSON.parse('<?=json_encode($ruang)?>');
-    const arrRuang = JSON.parse('<?=json_encode($ruangs)?>');
+    const ruangs = <?= json_encode($ruang, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
+    const arrRuang = <?= json_encode($ruangs, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
 
     $(document).ready(function () {
         ajaxcsrf();

@@ -228,6 +228,6 @@
 </div>
 -->
 <script>
-    var mapels = JSON.parse('<?= json_encode($mapel_peminatan) ?>');
+    var mapels = <?= json_encode($mapel_peminatan, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
 </script>
 <script src="<?= base_url() ?>/assets/app/js/master/jurusan/crud.js"></script>

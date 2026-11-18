@@ -69,8 +69,8 @@
 </div>
 
 <script>
-    var arrmapel = JSON.parse('<?= json_encode($mapel)?>');
-    var arrkelas = JSON.parse('<?= json_encode($kelas)?>');
+    var arrmapel = <?= json_encode($mapel, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
+    var arrkelas = <?= json_encode($kelas, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
     var url = '';
 
     function refreshStatus(mapel) {

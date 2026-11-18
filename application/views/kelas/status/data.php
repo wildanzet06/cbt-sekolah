@@ -226,7 +226,7 @@
 <script type="text/javascript" src="<?= base_url() ?>/assets/app/js/tableToExcel.js"></script>
 
 <script>
-    var kelas = JSON.parse('<?= json_encode($kelas)?>');
+    var kelas = <?= json_encode($kelas, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
     var arrKelasMateri = [];
     var arrKelasTugas = [];
     var form;

@@ -102,7 +102,7 @@
 </div>
 
 <script>
-    var kelas = JSON.parse('<?= json_encode($kelas)?>');
+    var kelas = <?= json_encode($kelas, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
     var arrMateri = JSON.parse(JSON.stringify(<?= json_encode($materi)?>));
     var form;
     var hari = '';
