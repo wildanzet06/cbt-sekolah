@@ -62,10 +62,10 @@ foreach ($soal_ada as $key => $value) {
 
         @media (max-width: 575.98px) {
             .content-header h1 { font-size: 1.5rem; margin-bottom: .5rem; }
-            .content-header .btn-danger { width: 100%; display: block; }
+            .content-header .btn-danger { width: 100%; display: block; float: none !important; }
             .nav-pills { flex-wrap: wrap; gap: .25rem; }
-            .nav-pills .nav-item { flex: 1 1 46%; }
-            .nav-pills .nav-link { width: 100%; text-align: center; padding: .4rem .5rem; font-size: .875rem; }
+            .nav-pills .nav-item { flex: 1 1 46%; min-width: 0; }
+            .nav-pills .nav-link { width: 100%; text-align: center; padding: .4rem .5rem; font-size: .875rem; white-space: normal; }
             .btn-circle-sm { width: 38px; height: 38px; padding: 0; margin: 3px; font-size: .9rem; }
             .tab-pane .alert { font-size: .85rem; padding: .5rem .75rem; }
             .bac-controls { display: block; }

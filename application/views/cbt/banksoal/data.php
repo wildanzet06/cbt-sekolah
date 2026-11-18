@@ -5,7 +5,7 @@ $allBanksIds = [];
     <style>
         @media (max-width: 575.98px) {
             .card-header { flex-wrap: wrap; align-items: center; }
-            .card-header .card-tools { width: 100%; float: none; display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .5rem; }
+            .card-header .card-tools { width: 100%; float: none !important; display: flex; flex-wrap: wrap; gap: .35rem; margin-top: .5rem; }
             .card-header .card-tools > .btn,
             .card-header .card-tools > a.btn { flex: 1 1 calc(50% - .35rem); margin-left: 0 !important; font-size: .85rem; }
             .card-header .card-tools > .btn-group { flex: 1 1 100%; }
