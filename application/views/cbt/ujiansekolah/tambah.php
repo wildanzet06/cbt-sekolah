@@ -82,11 +82,11 @@ $this->load->view('cbt/ujiansekolah/_style');
 <div class="content-wrapper bg-white pt-4">
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2 align-items-center">
-                <div class="col-auto">
+            <div class="row mb-2 align-items-center ujian-hero">
+                <div class="col-auto ujian-hero-kembali">
                     <?php $this->load->view('cbt/ujiansekolah/_kembali'); ?>
                 </div>
-                <div class="col">
+                <div class="col ujian-hero-judul">
                     <h1 class="mb-0"><?= html_escape($judul) ?></h1>
                     <small class="text-muted">
                         <?= html_escape($subjudul) ?> &middot;
