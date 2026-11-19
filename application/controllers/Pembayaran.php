@@ -664,7 +664,7 @@ class Pembayaran extends CI_Controller {
         list($bulan, $tahun) = $this->_periode_pembayaran($t);
 
         $upload_path = './uploads/bukti_transfer/';
-        if (!file_exists($upload_path)) mkdir($upload_path, 0777, true);
+        if (!file_exists($upload_path)) mkdir($upload_path, 0755, true);
 
         $config['upload_path']   = $upload_path;
         $config['allowed_types'] = 'jpg|jpeg|png|pdf';

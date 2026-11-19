@@ -127,6 +127,11 @@ class Akses_hook {
         ));
         $metode = strtolower((string) $CI->router->fetch_method());
 
+        // Admin tidak dibatasi kepemilikan bank.
+        if ($CI->ion_auth->is_admin()) {
+            return;
+        }
+
         $admin = $CI->ion_auth->is_admin();
         $siswa = !$admin && $CI->ion_auth->in_group(array(3, 'siswa'));
 
@@ -326,6 +331,11 @@ class Akses_hook {
             return;
         }
         $metode = strtolower((string) $CI->router->fetch_method());
+
+        // Admin tidak dibatasi kepemilikan bank.
+        if ($CI->ion_auth->is_admin()) {
+            return;
+        }
         $diawasi = array('buatsoal', 'detail', 'savebank', 'deletebank', 'saveselected',
             'copybanksoal', 'import', 'importsoal', 'savesoal', 'hapussoal',
             'tambahsoal', 'getsoalbynomor', 'deleteallbank');
@@ -342,13 +352,9 @@ class Akses_hook {
         }
         $tp  = $CI->dashboard->getTahunActive();
         $smt = $CI->dashboard->getSemesterActive();
-        if (!$tp || !$smt) {
-            return;
-        }
+        if (!$tp || !$smt) { $this->tolak($CI, 'tahun/semester aktif tidak ditemukan'); }
         $guru = $CI->dashboard->getDataGuruByUserId($user->id, $tp->id_tp, $smt->id_smt);
-        if (!$guru) {
-            return;
-        }
+        if (!$guru) { $this->tolak($CI, 'guru tidak terdaftar pada tahun/semester aktif'); }
         $gid = (int) $guru->id_guru;
 
         if ($metode === 'deleteallbank') {
@@ -362,7 +368,7 @@ class Akses_hook {
         if (!$bank_id) {
             $bank_id = (int) $CI->input->get('id_bank');
         }
-        if (!$bank_id && in_array($metode, array('buatsoal', 'detail'), true)) {
+        if (!$bank_id && in_array($metode, array('buatsoal', 'detail', 'copybanksoal'), true)) {
             // Ambil angka setelah nama method dari path URL. Cara ini aman
             // untuk instalasi di subfolder dan mengabaikan query string.
             $path = parse_url(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '', PHP_URL_PATH);
@@ -372,6 +378,10 @@ class Akses_hook {
                 $bank_id = (int) $bagian[$pos + 1];
             }
         }
+        if ($metode === 'copybanksoal' && $bank_id <= 0) {
+            $this->tolak($CI, 'guru menyalin bank soal tanpa id yang valid');
+        }
+
         if ($metode === 'hapussoal') {
             $id_soal = (int) $CI->input->post('id');
             if (!$id_soal) {
