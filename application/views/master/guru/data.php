@@ -69,8 +69,13 @@ function sortByPosition($a, $b)
                                         <div class="card card-primary card-outline m-0">
                                             <div class="card-body d-flex flex-column justify-content-between">
                                                 <div class="media mb-3">
+                                                    <?php
+                                                    $foto_guru = !empty($guru->foto) && file_exists(FCPATH . ltrim($guru->foto, '/'))
+                                                        ? $guru->foto
+                                                        : 'assets/img/siswa.png';
+                                                    ?>
                                                     <img class="d-flex mr-3 rounded-circle img-thumbnail thumb-lg"
-                                                         src="<?= base_url().$guru->foto ?>" alt="foto"/>
+                                                         src="<?= base_url() . $foto_guru ?>" alt="foto"/>
                                                     <div class="media-body overflow-hidden">
                                                         <p class="card-text mb-0 text-xs"><?= $guru->nip ?></p>
                                                         <h6 class="card-text mb-0"><?= $guru->nama_guru ?></h6>
