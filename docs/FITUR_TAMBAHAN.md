@@ -119,3 +119,15 @@ Di halaman **Buat/Edit Bank Soal** hanya ada satu tombol:
 **Simpan & Buat Soal**. Setelah bank disimpan, aplikasi langsung membuka
 halaman **Buat Soal** untuk bank tersebut (`cbtbanksoal/buatsoal/{id}?tab=1`),
 jadi tidak perlu kembali ke daftar lalu mencari bank lagi.
+## Mode sederhana Pengaturan Ujian
+
+Halaman **Ujian Sekolah → Pengaturan Ujian** kini default ke mode sederhana:
+
+- Tab yang tampil hanya **Peserta & Ruang** dan **Token**.
+- Tab **Sesi & Jam**, **Pengawas**, dan **Jenis Ujian** disembunyikan di balik
+  sakelar **Mode sederhana** (matikan sakelar untuk mengatur manual).
+- Sesi dan ruang dasar dibuat otomatis bila belum ada (Sesi 1 07.30–09.30,
+  Ruang 1 kapasitas 35), jadi tidak perlu membuat sesi lebih dulu.
+- Pembagian peserta cukup klik **Bagi Otomatis** di tab Peserta & Ruang;
+  rincian per kelas dibuka lewat tombol **Lihat**.
+- Semua ujian baru otomatis memakai **jam ke-1**.

@@ -707,6 +707,7 @@ class Ujiansekolah extends CI_Controller
             $tab = 'peserta';
         }
 
+        $this->us->pastikanSesiDanRuang();
         $sesi = $this->us->sesiList();
         $sesi1 = count($sesi) > 0 ? $sesi[0] : null;
 

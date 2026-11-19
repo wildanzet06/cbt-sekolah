@@ -29,11 +29,26 @@ $this->load->view('cbt/ujiansekolah/_style');
 
     <section class="content">
         <div class="container-fluid">
+            <div class="alert alert-light border d-flex flex-wrap align-items-center justify-content-between mb-3">
+                <div>
+                    <b><i class="fas fa-magic mr-1"></i>Mode sederhana</b>
+                    <div class="small text-muted">
+                        Cukup atur <b>Peserta &amp; Ruang</b> lalu <b>Token</b>.
+                        Sesi, pengawas, dan jenis ujian sudah otomatis (jam ke-1).
+                        Matikan sakelar ini bila ingin mengatur manual.
+                    </div>
+                </div>
+                <div class="custom-control custom-switch mt-2 mt-sm-0">
+                    <input type="checkbox" class="custom-control-input" id="mode-sederhana" checked>
+                    <label class="custom-control-label" for="mode-sederhana">Aktif</label>
+                </div>
+            </div>
             <div class="card card-default my-shadow mb-4">
                 <div class="card-header p-0 pt-2 px-2">
                     <ul class="nav nav-tabs border-bottom-0" id="tab-pengaturan" role="tablist">
                         <?php foreach ($tabs as $kunci => $info): ?>
-                            <li class="nav-item">
+                            <?php $__lanjut = in_array($kunci, array('sesi', 'pengawas', 'jenis'), true); ?>
+                            <li class="nav-item <?= $__lanjut ? 'tab-lanjutan' : '' ?>">
                                 <a class="nav-link <?= $tab === $kunci ? 'active' : '' ?>"
                                    id="tab-link-<?= $kunci ?>" data-toggle="tab"
                                    href="#pane-<?= $kunci ?>" role="tab">
@@ -81,5 +96,35 @@ $this->load->view('cbt/ujiansekolah/_style');
                 halaman dan tanpa membuka tab browser baru.
             </p>
         </div>
-    </section>
+    <script>
+    (function () {
+        var KUNCI = 'mode_sederhana_pengaturan';
+        var $ul = $('#tab-pengaturan');
+        var $sw = $('#mode-sederhana');
+        if (!$ul.length || !$sw.length) { return; }
+
+        function terapkan(sederhana) {
+            $ul.toggleClass('mode-sederhana', sederhana);
+            $sw.prop('checked', sederhana);
+            if (sederhana && $ul.find('li.tab-lanjutan a.active').length) {
+                $ul.find('a[href="#pane-peserta"]').tab('show');
+            }
+            try { localStorage.setItem(KUNCI, sederhana ? '1' : '0'); } catch (e) {}
+        }
+
+        var paksaRinci = <?= in_array($tab, array('sesi', 'pengawas', 'jenis'), true) ? 'true' : 'false' ?>;
+        var awal = true;
+        try {
+            var simpan = localStorage.getItem(KUNCI);
+            if (simpan !== null) { awal = simpan === '1'; }
+        } catch (e) {}
+        if (paksaRinci) { awal = false; }
+
+        $sw.on('change', function () { terapkan(this.checked); });
+        terapkan(awal);
+    })();
+</script>
+<style>
+    #tab-pengaturan.mode-sederhana .tab-lanjutan { display: none !important; }
+</style></section>
 </div>

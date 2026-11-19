@@ -247,6 +247,32 @@ class Ujiansekolah_model extends CI_Model
         return $row;
     }
 
+    /**
+     * Pastikan sudah ada sesi dan ruang dasar, supaya sekolah tidak perlu
+     * mengatur "Sesi & Jam" / "Ruang" lebih dulu. Cukup klik Bagi Otomatis.
+     */
+    public function pastikanSesiDanRuang()
+    {
+        $jml_sesi = (int) $this->db->count_all('cbt_sesi');
+        if ($jml_sesi === 0) {
+            $this->db->insert('cbt_sesi', [
+                'nama_sesi'   => 'Sesi 1',
+                'kode_sesi'   => 'S1',
+                'waktu_mulai' => '07:30:00',
+                'waktu_akhir' => '09:30:00',
+                'aktif'       => 1,
+            ]);
+        }
+
+        $jml_ruang = (int) $this->db->count_all('cbt_ruang');
+        if ($jml_ruang === 0) {
+            $this->db->insert('cbt_ruang', [
+                'nama_ruang' => 'Ruang 1',
+                'kode_ruang' => 'R1',
+                'kapasitas'  => 35,
+            ]);
+        }
+    }
     public function sesiList()
     {
         return $this->db->order_by('waktu_mulai', 'ASC')->order_by('id_sesi', 'ASC')
