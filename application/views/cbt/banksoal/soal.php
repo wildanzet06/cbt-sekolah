@@ -62,7 +62,6 @@ foreach ($soal_ada as $key => $value) {
 
         @media (max-width: 575.98px) {
             .content-header h1 { font-size: 1.5rem; margin-bottom: .5rem; }
-            .content-header .btn-danger { width: 100%; display: block; float: none !important; }
             .nav-pills { flex-wrap: wrap; gap: .25rem; }
             .nav-pills .nav-item { flex: 1 1 46%; min-width: 0; }
             .nav-pills .nav-link { width: 100%; text-align: center; padding: .4rem .5rem; font-size: .875rem; white-space: normal; }
@@ -76,14 +75,15 @@ foreach ($soal_ada as $key => $value) {
             #panel-bacaan .row > [class*="col-"] { flex: 0 0 100%; max-width: 100%; }
             #panel-bacaan #bac-judul, #panel-bacaan #bac-isi, #panel-bacaan #bac-tambah { width: 100%; }
         }
+        .kembali-link{display:inline-flex;align-items:center;padding:.15rem 0;color:#2563eb;font-size:.85rem;font-weight:500;text-decoration:none}
+        .kembali-link:hover{text-decoration:underline}
     </style>
     <section class="content-header">
         <div class="container-fluid">
             <div class="d-sm-flex justify-content-between mb-2">
                 <h1><?= $subjudul ?></h1>
-                <a href="<?= base_url('cbtbanksoal/detail/' . $bank->id_bank) ?>" type="button"
-                   class="btn btn-sm btn-danger float-right">
-                    <i class="fas fa-arrow-circle-left"></i><span class="ml-1">Kembali</span>
+                <a href="<?= base_url('cbtbanksoal/detail/' . $bank->id_bank) ?>" class="kembali-link float-right">
+                    <i class="fas fa-arrow-left"></i><span class="ml-1">Kembali</span>
                 </a>
             </div>
         </div>
