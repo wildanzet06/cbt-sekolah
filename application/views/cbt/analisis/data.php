@@ -108,35 +108,35 @@
                                                     <tr>
                                                         <td><?= $no ?></td>
                                                         <td>
-                                                            <?= $soal->soal ?>
+                                                            <?= soal_html_aman($soal->soal) ?>
                                                             <br>
                                                             <ol type="A">
                                                                 <li>
-                                                                    <?= $soal->opsi_a ?>
+                                                                    <?= soal_html_aman($soal->opsi_a) ?>
                                                                 </li>
                                                                 <li>
-                                                                    <?= $soal->opsi_b ?>
+                                                                    <?= soal_html_aman($soal->opsi_b) ?>
                                                                 </li>
                                                                 <?php if ($info->opsi == 3) : ?>
                                                                     <li>
-                                                                        <?= $soal->opsi_c ?>
+                                                                        <?= soal_html_aman($soal->opsi_c) ?>
                                                                     </li>
                                                                 <?php elseif ($info->opsi == 4) : ?>
                                                                     <li>
-                                                                        <?= $soal->opsi_c ?>
+                                                                        <?= soal_html_aman($soal->opsi_c) ?>
                                                                     </li>
                                                                     <li>
-                                                                        <?= $soal->opsi_d ?>
+                                                                        <?= soal_html_aman($soal->opsi_d) ?>
                                                                     </li>
                                                                 <?php else : ?>
                                                                     <li>
-                                                                        <?= $soal->opsi_c ?>
+                                                                        <?= soal_html_aman($soal->opsi_c) ?>
                                                                     </li>
                                                                     <li>
-                                                                        <?= $soal->opsi_d ?>
+                                                                        <?= soal_html_aman($soal->opsi_d) ?>
                                                                     </li>
                                                                     <li>
-                                                                        <?= $soal->opsi_e ?>
+                                                                        <?= soal_html_aman($soal->opsi_e) ?>
                                                                     </li>
                                                                 <?php endif; ?>
                                                             </ol>
@@ -252,16 +252,16 @@
                                             <tr>
                                                 <td><?= $no ?></td>
                                                 <td>
-                                                    <?= $soal->soal ?>
+                                                    <?= soal_html_aman($soal->soal) ?>
                                                     <br>
                                                     <ol type="A">
-                                                        <?php foreach ($soal->opsi_a as $abc => $opsi) : ?>
+                                                        <?php foreach ((is_array($soal->opsi_a ?? null) ? $soal->opsi_a : []) as $abc => $opsi) : ?>
                                                             <li>
-                                                                <?= $opsi ?>
+                                                                <?= soal_html_aman($opsi) ?>
                                                             </li>
                                                         <?php endforeach; ?>
                                                     </ol>
-                                                    <p>JAWABAN: <b><?= strtoupper(implode(", ", $soal->jawaban ?? [''])) ?></b></p>
+                                                    <p>JAWABAN: <b><?= strtoupper(implode(", ", (is_array($soal->jawaban ?? null) ? $soal->jawaban : []))) ?></b></p>
                                                 </td>
                                                 <td style="width: 150px">
                                                 </td>

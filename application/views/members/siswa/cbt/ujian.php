@@ -150,6 +150,67 @@
 <script src="<?= base_url() ?>/assets/app/js/content-zoom-slider.js"></script>
 
 <script>
+    // Bersihkan HTML soal yang berasal dari database sebelum dimasukkan ke DOM.
+    // Teks soal memang boleh memuat gambar, tetapi tidak boleh memuat script
+    // atau atribut on* (stored XSS).
+    function amankanSoalHtml(html) {
+        if (html === null || html === undefined || html === '') return '';
+        var doc = new DOMParser().parseFromString('<div id="root-aman">' + html + '</div>', 'text/html');
+        var root = doc.getElementById('root-aman');
+        if (!root) return '';
+        var izin = ['P','BR','B','STRONG','I','EM','U','S','UL','OL','LI','BLOCKQUOTE',
+            'H1','H2','H3','H4','H5','H6','TABLE','THEAD','TBODY','TFOOT','TR','TH','TD',
+            'HR','SPAN','DIV','SUP','SUB','SMALL','CODE','PRE','IMG'];
+        var buang = ['SCRIPT','STYLE','IFRAME','OBJECT','EMBED','FORM','TEXTAREA',
+            'BUTTON','SELECT','LINK','META','BASE','SVG','MATH'];
+
+        function bersih(node) {
+            var anak = Array.prototype.slice.call(node.childNodes || []);
+            anak.forEach(function (anakNode) {
+                if (anakNode.nodeType === 8) {
+                    if (anakNode.parentNode) anakNode.parentNode.removeChild(anakNode);
+                    return;
+                }
+                if (anakNode.nodeType !== 1) return;
+                var tag = anakNode.tagName.toUpperCase();
+                if (buang.indexOf(tag) !== -1) {
+                    if (anakNode.parentNode) anakNode.parentNode.removeChild(anakNode);
+                    return;
+                }
+                if (izin.indexOf(tag) === -1) {
+                    while (anakNode.firstChild) node.insertBefore(anakNode.firstChild, anakNode);
+                    if (anakNode.parentNode) anakNode.parentNode.removeChild(anakNode);
+                    return;
+                }
+
+                var src = tag === 'IMG' ? (anakNode.getAttribute('src') || '') : '';
+                var alt = tag === 'IMG' ? (anakNode.getAttribute('alt') || '') : '';
+                var atribut = Array.prototype.slice.call(anakNode.attributes || []);
+                atribut.forEach(function (attr) { anakNode.removeAttribute(attr.name); });
+
+                if (tag === 'IMG') {
+                    var srcAman = /^(https?:\/\/|data:image\/(png|jpe?g|gif|webp|bmp);base64,|\.?\/?uploads\/)/i.test(src);
+                    if (!srcAman) {
+                        if (anakNode.parentNode) anakNode.parentNode.removeChild(anakNode);
+                        return;
+                    }
+                    anakNode.setAttribute('src', src);
+                    if (alt) anakNode.setAttribute('alt', alt);
+                }
+                bersih(anakNode);
+            });
+        }
+
+        bersih(root);
+        return root.innerHTML;
+    }
+
+    function escapeTeksJawaban(teks) {
+        return String(teks === null || teks === undefined ? '' : teks)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
     var elem = document.documentElement;
     history.pushState(null, null, '<?php echo $_SERVER["REQUEST_URI"]; ?>');
     window.addEventListener('popstate', function (event) {
@@ -318,17 +379,17 @@
 
         $('#nomor-soal').html(nomorSoal);
         if (data.soal_bacaan) {
-            $('#konten-bacaan').html(data.soal_bacaan).show();
+            $('#konten-bacaan').html(amankanSoalHtml(data.soal_bacaan)).show();
         } else {
             $('#konten-bacaan').hide().empty();
         }
-        $('#konten-soal').html(data.soal_soal);
+        $('#konten-soal').html(amankanSoalHtml(data.soal_soal));
         var jenis = data.soal_jenis;
         var html = '';
         if (jenis == "1") {
             $.each(data.soal_opsi, function (key, opsis) {
                 if (opsis.valAlias != "") {
-                    html += '<label class="container-jawaban font-weight-normal">' + opsis.opsi +
+                    html += '<label class="container-jawaban font-weight-normal">' + amankanSoalHtml(opsis.opsi) +
                         '<input type="radio"' +
                         ' name="jawaban"' +
                         ' value="' + opsis.value.toUpperCase() + '"' +
@@ -351,7 +412,7 @@
                     ' data-jawabansiswa="' + opsis.value.toUpperCase() + '"' +
                     ' onclick="submitJawaban(this)" ' + opsis.checked + '>' +
                     '<label class="custom-control-label font-weight-normal" for="check'+key+'">'
-                    + opsis.opsi +'</label>' +
+                    + amankanSoalHtml(opsis.opsi) +'</label>' +
                     '</div>'
             });
             $('#konten-jawaban').html(html);
@@ -425,7 +486,7 @@
                 '<span class="">JAWABAN:</span><br>' +
                 '<div class="row"><div class="col-12 col-sm-8 col-md-6 col-lg-4 col-xl-4">'+
                 '<input id="jawaban-isian" class="pl-1 form-control" type="text"' +
-                ' name="jawaban" value="' + jawabanSiswa + '"' +
+                ' name="jawaban" value="' + escapeTeksJawaban(jawabanSiswa) + '"' +
                 ' placeholder="Tulis jawaban disini"/><br>' +
                 '</div></div>' +
                 '</div>';
@@ -439,7 +500,7 @@
                 '<label>JAWABAN:</label><br>' +
                 '<textarea id="jawaban-essai" class="w-100 pl-1" type="text"' +
                 ' name="jawaban" rows="4"' +
-                ' placeholder="Tulis jawaban disini">' + jawabanSiswa + '</textarea><br>' +
+                ' placeholder="Tulis jawaban disini">' + escapeTeksJawaban(jawabanSiswa) + '</textarea><br>' +
                 '</div>';
             $('#konten-jawaban').html(html);
 
@@ -469,7 +530,7 @@
             });
         }
 
-        $('#konten-modal').html(data.soal_modal);
+        $('#konten-modal').html(amankanSoalHtml(data.soal_modal));
 
         var $imgs = $('.konten-soal-jawab').find('img');
         $.each($imgs, function () {
