@@ -157,6 +157,8 @@
 <script>
     let itemsClicked = [];
     let fotoGuru;
+    var csrfCatatanName = '<?= $this->security->get_csrf_token_name() ?>';
+    var csrfCatatanHash = '<?= $this->security->get_csrf_hash() ?>';
     $(document).ready(function () {
         function screenSize() {
             var w = $(document).innerWidth();
@@ -195,9 +197,12 @@
 
             if (!readed && !clicked) {
                 itemsClicked.push(table + '-' + id);
+                var dataReaded = {};
+                dataReaded[csrfCatatanName] = csrfCatatanHash;
                 $.ajax({
                     url: base_url + 'siswa/readed/' + table + '/' + detail.id_catatan,
-                    type: 'GET',
+                    type: 'POST',
+                    data: dataReaded,
                     success: function (response) {
                         console.log('read', response);
                     },

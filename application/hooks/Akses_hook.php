@@ -95,7 +95,7 @@ class Akses_hook {
         'delete', 'deletebank', 'deletejadwal', 'hapus', 'hapuspost', 'hapuskomentar',
         'hapusbalasan', 'hapusrunningtext', 'hapusjadwal', 'activate', 'deactivate',
         'reset_login', 'truncate', 'hapusbackup', 'backupnilai', 'generatealumni',
-        'aktifkan', 'nonaktifkan', 'verifikasi'
+        'aktifkan', 'nonaktifkan', 'verifikasi', 'readed'
     );
 
     public function periksa() {
@@ -126,6 +126,13 @@ class Akses_hook {
             strtolower((string) $CI->uri->segment(1))
         ));
         $metode = strtolower((string) $CI->router->fetch_method());
+
+        // 0) Upload gambar soal: batasi nama file, ukuran, dan jenisnya.
+        //    Tanpa ini, $_POST['name'] bisa dipakai untuk menimpa file sistem.
+        if ($metode === 'uploadsoalimage'
+            && strtolower((string) $CI->router->fetch_class()) === 'cbtbanksoal') {
+            $this->batasi_upload_gambar_soal($CI);
+        }
 
         $admin = $CI->ion_auth->is_admin();
         $siswa = !$admin && $CI->ion_auth->in_group(array(3, 'siswa'));
@@ -208,6 +215,24 @@ class Akses_hook {
                 if ($src !== '' && stripos($src, 'uploads/') === false) {
                     $this->tolak($CI, 'hapus file di luar uploads: ' . $src);
                 }
+
+                // Bank soal lebih ketat: hanya satu nama file di uploads/bank_soal.
+                // Ini juga mencegah penghapusan uploads/.htaccess yang melindungi
+                // folder upload dari eksekusi PHP.
+                if ($metode === 'deletefile'
+                    && strtolower((string) $CI->router->fetch_class()) === 'cbtbanksoal') {
+                    $rel = str_replace('\\', '/', $src);
+                    $rel = preg_replace('#^https?://[^/]+#i', '', $rel);
+                    $rel = ltrim((string) $rel, '/');
+                    if (!preg_match('#^uploads/bank_soal/[^/]+$#i', $rel)) {
+                        $this->tolak($CI, 'hapus file bank soal di luar folder: ' . $src);
+                    }
+                    $basename = basename($rel);
+                    if ($basename === '' || $basename[0] === '.'
+                        || preg_match('/[^A-Za-z0-9._-]/', $basename)) {
+                        $this->tolak($CI, 'nama file bank soal tidak valid: ' . $src);
+                    }
+                }
                 // hapusBackup($src): nama file backup dari URI
                 if ($metode === 'hapusbackup') {
                     $seg = (string) $CI->uri->segment(3);
@@ -278,16 +303,72 @@ class Akses_hook {
                         $this->tolak($CI, 'applyAction hanya untuk admin');
                     }
 
-                    // saveSoalSiswa: bila mengirim id_siswa, harus dirinya sendiri
+                    // saveSoalSiswa: id_siswa bisa disisipkan di dalam JSON shuffle.
                     if ($metode === 'savesoalsiswa') {
                         $p = $CI->input->post('id_siswa');
                         if ($p === null) $p = $CI->input->post('siswa');
                         if ($p !== null && $p !== '' && (string) (int) $p !== (string) $id_login) {
                             $this->tolak($CI, 'saveSoalSiswa untuk siswa lain: ' . $p);
                         }
+                        $shuffle = json_decode((string) $CI->input->post('shuffle', false), true);
+                        if (is_array($shuffle)) {
+                            foreach ($shuffle as $s) {
+                                if (!is_array($s) || !isset($s['id_siswa'])) { continue; }
+                                if ((string) (int) $s['id_siswa'] !== (string) $id_login) {
+                                    $this->tolak($CI, 'saveSoalSiswa shuffle untuk siswa lain: ' . $s['id_siswa']);
+                                }
+                            }
+                        }
+                    }
+
+                    // Catatan wali/mapel: detail dan tanda "sudah dibaca" harus
+                    // masih menjadi milik siswa yang login.
+                    if (in_array($metode, array('detailcatatan', 'readed'), true)) {
+                        $table = strtolower((string) $CI->uri->segment(3));
+                        $id_catatan = (int) $CI->uri->segment(4);
+                        $tabel_db = array('mapel' => 'kelas_catatan_mapel', 'wali' => 'kelas_catatan_wali');
+                        if (!isset($tabel_db[$table])) {
+                            $this->tolak($CI, 'jenis catatan tidak dikenal: ' . $table);
+                        }
+                        if ($id_catatan <= 0) {
+                            $this->tolak($CI, 'id catatan tidak valid');
+                        }
+                        $cat = $CI->db->select('id_siswa')
+                            ->where('id_catatan', $id_catatan)
+                            ->get($tabel_db[$table])->row();
+                        if ($cat && (int) $cat->id_siswa !== $id_login) {
+                            $this->tolak($CI, 'catatan milik siswa lain: ' . $id_catatan);
+                        }
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Upload gambar soal hanya boleh menulis satu file di uploads/bank_soal.
+     * Nama file dibatasi, ekstensi harus gambar, dan isinya benar-benar gambar.
+     */
+    private function batasi_upload_gambar_soal($CI)
+    {
+        $name = (string) $CI->input->post('name');
+        if ($name === '' || $name !== basename($name)
+            || preg_match('/[^A-Za-z0-9._-]/', $name)
+            || strpos($name, '..') !== false
+            || !preg_match('/\.(png|jpe?g|gif|webp|bmp)$/i', $name)) {
+            $this->tolak($CI, 'nama gambar soal tidak valid: ' . $name);
+        }
+
+        $src = (string) $CI->input->post('src', false);
+        if ($src === '' || strlen($src) > 12000000) {
+            $this->tolak($CI, 'isi gambar soal kosong atau terlalu besar');
+        }
+        $gambar = base64_decode($src, true);
+        if ($gambar === false || strlen($gambar) > 8000000) {
+            $this->tolak($CI, 'isi gambar soal bukan base64 yang valid');
+        }
+        if (function_exists('getimagesizefromstring') && @getimagesizefromstring($gambar) === false) {
+            $this->tolak($CI, 'isi gambar soal bukan file gambar');
         }
     }
 
@@ -333,7 +414,8 @@ class Akses_hook {
         }
         $diawasi = array('buatsoal', 'detail', 'savebank', 'deletebank', 'saveselected',
             'copybanksoal', 'import', 'importsoal', 'savesoal', 'hapussoal',
-            'tambahsoal', 'getsoalbynomor', 'deleteallbank');
+            'tambahsoal', 'getsoalbynomor', 'getsoalsiswa', 'uploadsoal', 'doimport',
+            'deleteallbank');
         if (!in_array($metode, $diawasi, true)) {
             return;
         }
@@ -356,53 +438,54 @@ class Akses_hook {
             $this->tolak($CI, 'guru mencoba menghapus semua bank soal');
         }
 
-        $bank_id = (int) $CI->input->post('id_bank');
-        if (!$bank_id) {
-            $bank_id = (int) $CI->input->post('bank_id');
-        }
-        if (!$bank_id) {
-            $bank_id = (int) $CI->input->get('id_bank');
-        }
-        if (!$bank_id && in_array($metode, array('buatsoal', 'detail', 'copybanksoal'), true)) {
-            // Ambil angka setelah nama method dari path URL. Cara ini aman
-            // untuk instalasi di subfolder dan mengabaikan query string.
-            $path = parse_url(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '', PHP_URL_PATH);
-            $bagian = array_values(array_filter(explode('/', (string) $path), 'strlen'));
-            $pos = array_search($metode, $bagian, true);
-            if ($pos !== false && isset($bagian[$pos + 1])) {
-                $bank_id = (int) $bagian[$pos + 1];
-            }
-        }
-        if ($metode === 'copybanksoal' && $bank_id <= 0) {
-            $this->tolak($CI, 'guru menyalin bank soal tanpa id yang valid');
-        }
-
-        if ($metode === 'hapussoal') {
-            $id_soal = (int) $CI->input->post('id');
-            if (!$id_soal) {
-                $id_soal = (int) $CI->input->get('id');
-            }
-            if ($id_soal) {
-                $row = $CI->db->select('bank_id')->where('id_soal', $id_soal)->get('cbt_soal')->row();
-                if ($row) {
-                    $bank_id = (int) $row->bank_id;
-                }
-            }
-        }
-
-        if ($bank_id > 0) {
-            $bank = $CI->db->select('bank_guru_id')->where('id_bank', $bank_id)->get('cbt_bank_soal')->row();
-            if ($bank && (int) $bank->bank_guru_id !== $gid) {
-                $this->tolak($CI, 'guru mengakses bank soal guru lain: ' . $bank_id);
-            }
-            return;
-        }
-
         if ($metode === 'savebank') {
             $post_guru = (int) $CI->input->post('guru');
             if ($post_guru > 0 && $post_guru !== $gid) {
                 $this->tolak($CI, 'guru menyimpan bank soal untuk guru lain');
             }
+            return;
+        }
+
+        // Nama field tidak seragam di controller lama: ada yang memakai
+        // id_bank, bank_id, atau bank. Semua dibaca agar pengecekan tidak bisa
+        // dilewati hanya dengan mengganti nama parameter.
+        $bank_id = 0;
+        foreach (array('id_bank', 'bank_id', 'bank') as $field) {
+            $bank_id = (int) $CI->input->post($field);
+            if (!$bank_id) { $bank_id = (int) $CI->input->get($field); }
+            if ($bank_id) { break; }
+        }
+
+        if (!$bank_id && in_array($metode, array('buatsoal', 'detail', 'copybanksoal', 'getsoalsiswa'), true)) {
+            // Ambil angka setelah nama method dari path URL. Cara ini aman
+            // untuk instalasi di subfolder dan mengabaikan query string.
+            $path = parse_url(isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '', PHP_URL_PATH);
+            $bagian = array_values(array_filter(explode('/', (string) $path), 'strlen'));
+            $bagian_kecil = array_map('strtolower', $bagian);
+            $pos = array_search($metode, $bagian_kecil, true);
+            if ($pos !== false && isset($bagian[$pos + 1])) {
+                $bank_id = (int) $bagian[$pos + 1];
+            }
+        }
+
+        // hapusSoal mengirim soal_id, bukan id. Ambil bank dari baris soal itu.
+        if ($metode === 'hapussoal') {
+            $id_soal = (int) $CI->input->post('soal_id');
+            if (!$id_soal) { $id_soal = (int) $CI->input->post('id'); }
+            if (!$id_soal) { $id_soal = (int) $CI->input->get('id'); }
+            $row = $id_soal > 0
+                ? $CI->db->select('bank_id')->where('id_soal', $id_soal)->get('cbt_soal')->row()
+                : null;
+            if ($row) { $bank_id = (int) $row->bank_id; }
+        }
+
+        if ($bank_id <= 0) {
+            $this->tolak($CI, 'guru mengakses bank soal tanpa id yang valid: ' . $metode);
+        }
+
+        $bank = $CI->db->select('bank_guru_id')->where('id_bank', $bank_id)->get('cbt_bank_soal')->row();
+        if (!$bank || (int) $bank->bank_guru_id !== $gid) {
+            $this->tolak($CI, 'guru mengakses bank soal guru lain: ' . $bank_id);
         }
     }
     /** Halaman ramah saat installer/updater dibuka pada aplikasi yang sudah terpasang. */
