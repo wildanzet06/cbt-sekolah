@@ -156,6 +156,45 @@ if ($__embed) {
     if (!$__upstream_style): ?>
         <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/blue-gray-theme.css">
         <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/ui-rapi.css">
+    <?php else: ?>
+        <style>
+            /* Hanya warna sidebar yang dikembalikan ke tema lokal. */
+            .main-sidebar,
+            .main-sidebar.sidebar-light-teal { background: #20364d; }
+            .brand-link,
+            .main-sidebar .brand-link.bg-white {
+                background: #192c40 !important;
+                border-bottom-color: rgba(255, 255, 255, .1);
+                color: #fff;
+            }
+            .main-sidebar.sidebar-light-teal .brand-link .brand-text { color: #fff; }
+            .main-sidebar.sidebar-light-teal .user-panel .info a { color: #eef5fc; }
+            .main-sidebar.sidebar-light-teal .user-panel .info a:hover,
+            .main-sidebar.sidebar-light-teal .user-panel a:hover { color: #fff; }
+            .main-sidebar .user-panel { border-bottom-color: rgba(255, 255, 255, .12); }
+            .main-sidebar.sidebar-light-teal .user-panel .text-muted { color: #bccde0 !important; }
+            .main-sidebar.sidebar-light-teal .nav-sidebar .nav-link { color: #eef5fc; }
+            .main-sidebar.sidebar-light-teal .nav-sidebar .nav-header { color: #a8bed6; }
+            .main-sidebar.sidebar-light-teal .nav-sidebar .nav-treeview > .nav-item > .nav-link { color: #cbdaea; }
+            .main-sidebar.sidebar-light-teal .nav-sidebar > .nav-item:hover > .nav-link,
+            .main-sidebar.sidebar-light-teal .nav-sidebar > .nav-item > .nav-link:hover,
+            .main-sidebar.sidebar-light-teal .nav-sidebar > .nav-item > .nav-link:focus,
+            .main-sidebar.sidebar-light-teal .nav-sidebar > .nav-item > .nav-link:active,
+            .main-sidebar.sidebar-light-teal .nav-sidebar .nav-treeview > .nav-item > .nav-link:hover {
+                background: rgba(255, 255, 255, .12);
+                color: #fff;
+            }
+            .main-sidebar.sidebar-light-teal .nav-sidebar > .nav-item > .nav-link.active,
+            .main-sidebar.sidebar-light-teal .nav-sidebar > .nav-item.menu-open > .nav-link {
+                background: #2f6fbd;
+                color: #fff;
+            }
+            .main-sidebar.sidebar-light-teal .nav-sidebar .nav-treeview > .nav-item > .nav-link.active,
+            .main-sidebar.sidebar-light-teal .nav-sidebar .nav-treeview > .nav-item > .nav-link.active:hover {
+                background: rgba(77, 145, 220, .32);
+                color: #fff;
+            }
+        </style>
     <?php endif; ?>
     <?php if ($__embed): ?>
         <style>
