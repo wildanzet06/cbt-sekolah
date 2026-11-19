@@ -98,31 +98,27 @@ function decimalFixed($num)
                         $rows = count($cols) > 1 ? 1 : 2;
                         ?>
                         <div class="row">
-                            <div class="col-12 text-right" id="group-export">
+                            <div class="col-12" id="group-export">
                                 <?php if (isset($convert)) : ?>
-                                    <button type="button" id="rollback" class="btn btn-warning align-text-bottom">
-                                        <i class="fa fa-undo ml-1 mr-1"></i> Nilai Asli
+                                    <button type="button" id="rollback" class="btn btn-sm btn-outline-secondary">
+                                        <i class="fa fa-undo"></i><span>Nilai Asli</span>
                                     </button>
                                 <?php else: ?>
-                                    <button type="button" class="btn btn-danger align-text-bottom"
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
                                             data-toggle="modal" data-target="#perbaikanModal">
-                                        <i class="fa fa-balance-scale-right ml-1 mr-1"></i> Katrol Nilai
+                                        <i class="fa fa-balance-scale-right"></i><span>Katrol Nilai</span>
                                     </button>
                                 <?php endif; ?>
-                                <button type="button" id="nilai-detail" class="btn btn-success align-text-bottom"
-                                        data-toggle="tooltip"
-                                        title="Tampil Detail">
-                                    <i class="fa fa-list ml-1 mr-1"></i> Tampil Detail
+                                <button type="button" id="nilai-detail" class="btn btn-sm btn-outline-primary"
+                                        data-toggle="tooltip" title="Tampil Detail">
+                                    <i class="fa fa-list"></i><span>Tampil Detail</span>
                                 </button>
-                                <button type="button" id="download-excel" class="btn btn-success align-text-bottom"
-                                        data-toggle="tooltip"
-                                        title="Download Excel">
-                                    <i class="fa fa-file-excel ml-1 mr-1"></i> Ekspor ke Excel
+                                <button type="button" id="download-excel" class="btn btn-sm btn-success"
+                                        data-toggle="tooltip" title="Download Excel">
+                                    <i class="fa fa-file-excel"></i><span>Ekspor ke Excel</span>
                                 </button>
                             </div>
-
                         </div>
-
                         <div class="row">
                             <div class="col-12 overflow-auto">
                                 <table class="table" id="table-status" data-cols-width="<?= $colWidth ?>"
