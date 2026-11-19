@@ -1,3 +1,45 @@
+<?php
+// Tandai kelas yang sudah diampu guru lain langsung di server, supaya
+// proteksi bentrok tetap ada walaupun request AJAX getDataKelas gagal.
+$__ci =& get_instance();
+$__ci->load->model('Master_model', '__master_conflict');
+$__jabatans = $__ci->__master_conflict->getGuruMapel($tp_active->id_tp, $smt_active->id_smt);
+$__mapel_terisi = array();
+$__ekstra_terisi = array();
+$__jabatan_terisi = array();
+foreach ($__jabatans as $__j) {
+    $__idg = (int) $__j->id_guru;
+    if ($__idg === (int) $guru->id_guru) { continue; }
+
+    $__mpl = @unserialize($__j->mapel_kelas ?? '', array('allowed_classes' => array('stdClass')));
+    $__mpl = json_decode(json_encode($__mpl));
+    if (is_array($__mpl)) {
+        foreach ($__mpl as $__m) {
+            $__kelas = array();
+            if (!empty($__m->kelas_mapel)) {
+                foreach ($__m->kelas_mapel as $__k) { $__kelas[] = (string) $__k->kelas; }
+            }
+            $__mapel_terisi[(int) $__m->id_mapel][$__idg] = array('nama' => $__j->nama_guru, 'kelas' => $__kelas);
+        }
+    }
+
+    $__eks = @unserialize($__j->ekstra_kelas ?? '', array('allowed_classes' => array('stdClass')));
+    $__eks = json_decode(json_encode($__eks));
+    if (is_array($__eks)) {
+        foreach ($__eks as $__e) {
+            $__kelas = array();
+            if (!empty($__e->kelas_ekstra)) {
+                foreach ($__e->kelas_ekstra as $__k) { $__kelas[] = (string) $__k->kelas; }
+            }
+            $__ekstra_terisi[(int) $__e->id_ekstra][$__idg] = array('nama' => $__j->nama_guru, 'kelas' => $__kelas);
+        }
+    }
+
+    if ((int) $__j->id_jabatan === 4) {
+        $__jabatan_terisi[4][(int) $__j->id_kelas] = array('nama' => $__j->nama_guru, 'id' => $__idg);
+    }
+}
+?>
 <div class="content-wrapper bg-white pt-4">
     <section class="content-header">
         <div class="container-fluid">
@@ -133,9 +175,23 @@
                                                     <select id="kelasmapel<?= $__idm ?>" name="kelasmapel<?= $__idm ?>[]"
                                                             class="select2 form-control selectmapel" multiple required>
                                                         <?php foreach ($kelass as $__kid => $__knama): ?>
+                                                            <?php
+                                                            $__label = html_escape($__knama);
+                                                            $__bentrok = false;
+                                                            if (isset($__mapel_terisi[$__idm])) {
+                                                                foreach ($__mapel_terisi[$__idm] as $__conf) {
+                                                                    if (in_array((string) $__kid, $__conf['kelas'], true)) {
+                                                                        $__label .= ' - - (' . html_escape($__conf['nama']) . ')';
+                                                                        $__bentrok = true;
+                                                                        break;
+                                                                    }
+                                                                }
+                                                            }
+                                                            ?>
                                                             <option value="<?= (int) $__kid ?>"
-                                                                <?= in_array((string) $__kid, $__sel, true) ? 'selected' : '' ?>>
-                                                                <?= html_escape($__knama) ?>
+                                                                <?= !$__bentrok && in_array((string) $__kid, $__sel, true) ? 'selected' : '' ?>
+                                                                <?= $__bentrok ? 'disabled' : '' ?>>
+                                                                <?= $__label ?>
                                                             </option>
                                                         <?php endforeach; ?>
                                                     </select>
@@ -155,9 +211,23 @@
                                                     <select id="kelasekstra<?= $__ide ?>" name="kelasekstra<?= $__ide ?>[]"
                                                             class="select2 form-control selectekstra" multiple required>
                                                         <?php foreach ($kelass as $__kid => $__knama): ?>
+                                                            <?php
+                                                            $__label = html_escape($__knama);
+                                                            $__bentrok = false;
+                                                            if (isset($__ekstra_terisi[$__ide])) {
+                                                                foreach ($__ekstra_terisi[$__ide] as $__conf) {
+                                                                    if (in_array((string) $__kid, $__conf['kelas'], true)) {
+                                                                        $__label .= ' - - (' . html_escape($__conf['nama']) . ')';
+                                                                        $__bentrok = true;
+                                                                        break;
+                                                                    }
+                                                                }
+                                                            }
+                                                            ?>
                                                             <option value="<?= (int) $__kid ?>"
-                                                                <?= in_array((string) $__kid, $__sele, true) ? 'selected' : '' ?>>
-                                                                <?= html_escape($__knama) ?>
+                                                                <?= !$__bentrok && in_array((string) $__kid, $__sele, true) ? 'selected' : '' ?>
+                                                                <?= $__bentrok ? 'disabled' : '' ?>>
+                                                                <?= $__label ?>
                                                             </option>
                                                         <?php endforeach; ?>
                                                     </select>
@@ -185,6 +255,27 @@
                                                     'id="level" class="form-control form-control-sm" required'
                                                 ); ?>
                                             </div>
+                                            <?php if ((int) $guru->id_level === 4): ?>
+                                                <div class="row mb-4">
+                                                    <label>Kelas</label>
+                                                    <select name="kelas_wali" class="select2 form-control selectkelas" required>
+                                                        <option value="" disabled <?= (int) $guru->id_kelas === 0 ? 'selected' : '' ?>>Pilih Kelas</option>
+                                                        <?php foreach ($kelass as $__kid => $__knama):
+                                                            $__label = html_escape($__knama);
+                                                            $__bentrok = isset($__jabatan_terisi[4][(int) $__kid]);
+                                                            if ($__bentrok) {
+                                                                $__label .= ' - - (' . html_escape($__jabatan_terisi[4][(int) $__kid]['nama']) . ')';
+                                                            }
+                                                            ?>
+                                                            <option value="<?= (int) $__kid ?>"
+                                                                <?= !$__bentrok && (int) $guru->id_kelas === (int) $__kid ? 'selected' : '' ?>
+                                                                <?= $__bentrok ? 'disabled' : '' ?>>
+                                                                <?= $__label ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>

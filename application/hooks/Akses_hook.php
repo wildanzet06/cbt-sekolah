@@ -183,6 +183,12 @@ class Akses_hook {
                 $this->tolak($CI, 'non-admin membuka ' . $n . '/' . $metode);
             }
 
+            // 4b) Jabatan guru: tolak kelas yang sudah dipegang guru lain.
+            //     Tampilan sudah menandainya, ini pengaman jika POST dipalsukan.
+            if ($metode === 'savejabatan' && $n === 'dataguru') {
+                $this->validasi_jabatan_guru($CI);
+            }
+
             // 5) Siswa tidak boleh mengirim jawaban/timer atas nama siswa lain
             //    (endpoint ujian menerima id_siswa dari POST/URI).
             if ($siswa && $n === 'siswa' && in_array($metode, $this->metode_ujian_siswa)) {
@@ -342,6 +348,82 @@ class Akses_hook {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Validasi server-side untuk Edit Jabatan Guru.
+     * Mencegah Admin menyimpan mapel/ekstra/wali kelas yang sudah dipegang guru
+     * lain, walau dropdown di-browser dimanipulasi.
+     */
+    private function validasi_jabatan_guru($CI)
+    {
+        $id_guru = (int) $CI->input->post('id_guru');
+        if ($id_guru <= 0) { return; }
+
+        if (!isset($CI->dashboard)) { $CI->load->model('Dashboard_model', 'dashboard'); }
+        $tp = $CI->dashboard->getTahunActive();
+        $smt = $CI->dashboard->getSemesterActive();
+        if (!$tp || !$smt) { return; }
+
+        $rows = $CI->db->select('id_guru, id_jabatan, id_kelas, mapel_kelas, ekstra_kelas, nama_guru')
+            ->where('id_tp', $tp->id_tp)
+            ->where('id_smt', $smt->id_smt)
+            ->where('id_guru !=', $id_guru)
+            ->get('jabatan_guru')->result();
+
+        $mapel_terisi = array();
+        $ekstra_terisi = array();
+        $wali_terisi = array();
+        foreach ($rows as $row) {
+            $mpl = @unserialize($row->mapel_kelas ?? '', array('allowed_classes' => array('stdClass')));
+            $mpl = json_decode(json_encode($mpl));
+            if (is_array($mpl)) {
+                foreach ($mpl as $m) {
+                    if (!isset($m->id_mapel)) { continue; }
+                    foreach (($m->kelas_mapel ?? array()) as $k) {
+                        $mapel_terisi[(int) $m->id_mapel][(string) $k->kelas] = $row->nama_guru;
+                    }
+                }
+            }
+            $eks = @unserialize($row->ekstra_kelas ?? '', array('allowed_classes' => array('stdClass')));
+            $eks = json_decode(json_encode($eks));
+            if (is_array($eks)) {
+                foreach ($eks as $e) {
+                    if (!isset($e->id_ekstra)) { continue; }
+                    foreach (($e->kelas_ekstra ?? array()) as $k) {
+                        $ekstra_terisi[(int) $e->id_ekstra][(string) $k->kelas] = $row->nama_guru;
+                    }
+                }
+            }
+            if ((int) $row->id_jabatan === 4) {
+                $wali_terisi[(string) (int) $row->id_kelas] = $row->nama_guru;
+            }
+        }
+
+        foreach ($_POST as $kunci => $nilai) {
+            if (!is_array($nilai)) { continue; }
+            if (preg_match('/^kelasmapel(\d+)$/', $kunci, $m)) {
+                foreach ($nilai as $kelas) {
+                    $kelas = (string) $kelas;
+                    if (isset($mapel_terisi[(int) $m[1]][$kelas])) {
+                        $this->tolak($CI, 'kelas mapel sudah diampu ' . $mapel_terisi[(int) $m[1]][$kelas]);
+                    }
+                }
+            }
+            if (preg_match('/^kelasekstra(\d+)$/', $kunci, $m)) {
+                foreach ($nilai as $kelas) {
+                    $kelas = (string) $kelas;
+                    if (isset($ekstra_terisi[(int) $m[1]][$kelas])) {
+                        $this->tolak($CI, 'kelas ekstra sudah diampu ' . $ekstra_terisi[(int) $m[1]][$kelas]);
+                    }
+                }
+            }
+        }
+
+        $wali = $CI->input->post('kelas_wali');
+        if ($wali !== null && $wali !== '' && isset($wali_terisi[(string) (int) $wali])) {
+            $this->tolak($CI, 'kelas wali sudah diampu ' . $wali_terisi[(string) (int) $wali]);
         }
     }
 

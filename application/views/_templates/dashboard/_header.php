@@ -5,16 +5,26 @@
  */
 $__embed = (bool) $this->input->get('embed');
 
-// Setelah tab Hasil Ujian membuka halaman ini dengan ?embed=1, ingat mode
-// embed selama 2 jam agar saat memilih jadwal/kelas (URL baru tanpa embed)
-// sidebar tidak muncul lagi di dalam iframe.
-if ($__embed) {
-    $this->session->set_userdata('embed_iframe', time());
+// Mode embed hanya boleh dipakai oleh permintaan yang benar-benar berasal
+// dari iframe tab Hasil Ujian. Browser modern mengirim Sec-Fetch-Dest: iframe;
+// tab Hasil Ujian juga membuka halaman dengan ?dari=hasil&embed=1.
+// Tanpa syarat ini, sesi embed bisa membuat navbar/sidebar hilang di tab biasa.
+$__dari_hasil = strtolower((string) $this->input->get('dari')) === 'hasil';
+$__dest = strtolower(isset($_SERVER['HTTP_SEC_FETCH_DEST']) ? (string) $_SERVER['HTTP_SEC_FETCH_DEST'] : '');
+$__referer = isset($_SERVER['HTTP_REFERER']) ? (string) $_SERVER['HTTP_REFERER'] : '';
+$__dari_iframe = ($__dest === 'iframe') || ($__referer !== '' && stripos($__referer, 'dari=hasil') !== false);
+
+if ($__embed || $__dari_hasil) {
+    if ($__dari_iframe) {
+        $this->session->set_userdata('embed_iframe', time());
+    }
+    $__embed = true;
 } else {
     $__embed_ts = (int) $this->session->userdata('embed_iframe');
     $__embed_kelas = strtolower((string) $this->router->fetch_class());
     $__embed_controllers = array('cbtnilai', 'cbtanalisis', 'cbtrekap', 'nilaimanual');
-    if ($__embed_ts > 0 && (time() - $__embed_ts) < 7200 && in_array($__embed_kelas, $__embed_controllers, true)) {
+    if ($__dari_iframe && $__embed_ts > 0 && (time() - $__embed_ts) < 7200
+        && in_array($__embed_kelas, $__embed_controllers, true)) {
         $__embed = true;
     }
 }

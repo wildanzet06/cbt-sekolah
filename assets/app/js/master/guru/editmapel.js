@@ -149,6 +149,8 @@ function createDropdownKelasEkstra() {
 }
 
 function createDropdownKelasWali() {
+	// Dropdown sudah dirender server supaya proteksi bentrok tetap ada.
+	if ($('#input-jabatan select[name="kelas_wali"]').length) { return; }
 	if (level_id === "4") {
 		var inputgroup = $('#input-jabatan');
 
