@@ -144,3 +144,15 @@ Tiap tab dimuat di dalam halaman (iframe `embed=1`) tanpa sidebar ganda.
 Menu "Pengaturan Ujian" dan "Hasil Ujian" di sidebar dihapus karena sudah
 menjadi tab. URL lama tetap berfungsi: `ujiansekolah/daftar`,
 `ujiansekolah/pengaturan`, `ujiansekolah/hasil`.
+## Form cepat Buat Ujian (gaya KARTINI CBT)
+
+Di tab **Daftar Ujian** (Manajemen Ujian) ada kartu **Buat Ujian Baru** yang
+ringkas, satu baris isian:
+
+- **Bank Soal** (kelas peserta otomatis mengikuti bank),
+- **Jenis**, **Tanggal**, **Durasi (menit)**, **Kode Ujian** (opsional),
+- centang **Acak soal / Acak opsi / Tampilkan hasil / Aktif**,
+- tombol **Simpan Ujian** (langsung tersimpan, tanpa wizard).
+
+Hanya bank soal yang **belum dipakai** yang muncul. Untuk pengaturan rinci
+(jadwal selesai, pengawas, token global) gunakan tombol **Mode lengkap**.

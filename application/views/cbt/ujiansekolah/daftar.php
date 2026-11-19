@@ -101,6 +101,89 @@ $this->load->view('cbt/ujiansekolah/_style');
                 </div>
             <?php endif; ?>
 
+            <?php if ($ada_opsi && empty($banks)): ?>
+                <div class="alert alert-light border">
+                    <i class="fas fa-info-circle mr-1"></i>
+                    Semua kumpulan soal sudah dipakai ujian. Buat kumpulan soal baru di
+                    <a href="<?= base_url('cbtbanksoal') ?>">Kumpulan Soal</a> untuk membuat ujian berikutnya.
+                </div>
+            <?php endif; ?>
+
+            <?php if ($ada_opsi && !empty($banks)): ?>
+                <div class="card card-default my-shadow mb-4">
+                    <div class="card-header">
+                        <h6 class="card-title mb-0"><i class="fas fa-plus-circle mr-1"></i>Buat Ujian Baru</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-row">
+                            <div class="col-md-4 mb-2">
+                                <label class="small mb-1">Bank Soal</label>
+                                <select id="cepat-bank" class="form-control form-control-sm">
+                                    <?php foreach ($banks as $b): ?>
+                                        <option value="<?= (int) $b->id_bank ?>"
+                                                data-mapel="<?= (int) $b->bank_mapel_id ?>">
+                                            <?= html_escape($b->bank_kode . ' — ' . $b->nama_mapel . ' (' . $b->label_kelas . ')') ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="small mb-1">Jenis</label>
+                                <select id="cepat-jenis" class="form-control form-control-sm">
+                                    <?php foreach ($jenis_ujian as $j): ?>
+                                        <option value="<?= (int) $j->id_jenis ?>"><?= html_escape($j->nama_jenis) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="small mb-1">Tanggal</label>
+                                <input type="date" id="cepat-tanggal" class="form-control form-control-sm"
+                                       value="<?= date('Y-m-d') ?>">
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="small mb-1">Durasi (menit)</label>
+                                <input type="number" id="cepat-durasi" class="form-control form-control-sm"
+                                       value="60" min="5" max="300">
+                            </div>
+                            <div class="col-md-2 mb-2">
+                                <label class="small mb-1">Kode Ujian <span class="text-muted">(opsional)</span></label>
+                                <input type="text" id="cepat-token" class="form-control form-control-sm"
+                                       maxlength="10" placeholder="mis. MTK9A26">
+                            </div>
+                        </div>
+                        <div class="d-flex flex-wrap align-items-center">
+                            <div class="custom-control custom-checkbox mr-3">
+                                <input type="checkbox" class="custom-control-input" id="cepat-acak-soal" checked>
+                                <label class="custom-control-label" for="cepat-acak-soal">Acak soal</label>
+                            </div>
+                            <div class="custom-control custom-checkbox mr-3">
+                                <input type="checkbox" class="custom-control-input" id="cepat-acak-opsi" checked>
+                                <label class="custom-control-label" for="cepat-acak-opsi">Acak opsi</label>
+                            </div>
+                            <div class="custom-control custom-checkbox mr-3">
+                                <input type="checkbox" class="custom-control-input" id="cepat-hasil" checked>
+                                <label class="custom-control-label" for="cepat-hasil">Tampilkan hasil</label>
+                            </div>
+                            <div class="custom-control custom-checkbox mr-3">
+                                <input type="checkbox" class="custom-control-input" id="cepat-aktif" checked>
+                                <label class="custom-control-label" for="cepat-aktif">Aktif</label>
+                            </div>
+                            <div class="ml-auto mt-2 mt-sm-0">
+                                <button type="button" class="btn btn-primary btn-sm" id="cepat-simpan">
+                                    <i class="fas fa-save mr-1"></i>Simpan Ujian
+                                </button>
+                                <a href="<?= base_url('ujiansekolah/baru') ?>" class="btn btn-outline-secondary btn-sm">
+                                    Mode lengkap
+                                </a>
+                                <span class="small text-muted ml-2" id="cepat-pesan"></span>
+                            </div>
+                        </div>
+                        <small class="text-muted d-block mt-2">
+                            Kelas peserta mengikuti kelas pada bank soal. Sesi, pengawas, dan jam ke-1 otomatis.
+                        </small>
+                    </div>
+                </div>
+            <?php endif; ?>
             <div class="card card-default my-shadow mb-4">
                 <div class="card-header">
                     <ul class="nav nav-tabs card-header-tabs" id="filter-ujian">
@@ -428,5 +511,49 @@ $this->load->view('cbt/ujiansekolah/_style');
         });
 
         $('[data-toggle="tooltip"]').tooltip();
+    })();
+</script>
+<script>
+    (function () {
+        var $btn = $('#cepat-simpan');
+        if (!$btn.length) { return; }
+
+        $btn.on('click', function () {
+            var $opt = $('#cepat-bank option:selected');
+            var token = $.trim($('#cepat-token').val());
+
+            var data = {
+                id_jadwal: 0,
+                id_bank: $('#cepat-bank').val(),
+                id_mapel: $opt.data('mapel'),
+                id_jenis: $('#cepat-jenis').val(),
+                tanggal: $('#cepat-tanggal').val(),
+                durasi_ujian: $('#cepat-durasi').val(),
+                token_ujian: token,
+                gunakan_token: token ? 1 : 0,
+                acak_soal: $('#cepat-acak-soal').is(':checked') ? 1 : 0,
+                acak_opsi: $('#cepat-acak-opsi').is(':checked') ? 1 : 0,
+                hasil_tampil: $('#cepat-hasil').is(':checked') ? 1 : 0,
+                aktif: $('#cepat-aktif').is(':checked') ? 1 : 0,
+                catatan: ''
+            };
+            data[CSRF.name] = CSRF.hash;
+
+            $btn.prop('disabled', true);
+            $('#cepat-pesan').text('Menyimpan...');
+
+            $.post(base_url + 'ujiansekolah/simpan', data, function (res) {
+                if (res && res.status) {
+                    $('#cepat-pesan').text('Ujian tersimpan.');
+                    window.setTimeout(function () { window.location.reload(); }, 600);
+                } else {
+                    $('#cepat-pesan').text((res && res.msg) || 'Gagal menyimpan.');
+                    $btn.prop('disabled', false);
+                }
+            }, 'json').fail(function () {
+                $('#cepat-pesan').text('Gagal menghubungi server.');
+                $btn.prop('disabled', false);
+            });
+        });
     })();
 </script>

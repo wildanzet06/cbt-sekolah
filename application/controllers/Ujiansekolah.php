@@ -216,7 +216,12 @@ class Ujiansekolah extends CI_Controller
             'token_aktif' => $this->us->tokenAktif($hariIni, $this->tp->id_tp, $this->smt->id_smt),
             'notif'       => $this->isAdmin ? $this->us->notifGuru($this->tp->id_tp, $this->smt->id_smt) : [],
             'hari_ini'    => $hariIni,
-            'ada_opsi'    => count($this->opsi['pairs']) > 0
+            'ada_opsi'    => count($this->opsi['pairs']) > 0,
+            'banks'       => array_values(array_filter(
+                $this->us->bankPilihan($this->tp->id_tp, $this->smt->id_smt, null, $this->idGuruFilter()),
+                function ($b) { return (int) $b->dipakai === 0; }
+            )),
+            'jenis_ujian' => $this->us->jenisList()
         ];
         $this->render('cbt/ujiansekolah/daftar', $data);
     }
