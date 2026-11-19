@@ -5,6 +5,18 @@
  */
 $__embed = (bool) $this->input->get('embed');
 
+// Navigasi lanjutan dari dalam iframe (mis. filter jadwal) kadang tidak
+// membawa embed=1. Kalau halaman sebelumnya adalah halaman embed, tetap
+// anggap mode embed agar sidebar tidak muncul lagi.
+if (!$__embed) {
+    $__ref = (string) $this->input->server('HTTP_REFERER');
+    $__ref_host = $__ref !== '' ? parse_url($__ref, PHP_URL_HOST) : '';
+    $__host = (string) $this->input->server('HTTP_HOST');
+    if ($__ref_host && $__host && strcasecmp($__ref_host, $__host) === 0 && strpos($__ref, 'embed=1') !== false) {
+        $__embed = true;
+    }
+}
+
 // Setelah tab Hasil Ujian membuka halaman ini dengan ?embed=1, ingat mode
 // embed selama 2 jam agar saat memilih jadwal/kelas (URL baru tanpa embed)
 // sidebar tidak muncul lagi di dalam iframe.

@@ -186,6 +186,26 @@ class Ujiansekolah extends CI_Controller
 
     public function index()
     {
+        $tabs = [
+            'daftar'     => ['Daftar Ujian', 'fas fa-clipboard-list', 'ujiansekolah/daftar'],
+            'pengaturan' => ['Pengaturan Ujian', 'fas fa-cog', 'ujiansekolah/pengaturan'],
+            'hasil'      => ['Hasil Ujian', 'fas fa-chart-bar', 'ujiansekolah/hasil'],
+        ];
+        if (!$this->isAdmin) {
+            unset($tabs['pengaturan']);
+        }
+
+        $data = [
+            'judul'    => 'Manajemen Ujian',
+            'subjudul' => 'Daftar ujian, pengaturan, dan hasil dalam satu halaman',
+            'tabs'     => $tabs,
+            'tab'      => 'daftar',
+        ];
+        $this->render('cbt/ujiansekolah/manajemen', $data);
+    }
+
+    public function daftar()
+    {
         $ujian = $this->us->listUjian($this->tp->id_tp, $this->smt->id_smt, $this->idGuruFilter());
 
         $hariIni = date('Y-m-d');

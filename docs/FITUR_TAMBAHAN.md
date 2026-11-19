@@ -131,3 +131,16 @@ Halaman **Ujian Sekolah → Pengaturan Ujian** kini default ke mode sederhana:
 - Pembagian peserta cukup klik **Bagi Otomatis** di tab Peserta & Ruang;
   rincian per kelas dibuka lewat tombol **Lihat**.
 - Semua ujian baru otomatis memakai **jam ke-1**.
+## Manajemen Ujian (satu halaman, tiga tab)
+
+Menu **Ujian Sekolah → Manajemen Ujian** (`ujiansekolah`) sekarang satu
+halaman dengan tab:
+
+- **Daftar Ujian** (termasuk tombol Buat Ujian/Edit),
+- **Pengaturan Ujian** (khusus admin),
+- **Hasil Ujian**.
+
+Tiap tab dimuat di dalam halaman (iframe `embed=1`) tanpa sidebar ganda.
+Menu "Pengaturan Ujian" dan "Hasil Ujian" di sidebar dihapus karena sudah
+menjadi tab. URL lama tetap berfungsi: `ujiansekolah/daftar`,
+`ujiansekolah/pengaturan`, `ujiansekolah/hasil`.
