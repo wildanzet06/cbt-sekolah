@@ -72,6 +72,9 @@
                 'header': 'HOME', 'cbt': '1',
                 'menu': [
                     {'name': 'Dashboard', 'link': 'dashboard', 'icon': 'fas fa-desktop', 'cbt': '1'},
+                    <?php if ($this->ion_auth->in_group('siswa')): ?>
+                    {'name': 'Ekstrakurikuler', 'link': 'siswa/ekstra', 'icon': 'fas fa-chess'},
+                    <?php endif; ?>
                     {
                         'name': 'Keuangan', 'icon': 'fas fa-money-bill-wave', 'cbt': '1',
                         'submenu': [

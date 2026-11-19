@@ -41,6 +41,11 @@
                                 'icon'  => 'ic_document.png',
                                 'link'  => 'akun/pelanggaran',
                             );
+                            $menu[] = (object) array(
+                                'title' => 'Ekstrakurikuler',
+                                'icon'  => 'ic_document.png',
+                                'link'  => 'siswa/ekstra',
+                            );
                             ?>
                             <div class="row menu-utama">
                                 <?php foreach ($menu as $m): ?>

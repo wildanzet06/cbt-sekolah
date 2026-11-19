@@ -23,4 +23,55 @@
         ->where('j.id_jadwal', $id_jadwal)
         ->get()->row();
     return $row && (int) $row->bank_guru_id === (int) $guru->id_guru;
-}}
+}    public function ekstra()
+    {
+        if (!$this->ion_auth->logged_in()) { redirect('auth'); }
+        if (!$this->ion_auth->in_group('siswa')) { show_error('Halaman ini untuk siswa.', 403, 'Akses Ditolak'); }
+        $this->load->model('Dashboard_model', 'dashboard');
+        $user = $this->ion_auth->user()->row();
+        $tp = $this->dashboard->getTahunActive();
+        $smt = $this->dashboard->getSemesterActive();
+        $siswa = $this->db->select('id_siswa, nis, nama, username')->where('username', $user->username)->get('master_siswa')->row();
+        if (!$siswa) { show_error('Data siswa tidak ditemukan.'); }
+        $pilihan = $this->db->where('id_siswa', (int) $siswa->id_siswa)->where('id_tp', $tp->id_tp)->where('id_smt', $smt->id_smt)->get('ekstra_siswa')->row();
+        $data = array(
+            'user' => $user, 'siswa' => $siswa, 'judul' => 'Ekstrakurikuler',
+            'tp' => $this->dashboard->getTahun(), 'smt' => $this->dashboard->getSemester(),
+            'tp_active' => $tp, 'smt_active' => $smt,
+            'setting' => $this->dashboard->getSetting(),
+            'ekskul' => $this->db->order_by('nama_ekstra', 'ASC')->get('master_ekstra')->result(),
+            'pilihan' => $pilihan ? (int) $pilihan->id_ekstra : 0,
+        );
+        $this->load->view('members/siswa/templates/header', $data);
+        $this->load->view('members/siswa/ekstra/index', $data);
+        $this->load->view('members/siswa/templates/footer');
+    }
+
+    public function simpanekstra()
+    {
+        if (!$this->ion_auth->logged_in()) { redirect('auth'); }
+        if (!$this->ion_auth->in_group('siswa')) { show_error('Halaman ini untuk siswa.', 403, 'Akses Ditolak'); }
+        if ($this->input->method() !== 'post') { redirect('siswa/ekstra'); }
+        $this->load->model('Dashboard_model', 'dashboard');
+        $user = $this->ion_auth->user()->row();
+        $tp = $this->dashboard->getTahunActive();
+        $smt = $this->dashboard->getSemesterActive();
+        $siswa = $this->db->select('id_siswa')->where('username', $user->username)->get('master_siswa')->row();
+        if (!$siswa) { show_error('Data siswa tidak ditemukan.'); }
+        $id_ekstra = (int) $this->input->post('id_ekstra');
+        $ada = $this->db->where('id_ekstra', $id_ekstra)->count_all_results('master_ekstra');
+        if ($id_ekstra <= 0 || $ada < 1) {
+            $this->session->set_flashdata('error', 'Pilih ekstrakurikuler yang tersedia.');
+            redirect('siswa/ekstra');
+        }
+        $row = $this->db->where('id_siswa', (int) $siswa->id_siswa)->where('id_tp', $tp->id_tp)->where('id_smt', $smt->id_smt)->get('ekstra_siswa')->row();
+        $data = array('id_siswa' => (int) $siswa->id_siswa, 'id_ekstra' => $id_ekstra, 'id_tp' => (int) $tp->id_tp, 'id_smt' => (int) $smt->id_smt);
+        if ($row) {
+            $this->db->where('id_ekstra_siswa', (int) $row->id_ekstra_siswa)->update('ekstra_siswa', $data);
+        } else {
+            $data['created_on'] = date('Y-m-d H:i:s');
+            $this->db->insert('ekstra_siswa', $data);
+        }
+        $this->session->set_flashdata('success', 'Pilihan ekstrakurikuler disimpan.');
+        redirect('siswa/ekstra');
+    }}

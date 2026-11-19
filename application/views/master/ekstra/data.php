@@ -39,7 +39,7 @@
                             <div class="card border mt-1">
                                 <div class="card-header">
                                     <div class="card-title">
-                                        <h6>Tentukan Kelas Ekskul</h6>
+                                        <h6>Pemetaan Kelas (opsional)</h6>
                                     </div>
                                     <div class="card-tools">
                                         <button type="submit" class="btn btn-primary btn-sm">
@@ -48,6 +48,11 @@
                                     </div>
                                 </div>
                                 <div class="card-body">
+                                    <div class="alert alert-info py-2 small">
+                                        Siswa sekarang <b>bebas memilih sendiri</b> ekstrakurikuler melalui menu
+                                        <b>Ekstrakurikuler</b> di akun siswa. Pemetaan kelas di bawah hanya
+                                        dipertahankan sebagai data lama/opsional.
+                                    </div>
                                     <?php
                                     if (count($kelas) > 0) :
                                         foreach ($kelas as $key => $kls) :
