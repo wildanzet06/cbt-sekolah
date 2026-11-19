@@ -148,8 +148,15 @@ if ($__embed) {
             margin-bottom: .5rem;
             margin-top: .5rem;
         }</style>
-    <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/blue-gray-theme.css">
-    <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/ui-rapi.css">
+    <?php
+    // Data Siswa & Data Guru memakai tampilan bawaan GarudaCBT (upstream).
+    // Tema lokal (blue-gray + ui-rapi) tetap dipakai di halaman lain.
+    $__upstream_pages = array('datasiswa', 'dataguru');
+    $__upstream_style = in_array(strtolower((string) $this->router->fetch_class()), $__upstream_pages, true);
+    if (!$__upstream_style): ?>
+        <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/blue-gray-theme.css">
+        <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/ui-rapi.css">
+    <?php endif; ?>
     <?php if ($__embed): ?>
         <style>
             /* Mode embed: tanpa navbar/sidebar, konten memakai lebar penuh. */

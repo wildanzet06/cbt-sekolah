@@ -13,6 +13,16 @@ class Embed_hook {
     public function terapkan() {
         $CI =& get_instance();
 
+        // display_override mencetak output sendiri, jadi header dari CI Output
+        // tidak dikirim otomatis. Pertahankan Content-Type asli (penting untuk
+        // respons AJAX JSON seperti dataguru/getDataKelas).
+        $content_type = method_exists($CI->output, 'get_content_type')
+            ? $CI->output->get_content_type()
+            : 'text/html';
+        if ($content_type) {
+            @header('Content-Type: ' . $content_type, true);
+        }
+
         // Hook display_override WAJIB mengeluarkan output sendiri. Kalau bukan
         // mode embed, keluarkan apa adanya.
         if ((string) $CI->input->get('embed') !== '1') {
