@@ -724,6 +724,27 @@ class Ujiansekolah extends CI_Controller
     public function pengaturan()
     {
         $this->hanyaAdmin();
+        $this->us->pastikanSesiDanRuang();
+
+        $data = [
+            'judul'        => 'Pengaturan Ujian',
+            'subjudul'     => 'Peserta, ruang, dan token ujian dalam satu halaman',
+            'd'            => $this->us->pembagianData($this->tp->id_tp, $this->smt->id_smt),
+            'ruang'        => $this->us->ruangList(),
+            'kapasitas'    => $this->us->kapasitasTotal(),
+            'sesi1'        => $this->us->sesiSatu(),
+            'ujian'        => $this->us->listUjian($this->tp->id_tp, $this->smt->id_smt, null),
+            'token_global' => $this->us->globalToken(),
+            'tp_active'    => $this->tp,
+            'smt_active'   => $this->smt,
+        ];
+        $this->render('cbt/ujiansekolah/pengaturan_ringkas', $data);
+    }
+
+    /** Halaman pengaturan versi lama (tab lengkap). */
+    public function pengaturan_lama()
+    {
+        $this->hanyaAdmin();
 
         $tab = strtolower((string)$this->input->get('tab', true));
         if (!in_array($tab, $this->tabPengaturan, true)) {
@@ -758,7 +779,6 @@ class Ujiansekolah extends CI_Controller
         ];
         $this->render('cbt/ujiansekolah/pengaturan', $data);
     }
-
     /** Ajakan lama: /pembagian → tab Peserta & Ruang. */
     public function pembagian()
     {
@@ -959,6 +979,75 @@ class Ujiansekolah extends CI_Controller
 
     public function hasil()
     {
+        $jadwalList = $this->us->listUjian($this->tp->id_tp, $this->smt->id_smt, $this->idGuruFilter());
+        $id_jadwal = (int) $this->input->get('jadwal');
+        if ($id_jadwal <= 0 && count($jadwalList) > 0) {
+            $id_jadwal = (int) $jadwalList[0]->id_jadwal;
+        }
+        $id_kelas = (int) $this->input->get('kelas');
+
+        $nilai = [];
+        if ($id_jadwal > 0) {
+            $this->db->select('n.*, s.nama, s.nis, k.nama_kelas', false);
+            $this->db->from('cbt_nilai n');
+            $this->db->join('master_siswa s', 's.id_siswa = n.id_siswa', 'left');
+            $this->db->join('kelas_siswa ks', 'ks.id_siswa = n.id_siswa AND ks.id_tp = ' . (int) $this->tp->id_tp
+                . ' AND ks.id_smt = ' . (int) $this->smt->id_smt, 'left');
+            $this->db->join('master_kelas k', 'k.id_kelas = ks.id_kelas', 'left');
+            $this->db->where('n.id_jadwal', $id_jadwal);
+            if ($id_kelas > 0) {
+                $this->db->where('ks.id_kelas', $id_kelas);
+            }
+            $this->db->order_by('s.nama', 'ASC');
+            $nilai = $this->db->get()->result();
+        }
+
+        $total = [];
+        foreach ($nilai as $n) {
+            $n->total = (float) $n->pg_nilai + (float) $n->essai_nilai + (float) $n->kompleks_nilai
+                + (float) $n->jodohkan_nilai + (float) $n->isian_nilai;
+            $total[] = $n->total;
+        }
+        $rata = count($total) > 0 ? array_sum($total) / count($total) : 0;
+        $maks = count($total) > 0 ? max($total) : 0;
+
+        $kelasList = $this->db->select('k.id_kelas, k.nama_kelas')
+            ->from('kelas_siswa ks')
+            ->join('master_kelas k', 'k.id_kelas = ks.id_kelas', 'left')
+            ->where('ks.id_tp', $this->tp->id_tp)
+            ->where('ks.id_smt', $this->smt->id_smt)
+            ->group_by('k.id_kelas')
+            ->order_by('k.nama_kelas', 'ASC')
+            ->get()->result();
+
+        $ujianAktif = null;
+        foreach ($jadwalList as $j) {
+            if ((int) $j->id_jadwal === $id_jadwal) {
+                $ujianAktif = $j;
+                break;
+            }
+        }
+
+        $data = [
+            'judul'       => 'Hasil Ujian',
+            'subjudul'    => 'Nilai peserta per ujian',
+            'jadwal_list' => $jadwalList,
+            'id_jadwal'   => $id_jadwal,
+            'id_kelas'    => $id_kelas,
+            'kelas_list'  => $kelasList,
+            'nilai'       => $nilai,
+            'ujian'       => $ujianAktif,
+            'rata'        => $rata,
+            'maks'        => $maks,
+            'tp_active'   => $this->tp,
+            'smt_active'  => $this->smt,
+        ];
+        $this->render('cbt/ujiansekolah/hasil_ringkas', $data);
+    }
+
+    /** Halaman hasil versi lama (4 tab). */
+    public function hasil_lama()
+    {
         $tabs = [
             'nilai'    => ['Nilai Ujian', 'fas fa-file-alt', 'cbtnilai'],
             'analisis' => ['Analisis Soal', 'fas fa-chart-line', 'cbtanalisis'],
@@ -978,7 +1067,6 @@ class Ujiansekolah extends CI_Controller
         ];
         $this->render('cbt/ujiansekolah/hasil', $data);
     }
-
     /* ==================================================================
      * FASE 4 — Pantau Ujian
      * ================================================================ */

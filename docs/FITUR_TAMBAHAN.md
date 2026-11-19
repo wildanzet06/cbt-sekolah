@@ -188,3 +188,25 @@ editor ringkas gaya KARTINI CBT:
   menjodohkan) masih lewat tautan **Editor lama**.
 - Tombol **Kelola Soal** pada halaman Buat & Kelola Ujian mengarah ke editor
   ini.
+## Pengaturan Ujian ringkas
+
+`ujiansekolah/pengaturan` kini satu halaman tanpa tab:
+
+- **Peserta & Ruang**: total siswa, sudah dibagi, kapasitas; tombol
+  **Bagi Otomatis**; tabel ruang dengan kapasitas yang bisa langsung diubah.
+- **Token**: token global (6 karakter, jarak, ganti otomatis) dan daftar
+  token per ujian dengan tombol acak.
+- Tautan **Pengaturan lanjutan** membuka halaman lama (Sesi & Jam,
+  Pengawas, Jenis Ujian) bila benar-benar diperlukan.
+
+## Hasil Ujian ringkas
+
+`ujiansekolah/hasil` kini menampilkan:
+
+- Filter **Ujian** dan **Kelas**.
+- Ringkasan peserta, rata-rata, dan nilai tertinggi.
+- Tabel nilai: nama, NIS, kelas, jumlah benar PG, nilai esai, total, status
+  koreksi.
+- Tombol **Unduh CSV**.
+- Tautan **Analisis & rekap** membuka halaman lama (analisis soal, rekap,
+  nilai manual).
