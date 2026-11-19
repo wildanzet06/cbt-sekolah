@@ -223,7 +223,7 @@
 <script type="text/javascript" src="<?= base_url() ?>/assets/app/js/html-docx.js"></script>
 <script src="<?= base_url() ?>/assets/app/js/convert-area.js"></script>
 <script type="text/javascript" src="<?= base_url() ?>/assets/app/js/FileSaver.min.js"></script>
-<script type="text/javascript" src="<?= base_url() ?>/assets/app/js/tableToExcel.js"></script>
+<script type="text/javascript" src="<?= base_url() ?>assets/app/js/tableToExcel.js?v=2"></script>
 
 <script>
     var kelas = <?= json_encode($kelas, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;

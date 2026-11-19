@@ -295,7 +295,7 @@
     </section>
 </div>
 
-<script type="text/javascript" src="<?= base_url() ?>/assets/app/js/tableToExcel.js"></script>
+<script type="text/javascript" src="<?= base_url() ?>assets/app/js/tableToExcel.js?v=2"></script>
 <script type="text/javascript" src="<?= base_url() ?>/assets/app/js/freeze-table.js"></script>
 <script>
     var kelas = '<?= $kelases->nama_kelas?>';

@@ -426,7 +426,7 @@ function decimalFixed($num)
 </div>
 <?= form_close() ?>
 
-<script type="text/javascript" src="<?= base_url() ?>/assets/app/js/tableToExcel.js"></script>
+<script type="text/javascript" src="<?= base_url() ?>assets/app/js/tableToExcel.js?v=2"></script>
 
 <script>
     var colWidthMin = '5,15,35,10,10,10';

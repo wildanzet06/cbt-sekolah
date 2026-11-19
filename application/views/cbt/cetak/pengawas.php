@@ -178,7 +178,7 @@ $allowedDates = [];
 <script src="<?= base_url() ?>/assets/app/js/convert-area.js"></script>
 <script type="text/javascript" src="<?= base_url() ?>/assets/app/js/FileSaver.min.js"></script>
 <script type="text/javascript" src="<?= base_url() ?>/assets/app/js/jquery.wordexport.js"></script>
-<script type="text/javascript" src="<?= base_url() ?>/assets/app/js/tableToExcel.js"></script>
+<script type="text/javascript" src="<?= base_url() ?>assets/app/js/tableToExcel.js?v=2"></script>
 <script src="<?= base_url() ?>/assets/app/js/jquery.rowspanizer.js"></script>
 <script>
     var docTitle = "<?=$judul?>" + " <?=$jenis[$jenis_selected]?>";

@@ -493,7 +493,7 @@ $cols_name = ["PG", "PK", "JOD", "IS", "ES"];
 </div>
 <?= form_close() ?>
 
-<script type="text/javascript" src="<?= base_url() ?>/assets/app/js/tableToExcel.js"></script>
+<script type="text/javascript" src="<?= base_url() ?>assets/app/js/tableToExcel.js?v=2"></script>
 
 <script>
     var colWidthMin = '5,15,35,15,10,10,10,10,10,10';
