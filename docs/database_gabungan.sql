@@ -463,3 +463,11 @@ FROM information_schema.COLUMNS
 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_soal'
 AND COLUMN_NAME = 'id_bacaan');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+-- Judul ujian (opsional) untuk halaman Daftar Ujian ala KARTINI
+SET @sql = (SELECT IF(COUNT(*) = 0,
+'ALTER TABLE cbt_jadwal ADD COLUMN judul VARCHAR(255) NULL',
+'SELECT ''judul sudah ada'' AS info')
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_jadwal'
+AND COLUMN_NAME = 'judul');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
