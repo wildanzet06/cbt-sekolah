@@ -463,3 +463,16 @@ FROM information_schema.COLUMNS
 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_soal'
 AND COLUMN_NAME = 'id_bacaan');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+-- Pembayaran: satu tagihan sekali bayar per siswa/jenis (NULL pada unique lama
+-- tidak menjamin keunikan). Kolom generated + unique key.
+SET @sql = (SELECT IF(COUNT(*) = 0,
+'ALTER TABLE cbt_tagihan ADD COLUMN periode_kunci VARCHAR(20) GENERATED ALWAYS AS (IF(periode_bulan IS NULL, ''sekali'', CONCAT(periode_tahun, ''-'', periode_bulan))) STORED',
+'SELECT ''periode_kunci ada'' AS info')
+FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_tagihan' AND COLUMN_NAME = 'periode_kunci');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql = (SELECT IF(COUNT(*) = 0,
+'ALTER TABLE cbt_tagihan ADD UNIQUE KEY uk_tagihan_kunci (siswa_id, jenis_id, periode_kunci)',
+'SELECT ''uk_tagihan_kunci ada'' AS info')
+FROM information_schema.STATISTICS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_tagihan' AND INDEX_NAME = 'uk_tagihan_kunci');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;

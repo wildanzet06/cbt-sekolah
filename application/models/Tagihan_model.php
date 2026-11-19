@@ -135,6 +135,8 @@ class Tagihan_model extends CI_Model {
     public function ubah_diskon($tagihan_id, $diskon) {
         $t = $this->db->get_where('cbt_tagihan', array('id' => (int) $tagihan_id))->row();
         if (!$t) return false;
+        $terbayar = (float) $this->db->select('COALESCE(SUM(jumlah_bayar),0) AS total', false)->where('tagihan_id', (int) $tagihan_id)->where('status_pembayaran', 'success')->get('cbt_pembayaran_spp')->row()->total;
+        if ($terbayar > 0) return false;
 
         $diskon = max(0, min((int) $diskon, (int) $t->nominal));
         $this->db->where('id', (int) $tagihan_id);
@@ -255,8 +257,15 @@ class Tagihan_model extends CI_Model {
             );
         }
 
+        $this->db->trans_start();
         foreach (array_chunk($baris, 200) as $paket) {
             $this->db->insert_batch('cbt_tagihan', $paket);
+        }
+        $this->db->trans_complete();
+        if ($this->db->trans_status() === FALSE) {
+            $hasil['dibuat'] = 0;
+            $hasil['error'] = 'Gagal menyimpan sebagian tagihan.';
+            return $hasil;
         }
         $hasil['dibuat'] = count($baris);
 

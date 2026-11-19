@@ -253,6 +253,7 @@ class Pembayaran extends CI_Controller {
 
     public function verifikasi($id) {
         if (!$this->ion_auth->is_admin()) show_error('Akses Ditolak', 403, 'Akses Ditolak');
+        if ($this->input->method() !== 'post') { show_error('Verifikasi pembayaran harus melalui POST.', 405, 'Metode tidak valid'); }
 
         $update = array(
             'status_pembayaran' => 'success',
@@ -444,9 +445,20 @@ class Pembayaran extends CI_Controller {
             if ($jumlah <= 0) {
                 return $this->_json_out(array('status' => false, 'msg' => 'Jumlah pembayaran harus lebih dari nol.'));
             }
-            if ($jumlah > (int) $t->sisa) {
+            // Perhitungkan transfer manual yang masih menunggu verifikasi.
+            $pending = isset($t->pending_manual) ? (float) $t->pending_manual : 0;
+            $maks = (float) $t->sisa - $pending;
+            if ($maks <= 0 || (!$t->boleh_cicil && $pending > 0)) {
                 return $this->_json_out(array('status' => false, 'msg' =>
-                    'Jumlah melebihi sisa tagihan (Rp ' . number_format($t->sisa, 0, ',', '.') . ').'));
+                    'Pembayaran untuk tagihan ini sedang menunggu verifikasi admin.'));
+            }
+            if (!$t->boleh_cicil) {
+                // Tagihan sekali bayar: nominal mengikuti sisa yang belum dicadangkan.
+                $jumlah = $maks;
+            } elseif ($jumlah > $maks) {
+                return $this->_json_out(array('status' => false, 'msg' =>
+                    'Jumlah melebihi sisa tagihan yang belum menunggu verifikasi (Rp '
+                    . number_format($maks, 0, ',', '.') . ').'));
             }
             $label = $this->_label_tagihan($t);
             if ($t->periode_bulan) {
@@ -663,6 +675,26 @@ class Pembayaran extends CI_Controller {
         list($t, $jumlah) = $cek;
         list($bulan, $tahun) = $this->_periode_pembayaran($t);
 
+        // Kunci baris tagihan agar dua request tidak membuat transaksi Midtrans
+        // aktif sekaligus untuk tagihan yang sama.
+        $this->db->trans_start();
+        $this->db->query('SELECT id FROM cbt_tagihan WHERE id = ? FOR UPDATE', array((int) $t->id));
+        $pendingMid = $this->db->where('tagihan_id', (int) $t->id)->where('metode_pembayaran', 'midtrans')->where('status_pembayaran', 'pending')->count_all_results('cbt_pembayaran_spp');
+        if ($pendingMid > 0) {
+            $this->db->trans_rollback();
+            $this->session->set_flashdata('error', 'Masih ada transaksi Midtrans yang menunggu. Selesaikan atau tunggu kedaluwarsa.');
+            redirect('pembayaran/bayar_spp');
+            return;
+        }
+        $cek2 = $this->_validasi_bayar($siswa);
+        if (!$cek2) {
+            $this->db->trans_rollback();
+            redirect('pembayaran/bayar_spp');
+            return;
+        }
+        list($t, $jumlah) = $cek2;
+        list($bulan, $tahun) = $this->_periode_pembayaran($t);
+
         $upload_path = './uploads/bukti_transfer/';
         if (!file_exists($upload_path)) mkdir($upload_path, 0755, true);
 
@@ -691,7 +723,12 @@ class Pembayaran extends CI_Controller {
             'bukti_transfer'    => $upload_data['file_name']
         );
 
-        $this->db->insert('cbt_pembayaran_spp', $data);
+        if (!$this->db->insert('cbt_pembayaran_spp', $data)) {
+            @unlink($upload_path . $upload_data['file_name']);
+            $this->session->set_flashdata('error', 'Gagal menyimpan pembayaran. Silakan coba lagi.');
+            redirect('pembayaran/bayar_spp');
+            return;
+        }
         $this->session->set_flashdata('success', 'Pembayaran diajukan. Tunggu verifikasi admin.');
         redirect('pembayaran/bayar_spp');
     }
@@ -709,6 +746,26 @@ class Pembayaran extends CI_Controller {
             return;
         }
         list($t, $jumlah) = $cek;
+        list($bulan, $tahun) = $this->_periode_pembayaran($t);
+
+        // Kunci baris tagihan agar dua request tidak membuat transaksi Midtrans
+        // aktif sekaligus untuk tagihan yang sama.
+        $this->db->trans_start();
+        $this->db->query('SELECT id FROM cbt_tagihan WHERE id = ? FOR UPDATE', array((int) $t->id));
+        $pendingMid = $this->db->where('tagihan_id', (int) $t->id)->where('metode_pembayaran', 'midtrans')->where('status_pembayaran', 'pending')->count_all_results('cbt_pembayaran_spp');
+        if ($pendingMid > 0) {
+            $this->db->trans_rollback();
+            $this->session->set_flashdata('error', 'Masih ada transaksi Midtrans yang menunggu. Selesaikan atau tunggu kedaluwarsa.');
+            redirect('pembayaran/bayar_spp');
+            return;
+        }
+        $cek2 = $this->_validasi_bayar($siswa);
+        if (!$cek2) {
+            $this->db->trans_rollback();
+            redirect('pembayaran/bayar_spp');
+            return;
+        }
+        list($t, $jumlah) = $cek2;
         list($bulan, $tahun) = $this->_periode_pembayaran($t);
 
         if (!$this->_midtrans_siap()) {
@@ -755,7 +812,7 @@ class Pembayaran extends CI_Controller {
                 $snapToken = \Midtrans\Snap::getSnapToken($params);
 
                 // Percobaan Midtrans lama untuk tagihan yang sama dianggap gagal
-                $this->Pembayaran_model->batalkan_midtrans_pending_tagihan($t->id);
+                // Transaksi pending lama tidak dibatalkan otomatis (cegah double charge).
 
                 $this->db->insert('cbt_pembayaran_spp', array(
                     'siswa_id'          => $siswa->id_siswa,
@@ -767,6 +824,18 @@ class Pembayaran extends CI_Controller {
                     'status_pembayaran' => 'pending',
                     'order_id'          => $order_id
                 ));
+                if ($this->db->insert_id() <= 0) {
+                    $this->db->trans_rollback();
+                    $this->session->set_flashdata('error', 'Gagal menyimpan transaksi Midtrans.');
+                    redirect('pembayaran/bayar_spp');
+                    return;
+                }
+                $this->db->trans_complete();
+                if ($this->db->trans_status() === FALSE) {
+                    $this->session->set_flashdata('error', 'Gagal menyimpan transaksi Midtrans.');
+                    redirect('pembayaran/bayar_spp');
+                    return;
+                }
 
                 $data_view['snapToken'] = $snapToken;
                 $this->load->view('pembayaran/midtrans_payment', $data_view);
@@ -811,11 +880,31 @@ class Pembayaran extends CI_Controller {
 
             $notif = new \Midtrans\Notification();
 
+            // Pastikan transaksi benar-benar ada dan nominalnya cocok.
+            $bayar = $this->db->where('order_id', $notif->order_id)->get('cbt_pembayaran_spp')->row();
+            if (!$bayar) {
+                log_message('error', 'Midtrans notif DITOLAK: order tidak ditemukan ' . $notif->order_id);
+                $this->output->set_status_header(404);
+                echo 'order not found';
+                return;
+            }
+            if (abs((float) $bayar->jumlah_bayar - (float) $notif->gross_amount) > 0.01) {
+                log_message('error', 'Midtrans notif DITOLAK: nominal tidak cocok ' . $notif->order_id);
+                $this->output->set_status_header(400);
+                echo 'amount mismatch';
+                return;
+            }
+
             $status = 'failed';
             if ($notif->transaction_status == 'capture' || $notif->transaction_status == 'settlement') {
                 $status = 'success';
             } elseif ($notif->transaction_status == 'pending') {
                 $status = 'pending';
+            }
+
+            // Jangan menurunkan transaksi yang sudah sukses menjadi gagal.
+            if ((string) $bayar->status_pembayaran === 'success' && $status !== 'success') {
+                return;
             }
 
             $update = array(
@@ -826,7 +915,10 @@ class Pembayaran extends CI_Controller {
                 $update['tanggal_bayar'] = date('Y-m-d H:i:s');
             }
 
-            $this->db->where('order_id', $notif->order_id);
+            $this->db->where('id', $bayar->id);
+            if ((string) $bayar->status_pembayaran !== 'success') {
+                $this->db->where('status_pembayaran !=', 'success');
+            }
             $this->db->update('cbt_pembayaran_spp', $update);
         }
     }
