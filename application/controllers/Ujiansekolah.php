@@ -422,6 +422,13 @@ class Ujiansekolah extends CI_Controller
             if (!$bank) {
                 return $this->json(['status' => false, 'msg' => 'Kumpulan soal tidak ditemukan.', 'fokus' => 'bank']);
             }
+            if (!$this->isAdmin && (int)$bank->bank_guru_id !== (int)$this->guru->id_guru) {
+                return $this->json([
+                    'status' => false,
+                    'msg'    => 'Kumpulan soal ini milik guru lain.',
+                    'fokus'  => 'bank'
+                ], 403);
+            }
             if ((int)$bank->bank_mapel_id !== $id_mapel) {
                 $namaBank = $this->opsi['mapel'][(int)$bank->bank_mapel_id] ?? 'mapel lain';
                 return $this->json([

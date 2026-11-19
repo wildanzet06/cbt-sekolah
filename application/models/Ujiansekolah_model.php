@@ -706,6 +706,9 @@ class Ujiansekolah_model extends CI_Model
         $this->db->join('master_guru g', 'g.id_guru = b.bank_guru_id', 'left');
         $this->db->where('b.id_tp', (int)$id_tp);
         $this->db->where('b.id_smt', (int)$id_smt);
+        if ($id_guru !== null) {
+            $this->db->where('b.bank_guru_id', (int)$id_guru);
+        }
         if ($id_mapel !== null) {
             $this->db->where('b.bank_mapel_id', (int)$id_mapel);
         }
