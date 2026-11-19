@@ -381,7 +381,7 @@ $kelasSelected = json_encode(unserialize($bank->bank_kelas ?? '', ['allowed_clas
             console.log('id_guru', idGuru);
             console.log('id_level', level);
             console.log('id_mapel', mapel);
-            if (idGuru === '' || mapel == null) {
+            if (mapel == null) {
                 console.log('id_guru', 'empty');
             } else {
                 $.ajax({
