@@ -85,6 +85,7 @@
             'menu': [
                 {'name': 'Manajemen Ujian', 'link': 'ujiansekolah', 'icon': 'fas fa-clipboard-list', 'cbt': '1'},
                 {'name': 'Bank Soal & Media Ujian', 'link': 'banksoal', 'icon': 'far fa-folder-open', 'cbt': '1'},
+                {'name': 'Hasil Ujian', 'link': 'ujiansekolah/hasil', 'icon': 'fas fa-chart-bar', 'cbt': '1'},
             ]
         },
         {
