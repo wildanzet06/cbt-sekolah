@@ -52,6 +52,7 @@ function createDropdownKelasMapel() {
 	var inputgroup = $('#input-mapel');
 
 	$.each(mapelGuru, function (keym, entrym) {
+		if ($('#kelasmapel' + entrym.id_mapel).length) { return true; }
 		var div1 = $('<div>',  {class : "row mb-4 addmapel", id: entrym.id_mapel});
 		var hiden = $('<input>', {type:"hidden", name:"nama_mapel"+entrym.id_mapel, value: entrym.nama_mapel});
 		hiden.appendTo(div1);
@@ -102,6 +103,7 @@ function createDropdownKelasEkstra() {
     var inputgroup = $('#input-mapel');
 
     $.each(ekstraGuru, function (keym, entrym) {
+        if ($('#kelasekstra' + entrym.id_ekstra).length) { return true; }
         var div1 = $('<div>',  {class : "row mb-4 addekstra", id: entrym.id_ekstra});
         var hiden = $('<input>', {type:"hidden", name:"nama_ekstra"+entrym.id_ekstra, value: entrym.nama_ekstra});
         hiden.appendTo(div1);

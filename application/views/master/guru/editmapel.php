@@ -115,7 +115,55 @@
                                             <span id="keterangan"
                                                   class="card-title text-bold">Tentukan Kelas Mapel</span>
                                         </div>
-                                        <div class="card-body" id="input-mapel"></div>
+                                        <div class="card-body" id="input-mapel">
+                                            <?php
+                                            $__mapel_guru = is_array($jmapelval) ? $jmapelval : array();
+                                            $__eks_guru   = is_array($jekstraval) ? $jekstraval : array();
+                                            foreach ($__mapel_guru as $__mg):
+                                                $__idm = (int) $__mg->id_mapel;
+                                                $__sel = array();
+                                                if (!empty($__mg->kelas_mapel)) {
+                                                    foreach ($__mg->kelas_mapel as $__km) { $__sel[] = (string) $__km->kelas; }
+                                                }
+                                                ?>
+                                                <div class="row mb-4 addmapel" id="<?= $__idm ?>">
+                                                    <input type="hidden" name="nama_mapel<?= $__idm ?>"
+                                                           value="<?= html_escape($__mg->nama_mapel) ?>">
+                                                    <label><?= html_escape($__mg->nama_mapel) ?></label>
+                                                    <select id="kelasmapel<?= $__idm ?>" name="kelasmapel<?= $__idm ?>[]"
+                                                            class="select2 form-control selectmapel" multiple required>
+                                                        <?php foreach ($kelass as $__kid => $__knama): ?>
+                                                            <option value="<?= (int) $__kid ?>"
+                                                                <?= in_array((string) $__kid, $__sel, true) ? 'selected' : '' ?>>
+                                                                <?= html_escape($__knama) ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                            <?php endforeach; ?>
+                                            <?php foreach ($__eks_guru as $__eg):
+                                                $__ide = (int) $__eg->id_ekstra;
+                                                $__sele = array();
+                                                if (!empty($__eg->kelas_ekstra)) {
+                                                    foreach ($__eg->kelas_ekstra as $__ke) { $__sele[] = (string) $__ke->kelas; }
+                                                }
+                                                ?>
+                                                <div class="row mb-4 addekstra" id="<?= $__ide ?>">
+                                                    <input type="hidden" name="nama_ekstra<?= $__ide ?>"
+                                                           value="<?= html_escape($__eg->nama_ekstra) ?>">
+                                                    <label><?= html_escape($__eg->nama_ekstra) ?></label>
+                                                    <select id="kelasekstra<?= $__ide ?>" name="kelasekstra<?= $__ide ?>[]"
+                                                            class="select2 form-control selectekstra" multiple required>
+                                                        <?php foreach ($kelass as $__kid => $__knama): ?>
+                                                            <option value="<?= (int) $__kid ?>"
+                                                                <?= in_array((string) $__kid, $__sele, true) ? 'selected' : '' ?>>
+                                                                <?= html_escape($__knama) ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
@@ -358,6 +406,17 @@ $ekstra_guru = $guru->ekstra_kelas == null ? [] : unserialize($guru->ekstra_kela
     var guru_before = JSON.parse('<?= str_replace("'", "\'", json_encode($guru2)) ?>');
 </script>
 <script src="<?= base_url() ?>/assets/app/js/master/guru/editmapel.js"></script>
+<script>
+    // Inisialisasi select2 untuk dropdown kelas yang dirender server, tetap jalan
+    // walau AJAX getDataKelas gagal.
+    $(function () {
+        setTimeout(function () {
+            $(".selectmapel, .selectekstra").each(function () {
+                if (!$(this).hasClass("select2-hidden-accessible")) { $(this).select2({tags: true}); }
+            });
+        }, 400);
+    });
+</script>
 <script>
     let changed = false;
     $(document).ready(function(){
