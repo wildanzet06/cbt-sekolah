@@ -582,3 +582,34 @@ soal) dan jalur otorisasi.
 3. Deteksi pindah tab berbasis JS.
 4. Aturan `.htaccess` tidak berlaku di nginx.
 5. Beberapa endpoint riwayat (cbtcetak/cbtstatus) memakai `id` bank/kelas tanpa pemeriksaan kepemilikan menyeluruh.
+## Verifikasi temuan `index.php` (19 November 2026)
+
+Temuan audit lama dicek ulang terhadap kode di `main`. Sebagian besar sudah
+diperbaiki sebelum audit ini; dua hal kecil baru ditambahkan.
+
+| # | Temuan | Status di kode sekarang |
+|---|---|---|
+| 1 | DB gagal -> semua pengunjung diarahkan ke installer | **Sudah aman.** Pengecekan hanya jalan bila `installer/TERPASANG` belum ada; `mysqli` dibungkus `try/catch`; error selain 1049 menghasilkan **503** ("Database belum dapat dihubungi"), bukan installer. Nama database dicek dengan **prepared statement** ke `information_schema.SCHEMATA`, bukan `SHOW DATABASES LIKE`. |
+| 2 | Satu koneksi + query ekstra tiap request | **Berkurang.** Setelah `TERPASANG` ada, tidak ada koneksi tambahan. Sekarang `index.php` juga **membuat penanda otomatis** setelah database terbukti ada, jadi server yang belum punya penanda tidak terus-menerus melakukan query. |
+| 3 | Redirect relatif tanpa `exit` | **Diperbaiki.** Redirect memakai path absolut dari `dirname($_SERVER['SCRIPT_NAME'])` dan diikuti `exit`. Diuji dengan nama database salah: respons `302 Location: /cbt-sekolah/installer`. |
+| 4 | Nama database disisipkan ke SQL | **Tidak ada lagi.** Diganti prepared statement `SELECT ... WHERE SCHEMA_NAME = ?`. |
+| 5 | `.dev-mode` bocor ke produksi | **Aman.** Sudah ada di `.gitignore`; mengakses `/.dev-mode` di server hanya menghasilkan halaman login (file tidak ada), bukan isi file. Mode development hanya aktif lewat env `CI_ENV` atau file itu. |
+| 6 | Kredensial DB di repo publik | **Perlu dicek, hasil: tidak ada password asli.** `application/config/database.php` berisi contoh `root` tanpa password sejak commit awal; tidak ada kredensial produksi di riwayat. Tetap disarankan memakai user MySQL khusus (bukan root) dan password kuat di server. |
+
+### Pemeriksaan server produksi (cbt.sandev.store)
+
+- `/installer/` -> **403 Installer dinonaktifkan**
+- `/update` -> **403 Sudah Terpasang**
+- `/backup` -> redirect ke `/auth` (admin-only)
+- `/application/config/database.php` -> **403**
+- `/application/logs/`, `/backups/` -> **403**
+- `/.dev-mode` -> halaman login (tidak membocorkan isi)
+
+### Catatan
+
+- `installer/.htaccess` membatasi akses ke `127.0.0.1`/`::1`. Bila Apache
+  berada di belakang reverse proxy, semua request bisa tampak dari
+  `127.0.0.1`; penjaga `TERPASANG` + pengecekan akun `users` tetap menutup
+  installer setelah aplikasi terpasang.
+- Folder `installer/` sebaiknya dihapus dari server setelah instalasi selesai
+  (simpan salinannya di luar web root) sebagai lapisan tambahan.

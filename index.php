@@ -223,8 +223,17 @@ if (!$__sudah_terpasang) {
     })();
 
     if ($__lanjut === 'belum') {
-        header('Location: installer');
+        // Redirect absolut + exit: path relatif bisa salah arah pada URL
+        // berpola /index.php/xyz, dan eksekusi tidak boleh berlanjut.
+        $__base = rtrim(str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'])), '/');
+        header('Location: ' . $__base . '/installer', true, 302);
         exit;
+    }
+
+    // Simpan penanda setelah database terbukti ada, supaya request berikutnya
+    // tidak lagi membuat koneksi/query tambahan (penting saat ujian serentak).
+    if ($__lanjut === 'ok') {
+        @file_put_contents(__DIR__ . '/installer/TERPASANG', 'Terpasang ' . date('c') . PHP_EOL);
     }
 
     if ($__lanjut === 'error') {
