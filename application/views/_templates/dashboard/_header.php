@@ -3,7 +3,21 @@
  * Mode "embed": halaman lama ditampilkan di dalam tab Hasil Ujian.
  * Navbar + sidebar tidak dirender agar tidak muncul sidebar ganda di dalam halaman.
  */
-$__embed = (bool)$this->input->get('embed');
+$__embed = (bool) $this->input->get('embed');
+
+// Setelah tab Hasil Ujian membuka halaman ini dengan ?embed=1, ingat mode
+// embed selama 2 jam agar saat memilih jadwal/kelas (URL baru tanpa embed)
+// sidebar tidak muncul lagi di dalam iframe.
+if ($__embed) {
+    $this->session->set_userdata('embed_iframe', time());
+} else {
+    $__embed_ts = (int) $this->session->userdata('embed_iframe');
+    $__embed_kelas = strtolower((string) $this->router->fetch_class());
+    $__embed_controllers = array('cbtnilai', 'cbtanalisis', 'cbtrekap', 'nilaimanual');
+    if ($__embed_ts > 0 && (time() - $__embed_ts) < 7200 && in_array($__embed_kelas, $__embed_controllers, true)) {
+        $__embed = true;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html>
