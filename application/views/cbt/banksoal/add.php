@@ -17,6 +17,8 @@ $kelasSelected = json_encode(unserialize($bank->bank_kelas ?? '', ['allowed_clas
             .card-header .card-tools { width: 100%; float: none !important; margin-top: .5rem; }
             .card-header .card-tools .btn { width: 100%; }
         }
+        .kembali-link{display:inline-flex;align-items:center;padding:.15rem 0;color:#2563eb;font-size:.85rem;font-weight:500;text-decoration:none}
+        .kembali-link:hover{text-decoration:underline}
     </style>
     <section class="content-header">
         <div class="container-fluid">
@@ -25,10 +27,9 @@ $kelasSelected = json_encode(unserialize($bank->bank_kelas ?? '', ['allowed_clas
                     <h1><?= $judul ?></h1>
                 </div>
                 <div class="col-6">
-                    <button onclick="window.history.back();" type="button" class="btn btn-sm btn-danger float-right">
-                        <i class="fas fa-arrow-circle-left"></i><span
-                                class="d-none d-sm-inline-block ml-1">Kembali</span>
-                    </button>
+                    <a href="javascript:history.back()" class="kembali-link float-right">
+                        <i class="fas fa-arrow-left"></i><span class="ml-1">Kembali</span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -381,7 +382,7 @@ $kelasSelected = json_encode(unserialize($bank->bank_kelas ?? '', ['allowed_clas
             console.log('id_guru', idGuru);
             console.log('id_level', level);
             console.log('id_mapel', mapel);
-            if (idGuru === '' || mapel == null) {
+            if (mapel == null) {
                 console.log('id_guru', 'empty');
             } else {
                 $.ajax({

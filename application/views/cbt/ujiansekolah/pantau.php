@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Pantau Ujian — hari-H (PRD 5.4)
+ * Pantau Ujian â€” hari-H (PRD 5.4)
  */
 
 $bulan = [1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr', 5 => 'Mei', 6 => 'Jun',
@@ -20,11 +20,11 @@ $this->load->view('cbt/ujiansekolah/_style');
 <div class="content-wrapper bg-white pt-4">
     <section class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2 align-items-center">
-                <div class="col-auto">
+            <div class="row mb-2 align-items-center ujian-hero">
+                <div class="col-auto ujian-hero-kembali">
                     <?php $this->load->view('cbt/ujiansekolah/_kembali'); ?>
                 </div>
-                <div class="col">
+                <div class="col ujian-hero-judul">
                     <h1 class="mb-0"><?= html_escape($judulUjian) ?></h1>
                     <small class="text-muted">
                         <?= html_escape($tglLabel) ?> &middot; <?= (int)$u->durasi_ujian ?> menit &middot; Sesi 1
@@ -33,6 +33,11 @@ $this->load->view('cbt/ujiansekolah/_style');
                         <?php endif; ?>
                         &middot; <?= (int)$u->status === 1 ? 'Dibuka' : 'Ditutup' ?>
                     </small>
+                </div>
+                <div class="col-auto mb-2">
+                    <button type="button" class="btn btn-sm btn-outline-danger" id="btn-alarm">
+                        <i class="fas fa-bell mr-1"></i><span id="alarm-label">Aktifkan Alarm</span>
+                    </button>
                 </div>
             </div>
         </div>
@@ -151,7 +156,7 @@ $this->load->view('cbt/ujiansekolah/_style');
                                         </td>
                                         <td><?= html_escape($s->nama_kelas) ?></td>
                                         <td>
-                                            <?= $s->kode_ruang ? html_escape($s->kode_ruang) : '—' ?>
+                                            <?= $s->kode_ruang ? html_escape($s->kode_ruang) : 'â€”' ?>
                                         </td>
                                         <td>
                                             <span class="status-dot <?= $kelasStatus ?>"></span>
@@ -161,10 +166,10 @@ $this->load->view('cbt/ujiansekolah/_style');
                                             <?php endif; ?>
                                         </td>
                                         <td>
-                                            <small><?= !empty($s->mulai) ? html_escape(date('d/m H:i', strtotime($s->mulai))) : '—' ?></small>
+                                            <small><?= !empty($s->mulai) ? html_escape(date('d/m H:i', strtotime($s->mulai))) : 'â€”' ?></small>
                                         </td>
                                         <td>
-                                            <?= $nilai === null ? '<span class="text-muted">—</span>'
+                                            <?= $nilai === null ? '<span class="text-muted">â€”</span>'
                                                 : html_escape(number_format($nilai, 1)) ?>
                                         </td>
                                         <?php if ($kelola): ?>
@@ -208,6 +213,9 @@ $this->load->view('cbt/ujiansekolah/_style');
         var CSRF = <?= json_encode($csrf) ?>;
         var URL_AKSI = '<?= base_url('ujiansekolah/pantauaksi') ?>';
         var ID = <?= (int)$u->id_jadwal ?>;
+        var lastLog = <?= (int) $max_log ?>;
+        var alarmOn = false;
+        var audioCtx = null;
 
         function toast(ok, msg) {
             if (ok && typeof showSuccessToast === 'function') { showSuccessToast(msg); return; }
@@ -263,6 +271,47 @@ $this->load->view('cbt/ujiansekolah/_style');
                 toast(r.status, r.msg);
             });
         });
+
+        function bunyiAlarm() {
+            try {
+                if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+                var o = audioCtx.createOscillator();
+                var g = audioCtx.createGain();
+                o.type = "sine"; o.frequency.value = 880; g.gain.value = 0.15;
+                o.connect(g); g.connect(audioCtx.destination);
+                o.start(); setTimeout(function () { o.stop(); }, 900);
+            } catch (e) {}
+        }
+
+        $("#btn-alarm").on("click", function () {
+            alarmOn = !alarmOn;
+            if (alarmOn) {
+                try {
+                    if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+                    if (audioCtx.state === "suspended") { audioCtx.resume(); }
+                } catch (e) {}
+                $("#alarm-label").text("Alarm Aktif");
+                $(this).removeClass("btn-outline-danger").addClass("btn-danger");
+                bunyiAlarm();
+            } else {
+                $("#alarm-label").text("Aktifkan Alarm");
+                $(this).removeClass("btn-danger").addClass("btn-outline-danger");
+            }
+        });
+
+        function poll() {
+            post({ aksi: "poll" }, function (r) {
+                if (!r || !r.status) { return; }
+                if (typeof r.max_log !== "undefined" && r.max_log > lastLog) {
+                    lastLog = r.max_log;
+                    if (alarmOn) { bunyiAlarm(); }
+                    if (typeof showDangerToast === "function") {
+                        showDangerToast("Aktivitas baru terdeteksi pada peserta.");
+                    }
+                }
+            });
+        }
+        window.setInterval(poll, 10000);
 
         $('#cari-peserta').on('input', function () {
             var q = ($(this).val() || '').toLowerCase();

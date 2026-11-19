@@ -17,6 +17,10 @@ if (!isset($__tujuan[$__dari])) {
     $__dari = 'daftar';
 }
 ?>
-<a href="<?= base_url($__tujuan[$__dari][1]) ?>" class="btn btn-sm btn-outline-secondary">
-    <i class="fas fa-arrow-left mr-1"></i>Kembali ke <?= html_escape($__tujuan[$__dari][0]) ?>
+<a href="<?= base_url($__tujuan[$__dari][1]) ?>" class="kembali-ringkas">
+    <i class="fas fa-arrow-left"></i><span>Kembali</span>
 </a>
+<style>
+    .kembali-ringkas{display:inline-flex;align-items:center;gap:.4rem;padding:.15rem 0;border:0;background:transparent;color:#2563eb;font-size:.85rem;font-weight:500;line-height:1.2;text-decoration:none;white-space:nowrap}
+    .kembali-ringkas:hover{color:#1d4ed8;text-decoration:underline}
+</style>

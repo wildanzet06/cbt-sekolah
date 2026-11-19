@@ -186,21 +186,53 @@ class Ujiansekolah extends CI_Controller
 
     public function index()
     {
+        $this->us->pastikanKolomJudul();
+
         $ujian = $this->us->listUjian($this->tp->id_tp, $this->smt->id_smt, $this->idGuruFilter());
+        $banks = $this->us->bankPilihan($this->tp->id_tp, $this->smt->id_smt, null, $this->idGuruFilter());
+        $banksBebas = array_values(array_filter($banks, function ($b) { return (int) $b->dipakai === 0; }));
 
-        $hariIni = date('Y-m-d');
+        $bankInfo = [];
+        foreach ($banks as $b) {
+            $bankInfo[(int) $b->id_bank] = [
+                'mapel' => (int) $b->bank_mapel_id,
+                'nama'  => (string) $b->nama_mapel,
+                'kelas' => (string) $b->label_kelas,
+                'kode'  => (string) $b->bank_kode,
+            ];
+        }
+
+        $edit = null;
+        $editId = (int) $this->input->get('edit');
+        if ($editId > 0) {
+            $edit = $this->us->getUjian($editId, $this->tp->id_tp, $this->smt->id_smt);
+        }
+
+        $kelolaBank = 0;
+        $kelolaId = (int) $this->input->get('kelola');
+        if ($kelolaId > 0) {
+            $ku = $this->us->getUjian($kelolaId, $this->tp->id_tp, $this->smt->id_smt);
+            if ($ku) {
+                $kelolaBank = (int) $ku->id_bank;
+            }
+        }
+
         $data = [
-            'judul'       => 'Daftar Ujian',
-            'subjudul'    => 'Ujian Sekolah',
+            'judul'       => 'Buat & Kelola Ujian',
+            'subjudul'    => 'Satu halaman untuk membuat ujian, mengatur kode, dan mengelola soal',
             'ujian'       => $ujian,
-            'token_aktif' => $this->us->tokenAktif($hariIni, $this->tp->id_tp, $this->smt->id_smt),
+            'banks'       => $banksBebas,
+            'banks_info'  => $bankInfo,
+            'jenis_ujian' => $this->us->jenisList(),
+            'edit'        => $edit,
+            'kelola_id'   => $kelolaId,
+            'kelola_bank' => $kelolaBank,
+            'hari_ini'    => date('Y-m-d'),
+            'ada_opsi'    => count($this->opsi['pairs']) > 0,
             'notif'       => $this->isAdmin ? $this->us->notifGuru($this->tp->id_tp, $this->smt->id_smt) : [],
-            'hari_ini'    => $hariIni,
-            'ada_opsi'    => count($this->opsi['pairs']) > 0
         ];
-        $this->render('cbt/ujiansekolah/daftar', $data);
+        $this->render('cbt/ujiansekolah/daftar_kartini', $data);
     }
-
     /* ==================================================================
      * Wizard 3 langkah
      * ================================================================ */
@@ -370,6 +402,7 @@ class Ujiansekolah extends CI_Controller
         $hasil_tampil = (int)$this->input->post('hasil_tampil') === 1 ? 1 : 0;
         $aktif = (int)$this->input->post('aktif') === 1 ? 1 : 0;
         $catatan = trim((string)$this->input->post('catatan', true));
+        $judul = trim((string)$this->input->post('judul', true));
 
         /* --- ujian yang sedang berlangsung: opsi inti dikunci --------- */
         $lama = null;
@@ -518,6 +551,7 @@ class Ujiansekolah extends CI_Controller
             'id_smt'       => (int)$this->smt->id_smt,
             'id_bank'      => $id_bank > 0 ? $id_bank : null,
             'id_jenis'     => $id_jenis,
+            'judul'        => $judul !== '' ? mb_substr($judul, 0, 255) : null,
             'tgl_mulai'    => $tanggal,
             'tgl_selesai'  => $tanggal,
             'durasi_ujian' => $durasi,
@@ -940,7 +974,11 @@ class Ujiansekolah extends CI_Controller
             'nilai'    => ['Nilai Ujian', 'fas fa-file-alt', 'cbtnilai'],
             'analisis' => ['Analisis Soal', 'fas fa-chart-line', 'cbtanalisis'],
             'rekap'    => ['Rekap Nilai', 'fas fa-trophy', 'cbtrekap'],
-            'manual'   => ['Nilai Manual', 'fas fa-pen-square', 'nilaimanual']
+            'manual'   => ['Nilai Manual', 'fas fa-pen-square', 'nilaimanual'],
+            'essay'    => ['Koreksi Essay', 'fas fa-pen', 'cbtnilai/inputEssai?kelas=' . (int) ($this->db
+                ->select('id_kelas')->where('id_tp', $this->tp->id_tp)->where('id_smt', $this->smt->id_smt)
+                ->order_by('id_kelas', 'ASC')->limit(1)->get('kelas_siswa')->row()->id_kelas ?? 0)],
+            'csv'      => ['Ekspor CSV', 'fas fa-file-csv', 'cbtrekap/export']
         ];
         $tab = strtolower((string)$this->input->get('tab', true));
         if (!isset($tabs[$tab])) {
@@ -975,7 +1013,8 @@ class Ujiansekolah extends CI_Controller
             'siswa'    => $p['siswa'],
             'ringkas'  => $p['ringkas'],
             'kelola'   => $this->bolehKelola($u),
-            'kesiapan' => $this->us->kesiapan($u, $this->tp->id_tp, $this->smt->id_smt)
+            'kesiapan' => $this->us->kesiapan($u, $this->tp->id_tp, $this->smt->id_smt),
+            'max_log'  => (int) ($this->db->select_max('id_log', 'm')->get_where('log_ujian', array('id_jadwal' => $u->id_jadwal))->row()->m)
         ];
         $this->render('cbt/ujiansekolah/pantau', $data);
     }
@@ -1014,6 +1053,15 @@ class Ujiansekolah extends CI_Controller
                 }
                 $this->us->resetIzin($u->id_jadwal, $id_siswa);
                 return $this->json(['status' => true, 'msg' => 'Izin login siswa direset. Siswa bisa masuk kembali.']);
+
+            case 'poll':
+                $ringkas = $this->us->pantauData($u, $this->tp->id_tp, $this->smt->id_smt);
+                $maxLog = (int) ($this->db->select_max('id_log', 'm')->get_where('log_ujian', array('id_jadwal' => $u->id_jadwal))->row()->m);
+                return $this->json([
+                    'status'   => true,
+                    'ringkas'  => $ringkas['ringkas'],
+                    'max_log'  => $maxLog
+                ]);
 
             case 'waktu':
                 if ($id_siswa <= 0) {

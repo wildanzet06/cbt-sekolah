@@ -463,3 +463,26 @@ FROM information_schema.COLUMNS
 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_soal'
 AND COLUMN_NAME = 'id_bacaan');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+-- Judul ujian (opsional) untuk halaman Daftar Ujian ala KARTINI
+SET @sql = (SELECT IF(COUNT(*) = 0,
+'ALTER TABLE cbt_jadwal ADD COLUMN judul VARCHAR(255) NULL',
+'SELECT ''judul sudah ada'' AS info')
+FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_jadwal'
+AND COLUMN_NAME = 'judul');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+-- PRD KARTINI fase 2: kolom aditif soal
+SET @sql = (SELECT IF(COUNT(*) = 0, 'ALTER TABLE cbt_soal ADD COLUMN tipe_soal VARCHAR(20) NOT NULL DEFAULT ''pg''', 'SELECT ''tipe_soal ada'' AS info') FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_soal' AND COLUMN_NAME = 'tipe_soal');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql = (SELECT IF(COUNT(*) = 0, 'ALTER TABLE cbt_soal ADD COLUMN opsi_json LONGTEXT NULL DEFAULT NULL', 'SELECT ''opsi_json ada'' AS info') FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_soal' AND COLUMN_NAME = 'opsi_json');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql = (SELECT IF(COUNT(*) = 0, 'ALTER TABLE cbt_soal ADD COLUMN bobot DECIMAL(5,2) NOT NULL DEFAULT 1.00', 'SELECT ''bobot ada'' AS info') FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_soal' AND COLUMN_NAME = 'bobot');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql = (SELECT IF(COUNT(*) = 0, 'ALTER TABLE cbt_soal ADD COLUMN media_audio VARCHAR(255) NULL DEFAULT NULL', 'SELECT ''media_audio ada'' AS info') FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_soal' AND COLUMN_NAME = 'media_audio');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+SET @sql = (SELECT IF(COUNT(*) = 0, 'ALTER TABLE cbt_soal_siswa ADD COLUMN opsi_alias_json LONGTEXT NULL DEFAULT NULL', 'SELECT ''opsi_alias_json ada'' AS info') FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'cbt_soal_siswa' AND COLUMN_NAME = 'opsi_alias_json');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
