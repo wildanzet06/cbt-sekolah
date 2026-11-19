@@ -33,7 +33,14 @@ function decimalFixed($num)
 
 ?>
 
-<div class="content-wrapper bg-white">
+<style>
+    #group-export { display: flex; flex-wrap: wrap; gap: .5rem; justify-content: flex-end; }
+    #group-export .btn { display: inline-flex; align-items: center; gap: .4rem; font-weight: 600; border-radius: 8px; }
+    @media (max-width: 575.98px) {
+        #group-export { flex-direction: column; align-items: stretch; }
+        #group-export .btn { width: 100%; justify-content: center; }
+    }
+</style><div class="content-wrapper bg-white">
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
