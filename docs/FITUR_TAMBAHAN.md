@@ -156,3 +156,19 @@ ringkas, satu baris isian:
 
 Hanya bank soal yang **belum dipakai** yang muncul. Untuk pengaturan rinci
 (jadwal selesai, pengawas, token global) gunakan tombol **Mode lengkap**.
+## Halaman "Buat & Kelola Ujian" (gaya KARTINI CBT)
+
+`ujiansekolah` kini berupa satu halaman sederhana:
+
+- Kartu **Buat Ujian Baru**: Judul Ujian, Mata Pelajaran/Bank Soal, Kode Ujian
+  (tombol acak), Durasi, Jadwal Mulai, Jadwal Selesai (opsional), Jenis,
+  chip **Kelas Ujian** otomatis dari bank soal, serta centang
+  Acak Soal / Acak Opsi / Tampilkan Nilai / Aktifkan Ujian.
+- Tombol **Terbitkan Ujian** menyimpan langsung (tanpa wizard); tombol
+  **Mode lengkap** tetap membuka wizard untuk pengaturan rinci.
+- Tabel **Daftar Ujian**: Kode Ujian, Judul & Mapel, Pembuat, Kelas, Soal,
+  Durasi, Status, dan aksi Kelola Soal / Edit / Hapus.
+
+Kolom baru: `cbt_jadwal.judul` (opsional). Kode ujian boleh 4–10 karakter
+huruf/angka. Tanggal selesai boleh dikosongkan (otomatis sama dengan tanggal
+mulai).

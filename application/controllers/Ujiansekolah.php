@@ -186,46 +186,39 @@ class Ujiansekolah extends CI_Controller
 
     public function index()
     {
-        $tabs = [
-            'daftar'     => ['Daftar Ujian', 'fas fa-clipboard-list', 'ujiansekolah/daftar'],
-            'pengaturan' => ['Pengaturan Ujian', 'fas fa-cog', 'ujiansekolah/pengaturan'],
-            'hasil'      => ['Hasil Ujian', 'fas fa-chart-bar', 'ujiansekolah/hasil'],
-        ];
-        if (!$this->isAdmin) {
-            unset($tabs['pengaturan']);
+        $this->us->pastikanKolomJudul();
+
+        $ujian = $this->us->listUjian($this->tp->id_tp, $this->smt->id_smt, $this->idGuruFilter());
+        $banks = $this->us->bankPilihan($this->tp->id_tp, $this->smt->id_smt, null, $this->idGuruFilter());
+        $banksBebas = array_values(array_filter($banks, function ($b) { return (int) $b->dipakai === 0; }));
+        $bankInfo = [];
+        foreach ($banks as $b) {
+            $bankInfo[(int) $b->id_bank] = [
+                'mapel' => (int) $b->bank_mapel_id,
+                'nama'  => (string) $b->nama_mapel,
+                'kelas' => (string) $b->label_kelas,
+                'kode'  => (string) $b->bank_kode,
+            ];
         }
 
         $data = [
-            'judul'    => 'Manajemen Ujian',
-            'subjudul' => 'Daftar ujian, pengaturan, dan hasil dalam satu halaman',
-            'tabs'     => $tabs,
-            'tab'      => 'daftar',
+            'judul'       => 'Buat & Kelola Ujian',
+            'subjudul'    => 'Buat ujian, kelola soal, dan lihat status dalam satu halaman',
+            'ujian'       => $ujian,
+            'banks'       => $banksBebas,
+            'banks_info'  => $bankInfo,
+            'jenis_ujian' => $this->us->jenisList(),
+            'hari_ini'    => date('Y-m-d'),
+            'ada_opsi'    => count($this->opsi['pairs']) > 0,
+            'is_admin'    => $this->isAdmin,
         ];
-        $this->render('cbt/ujiansekolah/manajemen', $data);
+        $this->render('cbt/ujiansekolah/kelola', $data);
     }
 
     public function daftar()
     {
-        $ujian = $this->us->listUjian($this->tp->id_tp, $this->smt->id_smt, $this->idGuruFilter());
-
-        $hariIni = date('Y-m-d');
-        $data = [
-            'judul'       => 'Daftar Ujian',
-            'subjudul'    => 'Ujian Sekolah',
-            'ujian'       => $ujian,
-            'token_aktif' => $this->us->tokenAktif($hariIni, $this->tp->id_tp, $this->smt->id_smt),
-            'notif'       => $this->isAdmin ? $this->us->notifGuru($this->tp->id_tp, $this->smt->id_smt) : [],
-            'hari_ini'    => $hariIni,
-            'ada_opsi'    => count($this->opsi['pairs']) > 0,
-            'banks'       => array_values(array_filter(
-                $this->us->bankPilihan($this->tp->id_tp, $this->smt->id_smt, null, $this->idGuruFilter()),
-                function ($b) { return (int) $b->dipakai === 0; }
-            )),
-            'jenis_ujian' => $this->us->jenisList()
-        ];
-        $this->render('cbt/ujiansekolah/daftar', $data);
+        redirect('ujiansekolah');
     }
-
     /* ==================================================================
      * Wizard 3 langkah
      * ================================================================ */
@@ -395,6 +388,10 @@ class Ujiansekolah extends CI_Controller
         $hasil_tampil = (int)$this->input->post('hasil_tampil') === 1 ? 1 : 0;
         $aktif = (int)$this->input->post('aktif') === 1 ? 1 : 0;
         $catatan = trim((string)$this->input->post('catatan', true));
+        $judul = trim((string)$this->input->post('judul', true));
+        $tanggal_selesai = trim((string)$this->input->post('tanggal_selesai', true));
+        if ($tanggal_selesai === '') { $tanggal_selesai = $tanggal; }
+        if (!$this->validTanggal($tanggal_selesai) || strtotime($tanggal_selesai) < strtotime($tanggal)) { $tanggal_selesai = $tanggal; }
 
         /* --- ujian yang sedang berlangsung: opsi inti dikunci --------- */
         $lama = null;
@@ -517,10 +514,10 @@ class Ujiansekolah extends CI_Controller
                     'fokus'  => 'token'
                 ]);
             }
-            if (!preg_match('/^[A-Z0-9]{6}$/', $token_ujian)) {
+            if (!preg_match('/^[A-Z0-9]{4,10}$/', $token_ujian)) {
                 return $this->json([
                     'status' => false,
-                    'msg'    => 'Token harus 6 karakter huruf dan angka.',
+                    'msg'    => 'Token harus 4-10 karakter huruf/angka.',
                     'fokus'  => 'token'
                 ]);
             }
@@ -543,8 +540,9 @@ class Ujiansekolah extends CI_Controller
             'id_smt'       => (int)$this->smt->id_smt,
             'id_bank'      => $id_bank > 0 ? $id_bank : null,
             'id_jenis'     => $id_jenis,
+            'judul'        => $judul !== '' ? mb_substr($judul, 0, 255) : null,
             'tgl_mulai'    => $tanggal,
-            'tgl_selesai'  => $tanggal,
+            'tgl_selesai'  => $tanggal_selesai,
             'durasi_ujian' => $durasi,
             'pengawas'     => null,
             'acak_soal'    => $acak_soal,

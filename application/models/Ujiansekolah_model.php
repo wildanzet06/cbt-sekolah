@@ -515,6 +515,13 @@ class Ujiansekolah_model extends CI_Model
      * Daftar ujian satu semester + kesiapan + status kartu.
      * $id_guru != null  → hanya mapel/kelas yang diajar guru tersebut.
      */
+    /** Pastikan kolom judul ujian ada (migrasi ringan). */
+    public function pastikanKolomJudul()
+    {
+        if (!$this->db->field_exists('judul', 'cbt_jadwal')) {
+            $this->db->query('ALTER TABLE cbt_jadwal ADD COLUMN judul VARCHAR(255) NULL');
+        }
+    }
     public function listUjian($id_tp, $id_smt, $id_guru = null)
     {
         $this->selectJadwal();
