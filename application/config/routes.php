@@ -60,7 +60,7 @@ $route['cekkwitansi/(:num)/(:any)'] = 'cekkwitansi/index/$1/$2';
 $route['cekkwitansi'] = 'cekkwitansi/index';
 
 $route['logout'] = 'Auth/logout';
-$route['404_override'] = 'auth';
+$route['404_override'] = ''; // pakai halaman 404 bawaan CodeIgniter (status 404)
 $route['translate_uri_dashes'] = FALSE;
 
 /*
