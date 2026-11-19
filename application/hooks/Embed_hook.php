@@ -20,6 +20,10 @@ class Embed_hook {
             return;
         }
 
+        // Jangan biarkan browser meng-cache halaman embed (isi berubah).
+        @header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+        @header('Pragma: no-cache');
+
         $html = $CI->output->get_output();
         if ($html === '' || $html === null) {
             return;

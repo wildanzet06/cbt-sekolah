@@ -144,6 +144,18 @@ $__embed = (bool)$this->input->get('embed');
             body { background: #fff; }
         </style>
     <?php endif; ?>
+    <?php if ((string) $this->input->get('embed') === '1'): ?>
+        <style>
+            /* Mode embed (iframe Hasil Ujian): sembunyikan layout luar */
+            .main-header, .main-sidebar, .main-footer, .content-header,
+            .navbar, .breadcrumb { display: none !important; }
+            .wrapper { display: block !important; }
+            .content-wrapper { margin-left: 0 !important; padding-top: 0 !important; min-height: auto !important; background: #fff !important; }
+            body { background: #fff !important; }
+            .content { padding: 0 !important; }
+            .content > .container-fluid { padding: 12px !important; }
+        </style>
+    <?php endif; ?>
 </head>
 <script>
     let base_url = '<?=base_url()?>';
