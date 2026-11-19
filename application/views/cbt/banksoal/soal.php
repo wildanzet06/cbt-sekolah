@@ -492,6 +492,31 @@ foreach ($soal_ada as $key => $value) {
                                               placeholder="Tulis soal disini"
                                               style="width:100%;"></textarea>
                                 </div>
+                                <div class="form-row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Bobot Soal</label>
+                                            <input type="number" step="0.1" min="0.1" max="100" name="bobot"
+                                                   class="form-control"
+                                                   value="<?= isset($soal->bobot) && (float) $soal->bobot > 0 ? (float) $soal->bobot : 1 ?>">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="form-group">
+                                            <label>Audio Soal <small class="text-muted">(opsional)</small></label>
+                                            <input type="hidden" name="media_audio" id="media-audio"
+                                                   value="<?= html_escape(isset($soal->media_audio) ? (string) $soal->media_audio : '') ?>">
+                                            <div class="input-group input-group-sm">
+                                                <input type="file" id="file-audio" accept="audio/*" class="form-control">
+                                                <div class="input-group-append">
+                                                    <button type="button" class="btn btn-outline-secondary"
+                                                            id="btn-upload-audio">Unggah</button>
+                                                </div>
+                                            </div>
+                                            <small class="text-muted" id="audio-info"></small>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="col-md-6" id="jawaban-area">
                                 <?php
@@ -668,3 +693,29 @@ foreach ($soal_ada as $key => $value) {
     });
 </script>
 <script src="<?= base_url() ?>/assets/app/js/cbt/banksoal/soal.js"></script>
+<script>
+    (function () {
+        var btn = document.getElementById('btn-upload-audio');
+        if (!btn) { return; }
+        btn.addEventListener('click', function () {
+            var f = document.getElementById('file-audio').files[0];
+            if (!f) { alert('Pilih file audio dulu.'); return; }
+            var fd = new FormData();
+            fd.append('file', f);
+            fd.append('<?= $this->security->get_csrf_token_name() ?>', '<?= $this->security->get_csrf_hash() ?>');
+            btn.disabled = true;
+            fetch('<?= base_url('cbtbanksoal/upload_image') ?>', { method: 'POST', body: fd })
+                .then(function (r) { return r.json(); })
+                .then(function (res) {
+                    btn.disabled = false;
+                    if (res && res.status) {
+                        document.getElementById('media-audio').value = res.filename;
+                        document.getElementById('audio-info').textContent = 'Audio tersimpan: ' + res.filename;
+                    } else {
+                        alert((res && res.msg) || 'Gagal mengunggah audio.');
+                    }
+                })
+                .catch(function () { btn.disabled = false; alert('Gagal mengunggah audio.'); });
+        });
+    })();
+</script>
