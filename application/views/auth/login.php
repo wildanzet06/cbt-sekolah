@@ -60,6 +60,9 @@
                             <!-- /.col -->
                         </div>
                         <?= form_close(); ?>
+                        <div class="text-center small mt-3">
+                            <a href="<?= base_url('ujianportal') ?>"><i class="fas fa-key mr-1"></i>Masuk dengan Kode Ujian</a>
+                        </div>
                         <!--
 				<a href="<?= base_url() ?>auth/forgot_password" class="text-center"><?= lang('login_forgot_password'); ?></a>
 				-->
