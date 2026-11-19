@@ -675,26 +675,6 @@ class Pembayaran extends CI_Controller {
         list($t, $jumlah) = $cek;
         list($bulan, $tahun) = $this->_periode_pembayaran($t);
 
-        // Kunci baris tagihan agar dua request tidak membuat transaksi Midtrans
-        // aktif sekaligus untuk tagihan yang sama.
-        $this->db->trans_start();
-        $this->db->query('SELECT id FROM cbt_tagihan WHERE id = ? FOR UPDATE', array((int) $t->id));
-        $pendingMid = $this->db->where('tagihan_id', (int) $t->id)->where('metode_pembayaran', 'midtrans')->where('status_pembayaran', 'pending')->count_all_results('cbt_pembayaran_spp');
-        if ($pendingMid > 0) {
-            $this->db->trans_rollback();
-            $this->session->set_flashdata('error', 'Masih ada transaksi Midtrans yang menunggu. Selesaikan atau tunggu kedaluwarsa.');
-            redirect('pembayaran/bayar_spp');
-            return;
-        }
-        $cek2 = $this->_validasi_bayar($siswa);
-        if (!$cek2) {
-            $this->db->trans_rollback();
-            redirect('pembayaran/bayar_spp');
-            return;
-        }
-        list($t, $jumlah) = $cek2;
-        list($bulan, $tahun) = $this->_periode_pembayaran($t);
-
         $upload_path = './uploads/bukti_transfer/';
         if (!file_exists($upload_path)) mkdir($upload_path, 0755, true);
 

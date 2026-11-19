@@ -23,7 +23,7 @@
                                 <th class="text-center align-middle" width="40" height="40">No.</th>
                                 <th class="align-middle">Siswa</th>
                                 <th class="align-middle">NIS & NISN</th>
-                                <th class="align-middle">Username<br>Password</th>
+                                <th class="align-middle">Username</th>
                                 <th class="text-center align-middle">Status</th>
                                 <th class="text-center align-middle">Aksi</th>
                             </tr>
@@ -52,7 +52,7 @@
                                             <span class="badge badge-light"><?=$siswa->nis?></span><br>
                                             <span class="badge badge-light"><?=$siswa->nisn?></span>
                                         </td>
-                                        <td>U: <?=$siswa->username?><br>P: <?=$siswa->password?></td>
+                                        <td><?=$siswa->username?></td>
                                         <td class="text-center align-middle"><?=$kls?><br><?=$status?></td>
                                         <td class=" align-middle">
                                             <div class="text-center">

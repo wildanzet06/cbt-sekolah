@@ -127,11 +127,6 @@ class Akses_hook {
         ));
         $metode = strtolower((string) $CI->router->fetch_method());
 
-        // Admin tidak dibatasi kepemilikan bank.
-        if ($CI->ion_auth->is_admin()) {
-            return;
-        }
-
         $admin = $CI->ion_auth->is_admin();
         $siswa = !$admin && $CI->ion_auth->in_group(array(3, 'siswa'));
 

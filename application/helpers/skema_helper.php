@@ -33,15 +33,14 @@ if (!function_exists('skema_tambahan_pastikan')) {
               WHERE table_schema = DATABASE() AND table_name IN ($in)"
         )->row();
 
-        if ($row && (int) $row->c === count($tabel)) {
-            return true;
-        }
+        $lengkap = $row && (int) $row->c === count($tabel);
 
         // Ada yang kurang: buat ulang. Jangan tampilkan halaman error database
         // bila satu perintah gagal (mis. hak akses), cukup lanjut.
         $debug = $db->db_debug;
         $db->db_debug = false;
 
+        if (!$lengkap) {
         $ddl = array(
             "CREATE TABLE IF NOT EXISTS cbt_pembayaran_spp (
                 id                 INT          NOT NULL AUTO_INCREMENT,
@@ -175,6 +174,7 @@ if (!function_exists('skema_tambahan_pastikan')) {
 
         foreach ($ddl as $sql) {
             $db->query($sql);
+        }
         }
 
         // Kolom yang mungkin belum ada pada pemasangan versi lama.

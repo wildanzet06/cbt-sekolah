@@ -425,8 +425,7 @@ if (!file_exists(FCPATH . $siswa->foto)) {
                     <div class="input-group-prepend w-40">
                         <span class="input-group-text">Password Lama</span>
                     </div>
-                    <input class="form-control" name="old" value="<?= $siswa->password ?>" placeholder="Username"
-                           readonly>
+                    <input type="password" class="form-control" name="old" value="" placeholder="Password lama (kosongkan bila tidak diganti)" autocomplete="new-password">
                 </div>
                 <div class="input-group mb-3">
                     <div class="input-group-prepend w-40">

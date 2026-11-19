@@ -55,7 +55,8 @@ $config['cache_path'] = '';
 $config['cache_query_string'] = FALSE;
 
 //$config['encryption_key'] = '';
-$config['encryption_key'] = '31382675909195ecd6b1263dcf81a32b';
+$config['encryption_key'] = getenv('CBT_ENCRYPTION_KEY') ?: '31382675909195ecd6b1263dcf81a32b';
+if (is_file(__DIR__ . '/encryption.local.php')) { include __DIR__ . '/encryption.local.php'; }
 
 /*
 |--------------------------------------------------------------------------
@@ -134,7 +135,9 @@ $config['sess_regenerate_destroy'] = FALSE;
 $config['cookie_prefix']	= '';
 $config['cookie_domain']	= '';
 $config['cookie_path']		= '/';
-$config['cookie_secure']	= (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && (int) $_SERVER['SERVER_PORT'] === 443);
+$config['cookie_secure']	= (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+    || (isset($_SERVER['SERVER_PORT']) && (int) $_SERVER['SERVER_PORT'] === 443)
+    || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower((string) $_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https');
 $config['cookie_httponly'] 	= TRUE;
 
 /*

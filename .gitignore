@@ -91,3 +91,6 @@ uploads/import/format/*
 application/config/database.php.bak-*
 .dev-mode
 installer/TERPASANG
+
+# Kunci enkripsi khusus instalasi
+application/config/encryption.local.php

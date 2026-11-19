@@ -4,7 +4,7 @@
  *
  * Pemakaian (dari folder aplikasi):
  *   php tools/pasang.php
- *   php tools/pasang.php --db=cbt --user=root --pass= --admin=admin --sandi=Admin12345
+ *   php tools/pasang.php --db=cbt --user=root --pass= --admin=admin --sandi=<pilihan-anda>
  *   php tools/pasang.php --pulihkan=backups/manual-2026-11-18_120809.sql
  *
  * Yang dilakukan:
@@ -39,7 +39,7 @@ $opt = array(
     'pass' => '',
     'db'   => 'cbt',
     'admin' => 'admin',
-    'sandi' => 'Admin12345',
+    'sandi' => bin2hex(random_bytes(6)), // dibuat acak; tampilkan sekali saat instalasi
     'nama'  => 'Administrator Sekolah',
     'email' => 'admin@sekolah.local',
     'pulihkan' => ''
