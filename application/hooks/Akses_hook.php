@@ -24,7 +24,7 @@ class Akses_hook {
         'kelasabsensiharian', 'kelasabsensibulanan', 'kelasnilai',
         // Ujian (sisi admin/guru)
         'cbtjenis', 'cbtsesi', 'cbtruang', 'cbtsesisiswa', 'cbtnomorpeserta',
-        'cbtbanksoal', 'cbtjadwal', 'cbtalokasi', 'cbtpengawas', 'cbttoken',
+        'cbtbanksoal', 'banksoal', 'cbtjadwal', 'cbtalokasi', 'cbtpengawas', 'cbttoken',
         'cbtcetak', 'cbtstatus', 'cbtnilai', 'cbtanalisis', 'cbtrekap',
         // Rapor
         'rapor', 'bukurapor',

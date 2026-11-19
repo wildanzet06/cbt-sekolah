@@ -84,7 +84,7 @@
             'header': 'UJIAN SEKOLAH', 'cbt': '1',
             'menu': [
                 {'name': 'Manajemen Ujian', 'link': 'ujiansekolah', 'icon': 'fas fa-clipboard-list', 'cbt': '1'},
-                {'name': 'Kumpulan Soal', 'link': 'cbtbanksoal', 'icon': 'far fa-folder-open', 'cbt': '1'},
+                {'name': 'Bank Soal & Media Ujian', 'link': 'banksoal', 'icon': 'far fa-folder-open', 'cbt': '1'},
             ]
         },
         {

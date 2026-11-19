@@ -172,3 +172,19 @@ Hanya bank soal yang **belum dipakai** yang muncul. Untuk pengaturan rinci
 Kolom baru: `cbt_jadwal.judul` (opsional). Kode ujian boleh 4–10 karakter
 huruf/angka. Tanggal selesai boleh dikosongkan (otomatis sama dengan tanggal
 mulai).
+## Bank Soal & Media Ujian (editor ringkas)
+
+Menu **Ujian Sekolah → Bank Soal & Media Ujian** (`/banksoal`) kini memakai
+editor ringkas gaya KARTINI CBT:
+
+- Pilih bank soal di kanan atas; daftar soal bank tersebut langsung tampil.
+- **Input Soal Baru**: teks pertanyaan, opsi A–E (klik huruf untuk menandai
+  kunci jawaban), tombol **Simpan Soal**.
+- **Lampiran Media**: unggah gambar/audio; otomatis disisipkan ke teks soal
+  dan tampil saat ujian.
+- Tabel **Daftar Soal**: nomor, ringkasan soal, kunci, tombol Edit/Hapus.
+- Soal lama (termasuk hasil impor) tetap bisa dibuka dan diedit karena
+  memakai tabel `cbt_soal` yang sama. Jenis soal lain (PG kompleks, essay,
+  menjodohkan) masih lewat tautan **Editor lama**.
+- Tombol **Kelola Soal** pada halaman Buat & Kelola Ujian mengarah ke editor
+  ini.

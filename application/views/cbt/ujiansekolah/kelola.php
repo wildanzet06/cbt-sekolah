@@ -220,7 +220,7 @@ $badge = [
                                 </td>
                                 <td class="text-right pr-3 text-nowrap">
                                     <?php if (!empty($u->id_bank)): ?>
-                                        <a href="<?= base_url('cbtbanksoal/detail/' . (int) $u->id_bank) ?>"
+                                        <a href="<?= base_url('banksoal?bank=' . (int) $u->id_bank) ?>"
                                            class="btn btn-sm btn-kelola">
                                             <i class="fas fa-book-open mr-1"></i>Kelola Soal
                                         </a>
