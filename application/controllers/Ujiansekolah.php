@@ -974,7 +974,11 @@ class Ujiansekolah extends CI_Controller
             'nilai'    => ['Nilai Ujian', 'fas fa-file-alt', 'cbtnilai'],
             'analisis' => ['Analisis Soal', 'fas fa-chart-line', 'cbtanalisis'],
             'rekap'    => ['Rekap Nilai', 'fas fa-trophy', 'cbtrekap'],
-            'manual'   => ['Nilai Manual', 'fas fa-pen-square', 'nilaimanual']
+            'manual'   => ['Nilai Manual', 'fas fa-pen-square', 'nilaimanual'],
+            'essay'    => ['Koreksi Essay', 'fas fa-pen', 'cbtnilai/inputEssai?kelas=' . (int) ($this->db
+                ->select('id_kelas')->where('id_tp', $this->tp->id_tp)->where('id_smt', $this->smt->id_smt)
+                ->order_by('id_kelas', 'ASC')->limit(1)->get('kelas_siswa')->row()->id_kelas ?? 0)],
+            'csv'      => ['Ekspor CSV', 'fas fa-file-csv', 'cbtrekap/export']
         ];
         $tab = strtolower((string)$this->input->get('tab', true));
         if (!isset($tabs[$tab])) {
@@ -1009,7 +1013,8 @@ class Ujiansekolah extends CI_Controller
             'siswa'    => $p['siswa'],
             'ringkas'  => $p['ringkas'],
             'kelola'   => $this->bolehKelola($u),
-            'kesiapan' => $this->us->kesiapan($u, $this->tp->id_tp, $this->smt->id_smt)
+            'kesiapan' => $this->us->kesiapan($u, $this->tp->id_tp, $this->smt->id_smt),
+            'max_log'  => (int) ($this->db->select_max('id_log', 'm')->get_where('log_ujian', array('id_jadwal' => $u->id_jadwal))->row()->m)
         ];
         $this->render('cbt/ujiansekolah/pantau', $data);
     }
@@ -1048,6 +1053,15 @@ class Ujiansekolah extends CI_Controller
                 }
                 $this->us->resetIzin($u->id_jadwal, $id_siswa);
                 return $this->json(['status' => true, 'msg' => 'Izin login siswa direset. Siswa bisa masuk kembali.']);
+
+            case 'poll':
+                $ringkas = $this->us->pantauData($u, $this->tp->id_tp, $this->smt->id_smt);
+                $maxLog = (int) ($this->db->select_max('id_log', 'm')->get_where('log_ujian', array('id_jadwal' => $u->id_jadwal))->row()->m);
+                return $this->json([
+                    'status'   => true,
+                    'ringkas'  => $ringkas['ringkas'],
+                    'max_log'  => $maxLog
+                ]);
 
             case 'waktu':
                 if ($id_siswa <= 0) {
