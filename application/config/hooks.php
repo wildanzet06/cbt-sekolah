@@ -19,3 +19,10 @@ $hook['post_controller_constructor'][] = array(
     'filename' => 'Akses_hook.php',
     'filepath' => 'hooks'
 );
+// Mode embed: sembunyikan sidebar/header saat halaman dimuat dalam iframe
+$hook['display_override'][] = array(
+    'class'    => 'Embed_hook',
+    'function' => 'terapkan',
+    'filename' => 'Embed_hook.php',
+    'filepath' => 'hooks'
+);
