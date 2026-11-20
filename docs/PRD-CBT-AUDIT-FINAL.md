@@ -166,3 +166,14 @@ Perbaikan dan dokumentasinya ada di:
 - `tools/perbaiki-password-siswa.php`
 
 Data lokal sudah diperbaiki setelah backup dibuat. ZIP final perlu digenerate ulang agar menyertakan dua berkas tersebut.
+
+## 11. Tambahan: aktivasi siswa baru
+
+Agar masalah password kosong tidak terulang saat ada murid baru, alur **User Management → Data User Siswa → Aktifkan** kini menolak akun yang username atau password Data Siswanya masih kosong, dan pesan sukses/gagal mengikuti hasil registrasi yang sebenarnya.
+
+Dokumentasi dan pengujian mandirinya:
+
+- `docs/PRD-AKTIVASI-SISWA.md`
+- `tools/test-aktivasi-siswa.php`
+
+Catatan penting untuk sekolah: menambah murid di **Data Siswa** saja belum membuat murid bisa login. Murid tetap harus diaktifkan di **Data User Siswa**, dengan username dan password Data Siswa sudah terisi.
