@@ -72,6 +72,7 @@ try {
 
     $perbaiki = array();
     $sudah_benar = array();
+    $password_lain = array();
     $password_kosong = array();
 
     while ($row = $result->fetch_assoc()) {
@@ -79,8 +80,14 @@ try {
         $plain = trim((string) $row['password_data_siswa']);
         $hash = (string) $row['password_login'];
 
-        if ($hash !== '' && password_verify($plain, $hash)) {
-            $sudah_benar[] = $username;
+        if ($hash !== '') {
+            // Jangan pernah menimpa password yang sudah ada. Bisa jadi siswa
+            // sudah menggantinya sendiri lewat menu Akun.
+            if (password_verify($plain, $hash)) {
+                $sudah_benar[] = $username;
+            } else {
+                $password_lain[] = $username;
+            }
             continue;
         }
 
@@ -98,7 +105,8 @@ try {
     $result->free();
 
     echo "Mode: " . ($apply ? 'APPLY (menulis database)' : 'SIMULASI (tidak menulis database)') . "\n";
-    echo "Akun siswa sudah benar      : " . count($sudah_benar) . "\n";
+    echo "Akun sesuai Data Siswa      : " . count($sudah_benar) . "\n";
+    echo "Akun password lain (lewat)  : " . count($password_lain) . "\n";
     echo "Akun akan diperbaiki        : " . count($perbaiki) . "\n";
     echo "Password Data Siswa kosong  : " . count($password_kosong) . "\n";
 
