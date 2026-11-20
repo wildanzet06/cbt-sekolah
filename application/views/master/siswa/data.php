@@ -1,4 +1,25 @@
-<div class="content-wrapper bg-white pt-4">
+<style>
+    .siswa-tools { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: flex-end; }
+    .siswa-tools .btn { display: inline-flex; align-items: center; gap: .35rem; border-radius: 6px; }
+    .siswa-search { display: flex; align-items: flex-start; gap: .4rem; justify-content: flex-end; }
+    .siswa-search .search-wrap { position: relative; flex: 1 1 auto; min-width: 190px; }
+    .search-suggest { position: absolute; top: calc(100% + 2px); left: 0; right: 0; z-index: 1050;
+        background: #fff; border: 1px solid #dee2e6; border-radius: 6px;
+        box-shadow: 0 6px 18px rgba(0,0,0,.12); max-height: 260px; overflow: auto; }
+    .search-suggest .suggest-item { display: block; width: 100%; text-align: left; border: 0;
+        background: none; padding: .5rem .7rem; border-bottom: 1px solid #f1f3f5; font-size: .85rem; }
+    .search-suggest .suggest-item:last-child { border-bottom: 0; }
+    .search-suggest .suggest-item:hover, .search-suggest .suggest-item:focus { background: #f1f5f9; outline: 0; }
+    .search-suggest .suggest-meta { color: #6c757d; font-size: .75rem; }
+    @media (max-width: 575.98px) {
+        .siswa-tools { width: 100%; justify-content: stretch; }
+        .siswa-tools .btn { flex: 1 1 30%; justify-content: center; font-size: .78rem; padding: .4rem .3rem; }
+        .siswa-search { width: 100%; justify-content: stretch; }
+        .siswa-search .search-wrap { min-width: 0; width: 100%; }
+        .dataTables_filter { text-align: left !important; }
+        .dataTables_length { margin-bottom: .5rem; }
+    }
+</style><div class="content-wrapper bg-white pt-4">
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
@@ -14,17 +35,15 @@
             <div class="card card-default my-shadow mb-4">
                 <div class="card-header">
                     <h6 class="card-title"><?= $subjudul ?></h6>
-                    <div class="card-tools">
+                    <div class="card-tools siswa-tools">
                         <button type="button" data-toggle="modal" data-target="#createSiswaModal"
-                                class="btn btn-sm btn-primary"><i
-                                    class="fas fa-plus"></i><span
-                                    class="d-none d-sm-inline-block ml-1">Tambah Siswa</span>
+                                class="btn btn-sm btn-primary">
+                            <i class="fas fa-plus"></i><span>Tambah Siswa</span>
                         </button>
-                        <a href="<?= base_url('datasiswa/add') ?>" class="btn btn-sm bg-gradient-success"><i
-                                    class="fas fa-upload"></i><span class="d-none d-sm-inline-block ml-1">Import</span></a>
-                        <a href="<?= base_url('datasiswa/update') ?>" class="btn btn-sm bg-gradient-success"><i
-                                    class="fas fa-database"></i><span
-                                    class="d-none d-sm-inline-block ml-1">Update Data</span></a>
+                        <a href="<?= base_url('datasiswa/add') ?>" class="btn btn-sm btn-success">
+                            <i class="fas fa-upload"></i><span>Import</span></a>
+                        <a href="<?= base_url('datasiswa/update') ?>" class="btn btn-sm btn-success">
+                            <i class="fas fa-database"></i><span>Update Data</span></a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -43,16 +62,16 @@
                                 </div>
                             </div>
                             <div class="col-sm-12 col-md-6">
-                                <div class="dataTables_filter">
-                                    <button id="btn-clear" type="button" class="btn btn-sm btn-light m-0" data-toggle="tooltip" title="hapus pencarian" disabled="disabled">
+                                <div class="dataTables_filter siswa-search">
+                                    <button id="btn-clear" type="button" class="btn btn-sm btn-light"
+                                            data-toggle="tooltip" title="Hapus pencarian" disabled="disabled">
                                         <i class="fa fa-times"></i>
                                     </button>
-                                    <label>
-                                        <input id="input-search" type="search" class="form-control form-control-sm" placeholder="" aria-controls="users">
-                                    </label>
-                                    <button id="btn-search" type="button" class="btn btn-sm btn-light" data-toggle="tooltip" title="Cari" onclick="applySearch()" disabled="disabled">
-                                        <i class="fa fa-search"></i>
-                                    </button>
+                                    <div class="search-wrap">
+                                        <input id="input-search" type="search" class="form-control form-control-sm"
+                                               placeholder="Cari nama / NIS..." autocomplete="off" aria-controls="users">
+                                        <div id="search-suggest" class="search-suggest d-none"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -326,14 +345,62 @@
             var val = $(this).val();
             query = val === "" ? null : val;
             $('#btn-clear').attr('disabled', query == null)
-            $('#btn-search').attr('disabled', query == null)
+        });
+
+        var suggestTimer = null;
+        function hideSuggest() {
+            $('#search-suggest').addClass('d-none').empty();
+        }
+
+        $('#input-search').on('input', function () {
+            var q = $.trim($(this).val());
+            clearTimeout(suggestTimer);
+            if (q.length < 2) { hideSuggest(); return; }
+            suggestTimer = setTimeout(function () {
+                $.ajax({
+                    url: base_url + 'datasiswa/list',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: { search: q, page: 1, limit: 8, filter: $('#users-filter').val() },
+                    success: function (res) {
+                        var $box = $('#search-suggest').empty();
+                        if (!res || !res.lists || res.lists.length === 0) { $box.addClass('d-none'); return; }
+                        $.each(res.lists, function (i, s) {
+                            var $b = $('<button type="button" class="suggest-item">');
+                            $('<div>').append($('<b>').text(s.nama || '-')).appendTo($b);
+                            $('<div class="suggest-meta">').text('NIS ' + (s.nis || '-') + (s.nama_kelas ? ' \u00b7 ' + s.nama_kelas : '')).appendTo($b);
+                            $b.data('nama', s.nama || '');
+                            $box.append($b);
+                        });
+                        $box.removeClass('d-none');
+                    },
+                    error: function () { hideSuggest(); }
+                });
+            }, 250);
+        });
+
+        $('#input-search').on('keydown', function (e) {
+            if (e.key === 'Enter') { e.preventDefault(); hideSuggest(); applySearch(); }
+            if (e.key === 'Escape') { hideSuggest(); }
+        });
+
+        $('#search-suggest').on('click', '.suggest-item', function () {
+            var nama = $(this).data('nama') || '';
+            $('#input-search').val(nama);
+            query = nama === '' ? null : nama;
+            currentPage = 1;
+            hideSuggest();
+            loadSiswa();
+        });
+
+        $(document).on('click', function (e) {
+            if (!$(e.target).closest('.siswa-search').length) { hideSuggest(); }
         });
 
         $('#btn-clear').on('click', function () {
             query = null;
             currentPage = 1;
             $(this).attr('disabled', query == null);
-            $('#btn-search').attr('disabled', query == null);
             loadSiswa();
         });
 
