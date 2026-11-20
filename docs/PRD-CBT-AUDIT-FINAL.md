@@ -134,6 +134,18 @@ Nama paket yang direncanakan: `C:\Users\Admin\Downloads\Compressed\cbt-sekolah-f
 
 Pengujian alur CBT penuh masih memerlukan akun uji/sesi login. Item token, ruang ujian, pengerjaan soal, timer/autosave, koreksi, rekap, rapor, dan import/export belum bisa dibuktikan secara runtime.
 
+### Paket final
+
+ZIP final dibuat dari `HEAD` dengan `git archive`, sehingga hanya berkas terlacak yang ikut.
+
+- **Lokasi:** `C:\Users\Admin\Downloads\Compressed\cbt-sekolah-final-audit.zip`
+- **Integritas:** `unzip -t` lolos.
+- **Isi:** 2.688 entri, 608 file PHP, 761 file JavaScript.
+- **Tidak ikut:** `.git/`, `vendor/`, `encryption.local.php`, `midtrans.php`, `application/logs/log-*.php`, dan isi `backups/` kecuali `.htaccess` serta `index.html`.
+- **Masih ikut:** `composer.json`, `composer.lock`, kedua file `.example`, `uploads/.htaccess`, template import, dokumentasi, dan patch NISN.
+
+Selisih 9 file PHP antara folder lokal dan ZIP adalah 1 file kunci lokal serta 8 log aplikasi; semuanya memang sengaja tidak ikut.
+
 ## 9. Status penyelesaian
 
 - [x] Audit ulang ZIP dan perbandingan dengan repo kerja.
@@ -141,5 +153,5 @@ Pengujian alur CBT penuh masih memerlukan akun uji/sesi login. Item token, ruang
 - [x] PRD ini.
 - [x] Perubahan `sess_regenerate_destroy`.
 - [x] Verifikasi ulang statis dan browser sejauh sesi tersedia.
-- [ ] Commit dan push per kelompok.
-- [ ] Pembuatan serta pemeriksaan isi ZIP final.
+- [x] Commit dan push per kelompok.
+- [x] Pembuatan serta pemeriksaan isi ZIP final.
