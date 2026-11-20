@@ -1,8 +1,7 @@
 <style>
     .siswa-tools { display: flex; flex-wrap: wrap; gap: .4rem; justify-content: flex-end; }
     .siswa-tools .btn { display: inline-flex; align-items: center; gap: .35rem; border-radius: 6px; }
-    .siswa-search { display: flex; align-items: flex-start; gap: .4rem; justify-content: flex-end; }
-    .siswa-search .search-wrap { position: relative; flex: 1 1 auto; min-width: 190px; }
+    .siswa-search { position: relative; max-width: 380px; margin-left: auto; }
     .search-suggest { position: absolute; top: calc(100% + 2px); left: 0; right: 0; z-index: 1050;
         background: #fff; border: 1px solid #dee2e6; border-radius: 6px;
         box-shadow: 0 6px 18px rgba(0,0,0,.12); max-height: 260px; overflow: auto; }
@@ -14,8 +13,7 @@
     @media (max-width: 575.98px) {
         .siswa-tools { width: 100%; justify-content: stretch; }
         .siswa-tools .btn { flex: 1 1 30%; justify-content: center; font-size: .78rem; padding: .4rem .3rem; }
-        .siswa-search { width: 100%; justify-content: stretch; }
-        .siswa-search .search-wrap { min-width: 0; width: 100%; }
+        .siswa-search { width: 100%; max-width: none; margin-left: 0; }
         .dataTables_filter { text-align: left !important; }
         .dataTables_length { margin-bottom: .5rem; }
     }
@@ -62,16 +60,10 @@
                                 </div>
                             </div>
                             <div class="col-sm-12 col-md-6">
-                                <div class="dataTables_filter siswa-search">
-                                    <button id="btn-clear" type="button" class="btn btn-sm btn-light"
-                                            data-toggle="tooltip" title="Hapus pencarian" disabled="disabled">
-                                        <i class="fa fa-times"></i>
-                                    </button>
-                                    <div class="search-wrap">
-                                        <input id="input-search" type="search" class="form-control form-control-sm"
-                                               placeholder="Cari nama / NIS..." autocomplete="off" aria-controls="users">
-                                        <div id="search-suggest" class="search-suggest d-none"></div>
-                                    </div>
+                                <div class="siswa-search">
+                                    <input id="input-search" type="search" class="form-control form-control-sm"
+                                           placeholder="Cari nama / NIS..." autocomplete="off" aria-controls="users">
+                                    <div id="search-suggest" class="search-suggest d-none"></div>
                                 </div>
                             </div>
                         </div>
@@ -344,7 +336,6 @@
         $('#input-search').on('change keyup', function () {
             var val = $(this).val();
             query = val === "" ? null : val;
-            $('#btn-clear').attr('disabled', query == null)
         });
 
         var suggestTimer = null;
@@ -395,13 +386,6 @@
 
         $(document).on('click', function (e) {
             if (!$(e.target).closest('.siswa-search').length) { hideSuggest(); }
-        });
-
-        $('#btn-clear').on('click', function () {
-            query = null;
-            currentPage = 1;
-            $(this).attr('disabled', query == null);
-            loadSiswa();
         });
 
         $(".select_all").on("click", function () {
