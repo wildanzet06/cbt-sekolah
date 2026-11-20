@@ -155,3 +155,14 @@ Selisih 9 file PHP antara folder lokal dan ZIP adalah 1 file kunci lokal serta 8
 - [x] Verifikasi ulang statis dan browser sejauh sesi tersedia.
 - [x] Commit dan push per kelompok.
 - [x] Pembuatan serta pemeriksaan isi ZIP final.
+
+## 10. Tambahan setelah paket final awal
+
+Setelah paket final awal dibuat, ditemukan masalah login siswa: 41 dari 42 akun siswa punya password login kosong walaupun password di Data Siswa sudah terisi.
+
+Perbaikan dan dokumentasinya ada di:
+
+- `docs/PRD-PERBAIKAN-PASSWORD-SISWA.md`
+- `tools/perbaiki-password-siswa.php`
+
+Data lokal sudah diperbaiki setelah backup dibuat. ZIP final perlu digenerate ulang agar menyertakan dua berkas tersebut.
