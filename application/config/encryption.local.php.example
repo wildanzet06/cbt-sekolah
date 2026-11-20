@@ -1,0 +1,17 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+/*
+ * SALIN berkas ini menjadi encryption.local.php, lalu isi dengan kunci asli.
+ * Berkas encryption.local.php tidak ikut repository (ada di .gitignore).
+ * Alternatif lebih aman di server: pakai variabel lingkungan saja.
+ */
+
+$config['encryption_key'] = 'GANTI_DENGAN_KUNCI_ENKRIPSI_32_KARAKTER';
+
+/*
+ * Daftar kunci lama yang masih dipakai untuk memverifikasi QR kwitansi lama.
+ * Isi array kosong bila tidak ada. Pisahkan beberapa kunci dengan koma bila
+ * memakai variabel lingkungan CBT_LEGACY_ENCRYPTION_KEYS.
+ */
+$config['kwitansi_legacy_keys'] = array();

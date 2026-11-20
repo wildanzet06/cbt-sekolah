@@ -54,9 +54,30 @@ $config['error_views_path'] = '';
 $config['cache_path'] = '';
 $config['cache_query_string'] = FALSE;
 
-//$config['encryption_key'] = '';
-$config['encryption_key'] = getenv('CBT_ENCRYPTION_KEY') ?: '31382675909195ecd6b1263dcf81a32b';
-if (is_file(__DIR__ . '/encryption.local.php')) { include __DIR__ . '/encryption.local.php'; }
+/*
+ * Kunci rahasia tidak boleh ditanam di repository.
+ * Isi lewat variabel lingkungan (disarankan di server) atau berkas lokal:
+ *   application/config/encryption.local.php
+ * Lihat encryption.local.php.example untuk contoh isinya.
+ *
+ * CBT_ENCRYPTION_KEY           -> kunci enkripsi utama
+ * CBT_LEGACY_ENCRYPTION_KEYS   -> daftar kunci lama, dipisah koma, untuk
+ *                                 memverifikasi QR kwitansi yang sudah dicetak
+ */
+$config['encryption_key'] = trim((string) getenv('CBT_ENCRYPTION_KEY'));
+$config['kwitansi_legacy_keys'] = array_values(array_filter(array_map('trim', explode(',', (string) getenv('CBT_LEGACY_ENCRYPTION_KEYS'))), 'strlen'));
+
+$berkas_rahasia = __DIR__ . '/encryption.local.php';
+if (is_file($berkas_rahasia)) {
+    include $berkas_rahasia; // boleh mengisi encryption_key dan/atau kwitansi_legacy_keys
+}
+
+if (!is_array($config['kwitansi_legacy_keys'])) {
+    $config['kwitansi_legacy_keys'] = array();
+}
+if ($config['encryption_key'] === '' || $config['encryption_key'] === false) {
+    show_error('Kunci enkripsi belum diatur. Isi variabel CBT_ENCRYPTION_KEY atau buat application/config/encryption.local.php (lihat contohnya).', 500, 'Konfigurasi belum lengkap');
+}
 
 /*
 |--------------------------------------------------------------------------

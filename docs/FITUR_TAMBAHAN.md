@@ -96,6 +96,13 @@ Halaman verifikasi tetap menerima kode lama:
 2. `encryption_key` saat ini (kwitansi sebelum perbaikan),
 3. kunci lama sebelum rotasi (kwitansi paling lama).
 
+Kunci enkripsi dan kunci lama **tidak ditanam di kode**. Isi lewat variabel
+lingkungan `CBT_ENCRYPTION_KEY` dan `CBT_LEGACY_ENCRYPTION_KEYS` (pisahkan
+beberapa kunci dengan koma), atau salin
+`application/config/encryption.local.php.example` menjadi
+`application/config/encryption.local.php` lalu isi dengan kunci asli. Berkas
+lokal ini tidak ikut repository.
+
 Tidak ada masa berlaku: QR valid selama data pembayaran masih ada di database.
 
 ### Cara pakai (tanpa menu terpisah)

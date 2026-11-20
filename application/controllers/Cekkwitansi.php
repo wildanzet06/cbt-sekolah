@@ -69,7 +69,16 @@ class Cekkwitansi extends CI_Controller {
             // abaikan
         }
         $kandidat[] = (string) config_item('encryption_key');
-        $kandidat[] = '498f8140edc311eb94b9c83dd4416dc8'; // kunci lama (sebelum rotasi)
+
+        // Kunci lama berasal dari variabel lingkungan / berkas rahasia lokal,
+        // bukan ditanam di kode, agar QR lama tetap sah tanpa membocorkan kunci.
+        $legacy = config_item('kwitansi_legacy_keys');
+        if (is_array($legacy)) {
+            foreach ($legacy as $kunci_lama) {
+                $kandidat[] = (string) $kunci_lama;
+            }
+        }
+
         return array_unique(array_filter($kandidat, function ($k) { return $k !== ''; }));
     }
 
