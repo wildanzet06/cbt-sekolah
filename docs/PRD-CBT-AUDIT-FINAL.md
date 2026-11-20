@@ -111,12 +111,35 @@ ZIP final dibuat dari repo kerja dengan pengecualian:
 
 Nama paket yang direncanakan: `C:\Users\Admin\Downloads\Compressed\cbt-sekolah-final-audit.zip`.
 
-## 8. Status penyelesaian
+## 8. Hasil verifikasi
+
+### Statis
+
+- `php -l` lolos untuk `application/config/config.php` dan `application/helpers/db_size.php`.
+- `node --check assets/app/js/tableToExcel.js` lolos.
+- `composer validate --no-check-publish` valid.
+- `composer check-platform-reqs` sukses di PHP 8.3.35.
+- `composer audit --locked`: tidak ada advisori keamanan.
+- Tidak ada `encryption.local.php`, `midtrans.php`, atau `vendor/` di berkas terlacak.
+- Kedua kunci lama tidak ditemukan di berkas terlacak.
+
+### Browser pada tab yang sudah ada
+
+- `/cekkwitansi/2/0000000000000000`: ditolak dengan pesan “Kwitansi Tidak Valid”, 0 error konsol.
+- Kunci DB, kunci saat ini, dan kunci lama: semuanya diterima sebagai “Kwitansi Asli”, 0 error konsol.
+- URL tidak ada: status HTTP 404 dan halaman “404 Page Not Found”, tanpa error konsol selain pesan 404 yang memang diharapkan.
+- `/dashboard`, `/datasiswa`, `/dataguru`, dan `/cbtnilai`: mengarah ke halaman Login karena sesi uji sudah tidak tersedia. Tidak ada error konsol, tetapi halaman login tidak bisa dipakai sebagai bukti bahwa alur internal bebas bug.
+
+### Keterbatasan
+
+Pengujian alur CBT penuh masih memerlukan akun uji/sesi login. Item token, ruang ujian, pengerjaan soal, timer/autosave, koreksi, rekap, rapor, dan import/export belum bisa dibuktikan secara runtime.
+
+## 9. Status penyelesaian
 
 - [x] Audit ulang ZIP dan perbandingan dengan repo kerja.
 - [x] Penetapan baseline repo kerja.
 - [x] PRD ini.
-- [ ] Perubahan `sess_regenerate_destroy`.
-- [ ] Verifikasi ulang statis dan browser.
+- [x] Perubahan `sess_regenerate_destroy`.
+- [x] Verifikasi ulang statis dan browser sejauh sesi tersedia.
 - [ ] Commit dan push per kelompok.
 - [ ] Pembuatan serta pemeriksaan isi ZIP final.
