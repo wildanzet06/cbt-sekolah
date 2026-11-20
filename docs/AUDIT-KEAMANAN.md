@@ -445,8 +445,10 @@ diperbaiki bila benar. Ringkasannya:
   (HTMLPurifier) sebagai langkah terpisah.
 - **Ketergantungan header keamanan pada Apache**: `.htaccess` tidak berlaku di
   nginx/IIS. Untuk nginx, tambahkan header dan `location ~* ^/(uploads|backups|docs)/ { deny all; }`.
-- `composer.json` masih memuat paket 2022 (dompdf, PhpSpreadsheet, PhpWord) yang
-  tidak dipakai runtime; boleh dihapus.
+- Dependensi Composer sudah diperbarui: `dompdf` 3.x, `PhpSpreadsheet` 1.30,
+  `PhpWord` 1.4; `composer.lock` kini kompatibel dengan PHP 7.4 (web) dan 8.3
+  (CLI) serta bebas advisori keamanan. Jalankan `composer install` di server
+  bila folder `vendor/` belum ada.
 - Pola hook saat ini *deny-list*; controller baru otomatis terbuka untuk siswa
   kecuali ditambahkan. Disarankan pindah ke base controller dengan peran wajib.
 - CodeIgniter 3.1.13 adalah rilis terakhir seri 3 (EOL); pertimbangkan upgrade
