@@ -116,7 +116,7 @@ if (empty($kelas_pilih)) {
                                   data-id="<?= $this->security->get_csrf_hash() ?>"
                                   data-name="<?= $this->security->get_csrf_token_name() ?>"
                                   rows='10' cols='80' style='width:100%;'>
-								<?= $tugas->isi_tugas ?>
+								<?= html_escape($tugas->isi_tugas) ?>
 						</textarea>
                     </div>
                 </div>

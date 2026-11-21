@@ -82,24 +82,24 @@
                                         ?>
                                         <tr>
                                             <td class="text-center"><?= $s->nomor_soal ?></td>
-                                            <td><?= $s->soal ?></td>
+                                            <td><?= soal_html_aman($s->soal) ?></td>
                                             <td>
                                                 <ol type="a">
                                                     <li>
-                                                        <?= $s->opsi_a ?>
+                                                        <?= soal_html_aman($s->opsi_a) ?>
                                                     </li>
                                                     <li>
-                                                        <?= $s->opsi_b ?>
+                                                        <?= soal_html_aman($s->opsi_b) ?>
                                                     </li>
                                                     <li>
-                                                        <?= $s->opsi_c ?>
+                                                        <?= soal_html_aman($s->opsi_c) ?>
                                                     </li>
                                                     <li>
-                                                        <?= $s->opsi_d ?>
+                                                        <?= soal_html_aman($s->opsi_d) ?>
                                                     </li>
                                                     <?php if ($setting->jenjang == '3') : ?>
                                                         <li>
-                                                            <?= $s->opsi_e ?>
+                                                            <?= soal_html_aman($s->opsi_e) ?>
                                                         </li>
                                                     <?php endif; ?>
                                                 </ol>
@@ -110,7 +110,7 @@
                                                 <ol type="a">
                                                     <?php foreach ($arrAlias as $alias) : ?>
                                                         <li>
-                                                            <?= $alias['opsi'] ?>
+                                                            <?= soal_html_aman($alias['opsi']) ?>
                                                         </li>
                                                     <?php endforeach; ?>
                                                 </ol>

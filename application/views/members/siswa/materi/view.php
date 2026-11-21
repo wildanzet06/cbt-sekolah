@@ -43,7 +43,7 @@ $ada_nilai = $logs != null && $logs->nilai != null && $logs->nilai != '0';
                         </div>
                         <?php
                         $dom = new DOMDocument();
-                        @$dom->loadHTML($materi->isi_materi);
+                        @$dom->loadHTML(soal_html_aman($materi->isi_materi));
                         $images = $dom->getElementsByTagName('img');
                         foreach ($images as $image) {
                             $curSrc = $image->getAttribute('src');
@@ -55,7 +55,7 @@ $ada_nilai = $logs != null && $logs->nilai != null && $logs->nilai != '0';
                                 $image->setAttribute('src', base_url() . $curSrc);
                             }
                         }
-                        $isi_materi = $dom->saveHTML();
+                        $isi_materi = soal_html_aman($dom->saveHTML());
                         ?>
                         <div class="card-body">
                             <?php if ($ada_nilai) : ?>

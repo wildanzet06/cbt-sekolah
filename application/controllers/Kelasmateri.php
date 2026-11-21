@@ -30,7 +30,7 @@
         $id_kelas[] = $this->input->post('kelas[' . $i . ']', true);
     }
 
-    $isi_materi = (string) $this->input->post('isi_materi', false);
+    $isi_materi = soal_html_aman((string) $this->input->post('isi_materi', false));
     $dom = new DOMDocument();
     $dom->loadHTML($isi_materi, LIBXML_HTML_NODEFDTD);
     $images = $dom->getElementsByTagName('img');

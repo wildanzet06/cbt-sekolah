@@ -307,20 +307,20 @@
                                                 </div>
                                                 <div class="rTableCell align-top">
                                                     <div class="mt-2">
-                                                        <?= $s->soal ?>
+                                                        <?= soal_html_aman($s->soal) ?>
                                                     </div>
                                                     <br>
                                                     <ul class="list-group list-group-unbordered pl-3"
                                                         style="list-style-type: upper-alpha">
-                                                        <li><?= str_replace(['<p>', '</p>'], '', $s->opsi_a ?? '') ?></li>
-                                                        <li><?= str_replace(['<p>', '</p>'], '', $s->opsi_b ?? '') ?></li>
-                                                        <li><?= str_replace(['<p>', '</p>'], '', $s->opsi_c ?? '') ?></li>
+                                                        <li><?= soal_html_aman(str_replace(['<p>', '</p>'], '', $s->opsi_a ?? '')) ?></li>
+                                                        <li><?= soal_html_aman(str_replace(['<p>', '</p>'], '', $s->opsi_b ?? '')) ?></li>
+                                                        <li><?= soal_html_aman(str_replace(['<p>', '</p>'], '', $s->opsi_c ?? '')) ?></li>
                                                         <?php if ($bank->opsi == '4') : ?>
-                                                        <li><?= str_replace(['<p>', '</p>'], '', $s->opsi_d ?? '') ?></li>
+                                                        <li><?= soal_html_aman(str_replace(['<p>', '</p>'], '', $s->opsi_d ?? '')) ?></li>
                                                         <?php endif; ?>
                                                         <?php if ($bank->opsi == '5') : ?>
-                                                            <li><?= str_replace(['<p>', '</p>'], '', $s->opsi_d ?? '') ?></li>
-                                                            <li><?= str_replace(['<p>', '</p>'], '', $s->opsi_e ?? '') ?></li>
+                                                            <li><?= soal_html_aman(str_replace(['<p>', '</p>'], '', $s->opsi_d ?? '')) ?></li>
+                                                            <li><?= soal_html_aman(str_replace(['<p>', '</p>'], '', $s->opsi_e ?? '')) ?></li>
                                                         <?php endif; ?>
                                                     </ul>
                                                     <div class="mb-2 mt-2">Jawaban:
@@ -452,7 +452,7 @@
                                                 </div>
                                                 <div class="rTableCell align-top">
                                                     <div class="mt-2">
-                                                        <?= $s->soal ?>
+                                                        <?= soal_html_aman($s->soal) ?>
                                                         <br>
                                                     </div>
                                                     <br>
@@ -468,7 +468,7 @@
                                                             style="list-style-type: upper-alpha">
                                                             <?php for ($i = 97; $i < (97 + count($opsis)); $i++) :
                                                                 $abjad = chr($i); ?>
-                                                                <li><?=isset($opsis[$abjad]) ? str_replace(['<p>', '</p>'], '', $opsis[$abjad]) : 'null' ?></li>
+                                                                <li><?=isset($opsis[$abjad]) ? soal_html_aman(str_replace(['<p>', '</p>'], '', $opsis[$abjad])) : 'null' ?></li>
                                                             <?php endfor; ?>
                                                         </ul>
                                                     <?php endif; ?>
@@ -600,7 +600,7 @@
                                                 </div>
                                                 <div class="rTableCell align-top">
                                                     <div class="mt-2">
-                                                        <?= $s->soal ?>
+                                                        <?= soal_html_aman($s->soal) ?>
                                                         <br>
                                                     </div>
                                                     <br>
@@ -737,11 +737,11 @@
                                                 </div>
                                                 <div class="rTableCell align-top">
                                                     <div class="mt-2">
-                                                        <?= $s->soal ?>
+                                                        <?= soal_html_aman($s->soal) ?>
                                                         <br>
                                                     </div>
                                                     <br>
-                                                    <div class="mb-2 mt-2">Jawaban: <b><?= $s->jawaban ?></b>
+                                                    <div class="mb-2 mt-2">Jawaban: <b><?= soal_html_aman($s->jawaban) ?></b>
                                                     </div>
                                                 </div>
                                                 <div class="rTableCell text-right pt-2" style="width: 60px">
@@ -869,11 +869,11 @@
                                                 </div>
                                                 <div class="rTableCell align-top">
                                                     <div class="mt-2">
-                                                        <?= $s->soal ?>
+                                                        <?= soal_html_aman($s->soal) ?>
                                                         <br>
                                                     </div>
                                                     <br>
-                                                    <div class="mb-2 mt-2">Jawaban: <b><?= $s->jawaban ?></b>
+                                                    <div class="mb-2 mt-2">Jawaban: <b><?= soal_html_aman($s->jawaban) ?></b>
                                                     </div>
                                                 </div>
                                                 <div class="rTableCell text-right pt-2" style="width: 60px">
@@ -1023,7 +1023,7 @@
                             </td>
                             <td rowspan="<?= $rows ?>"
                                 style="border: 1px solid black; vertical-align: top; padding-left: 6px">
-                                <?= $s->soal ?>
+                                <?= soal_html_aman($s->soal) ?>
                             </td>
                             <td rowspan="<?= $rows ?>"
                                 style="border: 1px solid black;vertical-align: top;text-align: center;">
@@ -1033,7 +1033,7 @@
                                 A
                             </td>
                             <td style="border: 1px solid black;vertical-align: top;padding-left: 6px;">
-                                <?= $opsis ? $opsis['a'] : '' ?>
+                                <?= $opsis ? soal_html_aman($opsis['a']) : '' ?>
                             </td>
                             <td style="border: 1px solid black;vertical-align: top;text-align: center;">
                                 <?= $jawabs && in_array('a', $jawabs) ? 'v' : '' ?>
@@ -1049,7 +1049,7 @@
                                     <?= strtoupper($abjad ?? '') ?>
                                 </td>
                                 <td style="border: 1px solid black;vertical-align: top;padding-left: 6px">
-                                    <?= $opsis[$abjad] ?>
+                                    <?= soal_html_aman($opsis[$abjad]) ?>
                                 </td>
                                 <td style="border: 1px solid black;vertical-align: top;text-align: center;">
                                     <?= $jawabs && in_array($abjad, $jawabs) ? 'v' : '' ?>
@@ -1148,7 +1148,7 @@
                             </td>
                             <td rowspan="<?= $rows ?>"
                                 style="border: 1px solid black; vertical-align: top; padding-left: 6px">
-                                <?= $s->soal; ?>
+                                <?= soal_html_aman($s->soal); ?>
                             </td>
                             <td rowspan="<?= $rows ?>"
                                 style="border: 1px solid black;vertical-align: top;text-align: center;">
@@ -1241,13 +1241,13 @@
                                 <?= $s->nomor_soal ?>
                             </td>
                             <td style="border: 1px solid black; vertical-align: top; padding-left: 6px">
-                                <?= $s->soal ?>
+                                <?= soal_html_aman($s->soal) ?>
                             </td>
                             <td style="border: 1px solid black;vertical-align: top;text-align: center;">
                                 4
                             </td>
                             <td style="border: 1px solid black; vertical-align: top; padding-left: 6px">
-                                <?= $s->jawaban ?>
+                                <?= soal_html_aman($s->jawaban) ?>
                             </td>
                         </tr>
                     <?php endfor; ?>
@@ -1287,13 +1287,13 @@
                                 <?= $s->nomor_soal ?>
                             </td>
                             <td style="border: 1px solid black; vertical-align: top; padding-left: 6px">
-                                <?= $s->soal ?>
+                                <?= soal_html_aman($s->soal) ?>
                             </td>
                             <td style="border: 1px solid black;vertical-align: top;text-align: center;">
                                 5
                             </td>
                             <td style="border: 1px solid black; vertical-align: top; padding-left: 6px">
-                                <?= $s->jawaban ?>
+                                <?= soal_html_aman($s->jawaban) ?>
                             </td>
                         </tr>
                     <?php endfor; ?>

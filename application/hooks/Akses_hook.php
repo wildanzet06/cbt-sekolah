@@ -92,10 +92,17 @@ class Akses_hook {
      * supaya tidak bisa dipicu dari halaman lain (CSRF) atau prefetch browser.
      */
     private $metode_mutasi = array(
-        'delete', 'deletebank', 'deletejadwal', 'hapus', 'hapuspost', 'hapuskomentar',
-        'hapusbalasan', 'hapusrunningtext', 'hapusjadwal', 'activate', 'deactivate',
-        'reset_login', 'truncate', 'hapusbackup', 'backupnilai', 'generatealumni',
-        'aktifkan', 'nonaktifkan', 'verifikasi', 'readed'
+        'delete', 'deletebank', 'deleteallbank', 'deletejadwal', 'deletealljadwal',
+        'hapus', 'hapuspost', 'hapuskomentar', 'hapusbalasan', 'hapusrunningtext',
+        'hapusmateri', 'hapustugas', 'hapussoal', 'hapusjadwal', 'hapuskelompok',
+        'hapusrekap', 'hapustahun', 'deleteguru', 'forcedelete', 'hapusbackup',
+        'copymateri', 'copytugas', 'copybanksoal',
+        'deleteallmateri', 'deletealltugas',
+        'aktifkan', 'nonaktifkan', 'aktifkanmateri', 'aktifkantugas',
+        'activate', 'deactivate', 'reset_login', 'resetnomor', 'truncate',
+        'backupnilai', 'backupdb', 'backupdata', 'restorenilai', 'bulkbackup',
+        'generatealumni', 'verifikasi', 'readed',
+        'savelogmateri', 'savelogtugas', 'kalkulasi'
     );
 
     public function periksa() {

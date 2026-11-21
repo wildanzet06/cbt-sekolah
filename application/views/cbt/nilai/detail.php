@@ -178,35 +178,35 @@
                                     ?>
                                     <tr>
                                         <td class="text-center"><?= $ns ?></td>
-                                        <td><?= $s->soal ?></td>
+                                        <td><?= soal_html_aman($s->soal) ?></td>
                                         <td>
                                             <ol type="A">
                                                 <li>
-                                                    <?= $s->opsi_a ?>
+                                                    <?= soal_html_aman($s->opsi_a) ?>
                                                 </li>
                                                 <li>
-                                                    <?= $s->opsi_b ?>
+                                                    <?= soal_html_aman($s->opsi_b) ?>
                                                 </li>
                                                 <?php if ($info->opsi == 3) : ?>
                                                     <li>
-                                                        <?= $s->opsi_c ?>
+                                                        <?= soal_html_aman($s->opsi_c) ?>
                                                     </li>
                                                 <?php elseif ($info->opsi == 4) : ?>
                                                     <li>
-                                                        <?= $s->opsi_c ?>
+                                                        <?= soal_html_aman($s->opsi_c) ?>
                                                     </li>
                                                     <li>
-                                                        <?= $s->opsi_d ?>
+                                                        <?= soal_html_aman($s->opsi_d) ?>
                                                     </li>
                                                 <?php else : ?>
                                                     <li>
-                                                        <?= $s->opsi_c ?>
+                                                        <?= soal_html_aman($s->opsi_c) ?>
                                                     </li>
                                                     <li>
-                                                        <?= $s->opsi_d ?>
+                                                        <?= soal_html_aman($s->opsi_d) ?>
                                                     </li>
                                                     <li>
-                                                        <?= $s->opsi_e ?>
+                                                        <?= soal_html_aman($s->opsi_e) ?>
                                                     </li>
                                                 <?php endif; ?>
                                             </ol>
@@ -217,7 +217,7 @@
                                             <ol type="A">
                                                 <?php foreach ($arrAlias as $alias) : ?>
                                                     <li>
-                                                        <?= $alias['opsi'] ?>
+                                                        <?= soal_html_aman($alias['opsi']) ?>
                                                     </li>
                                                 <?php endforeach; ?>
                                             </ol>
@@ -287,7 +287,7 @@
                                 foreach ($soal[2] as $s) :?>
                                     <tr>
                                         <td class="text-center"><?= $ns ?></td>
-                                        <td><?= $s->soal ?></td>
+                                        <td><?= soal_html_aman($s->soal) ?></td>
                                         <td>
                                             <ol type="A">
                                                 <?php foreach ($s->opsi_a as $abc => $opsi) : ?>
@@ -389,43 +389,43 @@
                                     ?>
                                     <tr>
                                         <td class="text-center" rowspan="<?=$rows?>"><?= $ns ?></td>
-                                        <td rowspan="<?=$rows?>"><?= $s->soal ?></td>
+                                        <td rowspan="<?=$rows?>"><?= soal_html_aman($s->soal) ?></td>
                                         <td>
                                             <?php
                                             $jwb = $s->tabel_soal[0];
                                             if ($s->type_soal == '1') :?>
-                                                    <span><?= $jwb->title ?></span>
+                                                    <span><?= soal_html_aman($jwb->title) ?></span>
                                                     <?php if (isset($jwb->subtitle)) : ?>
                                                         <ul>
                                                             <?php foreach ($jwb->subtitle as $sub) : ?>
-                                                                <li><?= $sub ?></li>
+                                                                <li><?= soal_html_aman($sub) ?></li>
                                                             <?php endforeach; ?>
                                                         </ul>
                                                     <?php else: ?>
                                                         <br>--
                                                     <?php endif; ?>
                                             <?php else:?>
-                                                    <p><?= $jwb->title ?>
-                                                        <br><?= isset($jwb->subtitle) ? $jwb->subtitle[0] : '' ?></p>
+                                                    <p><?= soal_html_aman($jwb->title) ?>
+                                                        <br><?= soal_html_aman(isset($jwb->subtitle) ? $jwb->subtitle[0] : '') ?></p>
                                             <?php endif; ?>
                                         </td>
                                         <td>
                                             <?php
                                             $jwb = isset($s->tabel_jawab[0]) ? $s->tabel_jawab[0] : [];
                                             if ($s->type_soal == '1') :?>
-                                                    <span><?= $jwb->title ?? '' ?></span>
+                                                    <span><?= soal_html_aman($jwb->title ?? '') ?></span>
                                                     <?php if (isset($jwb->subtitle)) : ?>
                                                         <ul>
                                                             <?php foreach ($jwb->subtitle as $sub) : ?>
-                                                                <li><?= $sub ?></li>
+                                                                <li><?= soal_html_aman($sub) ?></li>
                                                             <?php endforeach; ?>
                                                         </ul>
                                                     <?php else: ?>
                                                         <br>--
                                                     <?php endif; ?>
                                             <?php else:?>
-                                                    <p><?= $jwb->title ?? '' ?>
-                                                        <br><?= isset($jwb->subtitle) ? $jwb->subtitle[0] : '--' ?></p>
+                                                    <p><?= soal_html_aman($jwb->title ?? '') ?>
+                                                        <br><?= soal_html_aman(isset($jwb->subtitle) ? $jwb->subtitle[0] : '--') ?></p>
                                             <?php endif; ?>
                                         </td>
                                         <td class="text-center" rowspan="<?=$rows?>"><?= $s->analisa ?></td>
@@ -457,38 +457,38 @@
                                         <?php
                                         $jwb = $s->tabel_soal[$t];
                                         if ($s->type_soal == '1') : ?>
-                                                <span><?= $jwb->title ?></span>
+                                                <span><?= soal_html_aman($jwb->title) ?></span>
                                                 <?php if (isset($jwb->subtitle)) : ?>
                                                     <ul>
                                                         <?php foreach ($jwb->subtitle as $sub) : ?>
-                                                            <li><?= $sub ?></li>
+                                                            <li><?= soal_html_aman($sub) ?></li>
                                                         <?php endforeach; ?>
                                                     </ul>
                                                 <?php else: ?>
                                                     <br>--
                                                 <?php endif; ?>
                                         <?php else: ?>
-                                                <p><?= $jwb->title ?>
-                                                    <br><?= isset($jwb->subtitle) ? $jwb->subtitle[0] : '' ?></p>
+                                                <p><?= soal_html_aman($jwb->title) ?>
+                                                    <br><?= soal_html_aman(isset($jwb->subtitle) ? $jwb->subtitle[0] : '') ?></p>
                                         <?php endif; ?>
                                     </td>
                                     <td>
                                         <?php
                                         $jwb = $s->tabel_jawab[$t] ?? [];
                                         if ($s->type_soal == '1') : ?>
-                                                <span><?= $jwb->title ?? '' ?></span>
+                                                <span><?= soal_html_aman($jwb->title ?? '') ?></span>
                                                 <?php if (isset($jwb->subtitle)) : ?>
                                                     <ul>
                                                         <?php foreach ($jwb->subtitle as $sub) : ?>
-                                                            <li><?= $sub ?></li>
+                                                            <li><?= soal_html_aman($sub) ?></li>
                                                         <?php endforeach; ?>
                                                     </ul>
                                                 <?php else: ?>
                                                     <br>--
                                                 <?php endif; ?>
                                         <?php else: ?>
-                                                <p><?= $jwb->title ?? '' ?>
-                                                    <br><?= isset($jwb->subtitle) ? $jwb->subtitle[0] : '--' ?></p>
+                                                <p><?= soal_html_aman($jwb->title ?? '') ?>
+                                                    <br><?= soal_html_aman(isset($jwb->subtitle) ? $jwb->subtitle[0] : '--') ?></p>
                                         <?php endif; ?>
                                     </td>
                                 </tr>
@@ -557,7 +557,7 @@
                                 foreach ($soal[4] as $s) :?>
                                     <tr>
                                         <td class="text-center"><?= $ns ?></td>
-                                        <td><?= $s->soal ?></td>
+                                        <td><?= soal_html_aman($s->soal) ?></td>
                                         <td class="text-center"><?= html_escape((string) $s->jawaban_benar) ?></td>
                                         <td class="text-center"><?= html_escape((string) $s->jawaban_siswa) ?></td>
                                         <td class="text-center"><?= $s->analisa ?></td>
@@ -647,7 +647,7 @@
                                 foreach ($soal[5] as $s) :?>
                                     <tr>
                                         <td class="text-center"><?= $ns ?></td>
-                                        <td><?= $s->soal ?></td>
+                                        <td><?= soal_html_aman($s->soal) ?></td>
                                         <td class="text-center"><?= html_escape((string) $s->jawaban_benar) ?></td>
                                         <td class="text-center"><?= html_escape((string) $s->jawaban_siswa) ?></td>
                                         <td class="text-center"><?= $s->analisa ?></td>

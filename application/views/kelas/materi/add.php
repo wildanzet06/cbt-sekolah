@@ -269,7 +269,7 @@ $max_size = 2048; // KB
                 //},
             },
         });
-        var isiMateri = `<?=$materi->isi_materi?>`;
+        var isiMateri = <?= json_encode((string) $materi->isi_materi, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
         var checkMateri = isiMateri == null ? '' : isiMateri;
         var sMateri = $($.parseHTML(checkMateri));
 

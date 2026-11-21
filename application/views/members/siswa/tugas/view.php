@@ -34,7 +34,7 @@ $dataFileAttach = $log_selesai != null && $log_selesai->file != null ? unseriali
                         </div>
                         <div class="card-body">
                             <h3 class="text-center"><?= $tugas->judul_materi ?></h3>
-                            <div class="text-justify"><?= $tugas->isi_materi ?></div>
+                            <div class="text-justify"><?= soal_html_aman($tugas->isi_materi) ?></div>
                         </div>
                     </div>
                 </div>
@@ -49,7 +49,7 @@ $dataFileAttach = $log_selesai != null && $log_selesai->file != null ? unseriali
                                               data-id="<?= $this->security->get_csrf_hash() ?>"
                                               data-name="<?= $this->security->get_csrf_token_name() ?>"
                                               rows='10' cols='80'
-                                              style='width:100%;'><?= $log_selesai != null ? $log_selesai->text : '' ?></textarea>
+                                              style='width:100%;'><?= html_escape($log_selesai != null ? $log_selesai->text : '') ?></textarea>
                                     <button type="submit" class="btn btn-primary float-right ml-1"><i
                                                 class="fa fa-upload"></i> KIRIM
                                     </button>

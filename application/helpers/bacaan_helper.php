@@ -73,10 +73,18 @@ if (!function_exists('soal_html_aman')) {
                 || preg_match('#^(/?|\./)uploads/#i', $url);
             if (!$boleh) { return ''; }
 
-            $alt = preg_match('/\balt\s*=\s*("[^"]*"|\'[^\']*\'|[^\s>]+)/i', $tag, $a)
-                ? ' alt=' . $a[1]
-                : '';
-            return '<img src="' . html_escape($url) . '"' . $alt . '>';
+            $keluar = '<img src="' . html_escape($url) . '"';
+            foreach (array('alt', 'title', 'width', 'height', 'class', 'id', 'align') as $atr) {
+                if (!preg_match('/\b' . $atr . '\s*=\s*("([^"]*)"|\'([^\']*)\'|([^\s>]+))/i', $tag, $nilai)) {
+                    continue;
+                }
+                $isi = '';
+                if (isset($nilai[2]) && $nilai[2] !== '') { $isi = $nilai[2]; }
+                elseif (isset($nilai[3]) && $nilai[3] !== '') { $isi = $nilai[3]; }
+                elseif (isset($nilai[4])) { $isi = $nilai[4]; }
+                $keluar .= ' ' . $atr . '="' . html_escape($isi) . '"';
+            }
+            return $keluar . '>';
         }, $html);
 
         return $html;
