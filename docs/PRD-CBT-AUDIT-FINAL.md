@@ -140,7 +140,7 @@ ZIP final dibuat dari `HEAD` dengan `git archive`, sehingga hanya berkas terlaca
 
 - **Lokasi:** `C:\Users\Admin\Downloads\Compressed\cbt-sekolah-final-audit.zip`
 - **Integritas:** `unzip -t` lolos.
-- **Isi:** 2.688 entri, 608 file PHP, 761 file JavaScript.
+- **Isi:** 2.695 entri, 610 file PHP, 761 file JavaScript (dihitung ulang setelah commit terakhir).
 - **Tidak ikut:** `.git/`, `vendor/`, `encryption.local.php`, `midtrans.php`, `application/logs/log-*.php`, dan isi `backups/` kecuali `.htaccess` serta `index.html`.
 - **Masih ikut:** `composer.json`, `composer.lock`, kedua file `.example`, `uploads/.htaccess`, template import, dokumentasi, dan patch NISN.
 
@@ -177,3 +177,31 @@ Dokumentasi dan pengujian mandirinya:
 - `tools/test-aktivasi-siswa.php`
 
 Catatan penting untuk sekolah: menambah murid di **Data Siswa** saja belum membuat murid bisa login. Murid tetap harus diaktifkan di **Data User Siswa**, dengan username dan password Data Siswa sudah terisi.
+
+## 12. Tambahan: perbaikan lanjutan hasil audit ulang
+
+Setelah paket awal, audit ulang menyisakan beberapa temuan yang sudah ditangani bertahap. Rinciannya ada di PRD kelompok masing-masing:
+
+- `docs/PRD-PERBAIKAN-KEAMANAN-KRITIS.md` → commit `5f72d7e`, `39f20c2`.
+- `docs/PRD-PERBAIKAN-KEAMANAN-TINGGI.md` → commit `4d9da41`, `1290cf1`.
+- `docs/PRD-PERBAIKAN-XSS-DAN-GUARD-LANJUTAN.md` → commit `7858472`.
+- `docs/PRD-PERBAIKAN-FUNGSIONAL-DAN-DATA.md` → commit `05263bd`.
+
+Ringkasan hasil akhir:
+
+| Temuan | Status |
+|---|---|
+| `Userguru::editLogin()` bisa diubah oleh guru lain | Selesai; cek kepemilikan, password lama, dan SQLi. |
+| Koreksi nilai, hapus file, update user, upload berbahaya | Selesai. |
+| XSS tersimpan pada soal/opsi/materi/tugas | Selesai; sanitizer dipakai saat simpan dan tampil. |
+| Mutasi lewat tautan GET biasa | Selesai; method mutasi ditolak kecuali POST/AJAX. |
+| IDOR materi/tugas siswa dan log atas nama siswa lain | Selesai; `id_siswa` dan `id_kjm` divalidasi dari sesi. |
+| Submit tugas menulis ke tabel `log_tugas` yang tidak ada | Selesai; memakai `log_materi`. |
+| 8 baris `users_groups` orphan | Selesai; backup dibuat, lalu baris dihapus. Sisa orphan 0. |
+| Timer integrity ujian | Sudah valid sejak awal; tidak diubah. |
+| Foto siswa hilang (41 dari 42) | Menunggu backup/upload sekolah. View sudah punya fallback. |
+| NISN `4294967295` pada siswa id 1 | Menunggu NISN 10 digit asli dari sekolah. |
+| Inkonsistensi `log_ujian`/`cbt_durasi_siswa` | Menunggu konfirmasi sekolah; nilai tidak dihitung ulang otomatis. |
+| Midtrans produksi | Menunggu kredensial produksi. |
+
+ZIP final dihasilkan ulang dari `HEAD` setelah commit `05263bd` dengan `git archive`. Isinya tetap tidak termasuk `.git/`, `vendor/`, `encryption.local.php`, `midtrans.php`, log aplikasi, backup SQL, dan foto siswa. `unzip -t` lolos; hasil hitung: 2.695 entri, 610 file PHP, 761 file JavaScript. Semua commit lanjutan sudah di-push ke remote setelah commit dokumentasi ini.
