@@ -366,7 +366,10 @@
             </td>
             <td class="align-middle">${kls}</td>
             <td class="align-middle">${siswa.username}</td>
-            <td class="align-middle td-password" data-username="${siswa.username}"><span class="pw-awal" style="visibility:hidden">${siswa.password}</span></td>
+            <td class="align-middle td-password" data-id="${siswa.id_siswa}" data-username="${siswa.username}">
+                <button type="button" class="btn btn-default btn-xs btn-lihat-password" data-id="${siswa.id_siswa}" data-toggle="tooltip" title="Lihat password awal"><i class="fa fa-eye"></i></button>
+                <span class="pw-awal d-none"></span>
+            </td>
             <td class="text-center align-middle">
                 <button type="button" class="btn btn-default btn-xs btn-reset" ${siswa.reset == '0' ? 'disabled' : ''} data-username="${siswa.username}" data-nama="${siswa.nama}" data-toggle="tooltip" title="Reset Login"> <i class="fa fa-sync text-xs mr-1 ml-1"></i></button>
             </td>
@@ -402,7 +405,7 @@
         var nama = sel.map(function () { return $(this).attr('data-username'); }).get();
         if (nama.length === 0) return;
 
-        function tampilkanSemua() { sel.find('.pw-awal').css('visibility', 'visible'); }
+        function tampilkanSemua() { /* tombol tetap tersedia bila pengecekan gagal */ }
 
         $.ajax({
             url: base_url + 'akun/status_password',
@@ -416,14 +419,31 @@
                     var u = String($(this).attr('data-username'));
                     if (diganti[u]) {
                         $(this).html('<span class="badge badge-info" title="Password awal sudah tidak berlaku. Untuk mengembalikan, Nonaktifkan lalu Aktifkan akun.">Sudah diganti siswa</span>');
-                    } else {
-                        $(this).find('.pw-awal').css('visibility', 'visible');
                     }
                 });
             },
             error: tampilkanSemua
         });
     }
+
+    // Password tidak dikirim bersama daftar. Admin memintanya satu per satu.
+    $(document).on('click', '.btn-lihat-password', function () {
+        var tombol = $(this);
+        var sel = tombol.closest('.td-password');
+        $.ajax({
+            url: base_url + 'akun/lihat_password',
+            type: 'POST',
+            dataType: 'json',
+            data: {id_siswa: tombol.attr('data-id')},
+            success: function (res) {
+                sel.find('.pw-awal').text(res && res.password ? res.password : '-').removeClass('d-none');
+                tombol.remove();
+            },
+            error: function () {
+                swal.fire({title: 'Gagal', text: 'Password tidak dapat ditampilkan.', icon: 'error'});
+            }
+        });
+    });
 
     function applySearch() {
         query = $('#input-search').val();

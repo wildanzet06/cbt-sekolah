@@ -64,22 +64,16 @@
                             </div>
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend w-40">
-                                    <span class="input-group-text">Password Lama</span>
-                                </div>
-                                <input type="text" name="old" class="form-control" value="<?= $siswa->password ?>"
-                                       placeholder="Password Lama" required>
-                            </div>
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend w-40">
                                     <span class="input-group-text">Password Baru</span>
                                 </div>
-                                <input type="text" name="new" class="form-control" placeholder="Password Baru">
+                                <input type="password" name="new" class="form-control" placeholder="Password Baru"
+                                       required>
                             </div>
                             <div class="input-group mb-3">
                                 <div class="input-group-prepend w-40">
                                     <span class="input-group-text">Konfirmasi Password</span>
                                 </div>
-                                <input type="text" name="new_confirm" class="form-control"
+                                <input type="password" name="new_confirm" class="form-control"
                                        placeholder="Konfirmasi Password Baru" required>
                             </div>
                             <button type="submit" id="btn-pass" class="btn btn-warning float-right">Ganti Password

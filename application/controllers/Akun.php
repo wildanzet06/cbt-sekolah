@@ -126,6 +126,17 @@ class Akun extends CI_Controller {
         );
     }
 
+    // Apakah password awal sudah tidak berlaku karena diganti sendiri oleh pengguna.
+    private function _sudah_diganti($username) {
+        if (!$this->db->table_exists('cbt_password_diganti')) return false;
+        $catatan = $this->db->get_where('cbt_password_diganti', array('username' => $username))->row();
+        if (!$catatan) return false;
+        if (!$this->db->field_exists('created_on', 'users')) return true;
+        $user = $this->db->select('created_on')->get_where('users', array('username' => $username))->row();
+        if (!$user) return true;
+        return (int) $catatan->diganti_pada >= (int) $user->created_on;
+    }
+
     // Dipakai halaman User Management (admin): dari daftar username yang dikirim,
     // mana saja yang passwordnya sudah diganti sendiri oleh pengguna.
     // Catatan: jika akun dibuat ulang setelah itu (Nonaktifkan lalu Aktifkan),
@@ -145,33 +156,41 @@ class Akun extends CI_Controller {
         $username = array_slice(array_values(array_unique($username)), 0, 200);
 
         $diganti = array();
-        if (!empty($username) && $this->db->table_exists('cbt_password_diganti')) {
-            $this->db->select('username, diganti_pada');
-            $this->db->where_in('username', $username);
-            $catatan = $this->db->get('cbt_password_diganti')->result();
-
-            // Waktu akun dibuat (dibaca terpisah supaya tidak ada gabungan antar tabel)
-            $dibuat = array();
-            if (!empty($catatan) && $this->db->field_exists('created_on', 'users')) {
-                $nama = array();
-                foreach ($catatan as $c) $nama[] = $c->username;
-                $this->db->select('username, created_on');
-                $this->db->where_in('username', $nama);
-                foreach ($this->db->get('users')->result() as $u) {
-                    $dibuat[$u->username] = (int) $u->created_on;
-                }
-            }
-
-            foreach ($catatan as $c) {
-                // Berlaku hanya jika penggantian terjadi sesudah akun dibuat
-                if (!isset($dibuat[$c->username]) || (int) $c->diganti_pada >= $dibuat[$c->username]) {
-                    $diganti[] = $c->username;
-                }
-            }
+        foreach ($username as $u) {
+            if ($this->_sudah_diganti($u)) $diganti[] = $u;
         }
 
         $this->output->set_content_type('application/json')
             ->set_output(json_encode(array('diganti' => $diganti)));
+    }
+
+    // Ambil password awal satu siswa hanya saat admin benar-benar menekan tombol.
+    // Password tidak pernah dikirim bersama daftar tabel.
+    public function lihat_password() {
+        $kosong = array('password' => '');
+        if (!$this->ion_auth->is_admin() || $this->input->method() !== 'post') {
+            $this->output->set_status_header(403)
+                ->set_content_type('application/json')
+                ->set_output(json_encode($kosong));
+            return;
+        }
+
+        $id = (string) $this->input->post('id_siswa', true);
+        if (!ctype_digit($id) || (int) $id <= 0) {
+            $this->output->set_status_header(400)
+                ->set_content_type('application/json')
+                ->set_output(json_encode($kosong));
+            return;
+        }
+
+        $siswa = $this->db->get_where('master_siswa', array('id_siswa' => (int) $id))->row();
+        $password = $siswa ? (string) $siswa->password : '';
+        if ($siswa && $this->_sudah_diganti($siswa->username)) {
+            $password = 'Sudah diganti siswa';
+        }
+
+        $this->output->set_content_type('application/json')
+            ->set_output(json_encode(array('password' => $password)));
     }
 
     // Halaman siswa: melihat kehadirannya sendiri (hadir/izin/sakit/alpa)

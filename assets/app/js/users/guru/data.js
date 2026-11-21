@@ -30,14 +30,13 @@ $(document).ready(function() {
 			},
 			{ data: "nama_guru" },
 			{ data: "username" },
-			{ data: "password" },
 			{ data: "level"},
 		],
 		columnDefs: [
 			{
 				searchable: false,
 				className: "text-center",
-				targets: 5,
+				targets: 4,
 				data: {
 					id : "id",
 					username: "username",
@@ -53,7 +52,7 @@ $(document).ready(function() {
 			{
 				searchable: false,
 				className: "text-center",
-				targets: 6,
+				targets: 5,
 				data: {
 					id : "id",
 					id_guru: "id_guru",

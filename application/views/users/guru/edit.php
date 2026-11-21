@@ -78,8 +78,7 @@
                                     <div class="input-group-prepend w-40">
                                         <span class="input-group-text">Password</span>
                                     </div>
-                                    <input type="password" class="form-control" value="<?= $guru->password ?>"
-                                           placeholder="Username" disabled>
+                                    <input type="password" class="form-control" placeholder="••••••••" disabled>
                                 </div>
                                 <button type="submit" id="btn-level"
                                         class="btn btn-primary float-right" <?= is_null($users) ? 'disabled' : '' ?>>

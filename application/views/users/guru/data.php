@@ -38,7 +38,6 @@
                                 <th class="text-center" style="width: 40px">No.</th>
                                 <th>Nama</th>
                                 <th>Username</th>
-                                <th>Password</th>
                                 <th>Jabatan</th>
                                 <th class="text-center">Reset Login</th>
                                 <th class="text-center">Aksi</th>
