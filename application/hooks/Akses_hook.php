@@ -165,6 +165,14 @@ class Akses_hook {
         }
 
         $admin = $CI->ion_auth->is_admin();
+
+        // File proteksi folder tidak boleh dihapus lewat endpoint apa pun.
+        if (in_array($metode, array('deletefile', 'deletefoto'), true)) {
+            $__src = urldecode((string) $CI->input->post('src'));
+            if (stripos($__src, '.htaccess') !== false || stripos($__src, 'web.config') !== false) {
+                $this->tolak($CI, 'mencoba menghapus file proteksi');
+            }
+        }
         $siswa = !$admin && $CI->ion_auth->in_group(array(3, 'siswa'));
 
         // 10) Guru hanya boleh mengelola bank soalnya sendiri.
