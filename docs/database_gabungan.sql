@@ -488,3 +488,15 @@ CREATE TABLE IF NOT EXISTS ekstra_siswa (
   UNIQUE KEY uk_ekstra_siswa (id_siswa, id_tp, id_smt),
   KEY idx_ekstra (id_ekstra)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- C-1: hentikan penyimpanan password plaintext di master_siswa/master_guru.
+-- Login memakai hash bcrypt di tabel users.
+DROP TRIGGER IF EXISTS trg_master_siswa_password;
+DROP TRIGGER IF EXISTS trg_master_siswa_password_upd;
+DROP TRIGGER IF EXISTS trg_master_guru_password;
+DROP TRIGGER IF EXISTS trg_master_guru_password_upd;
+CREATE TRIGGER trg_master_siswa_password BEFORE INSERT ON master_siswa FOR EACH ROW SET NEW.password = '';
+CREATE TRIGGER trg_master_siswa_password_upd BEFORE UPDATE ON master_siswa FOR EACH ROW SET NEW.password = '';
+CREATE TRIGGER trg_master_guru_password BEFORE INSERT ON master_guru FOR EACH ROW SET NEW.password = '';
+CREATE TRIGGER trg_master_guru_password_upd BEFORE UPDATE ON master_guru FOR EACH ROW SET NEW.password = '';
+UPDATE master_siswa SET password = '' WHERE password IS NOT NULL AND password <> '';
+UPDATE master_guru SET password = '' WHERE password IS NOT NULL AND password <> '';
