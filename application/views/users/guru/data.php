@@ -140,8 +140,7 @@
 </div>
 -->
 
-<script type="text/javascript">
-    var user_id = '<?=$user->id?>';
-</script>
+<div id="user-config" data-id="<?= html_escape($user->id) ?>" hidden></div>
+<script src="<?= base_url() ?>assets/app/js/users-config.js"></script>
 
 <script src="<?= base_url() ?>/assets/app/js/users/guru/data.js"></script>
