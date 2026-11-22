@@ -1,0 +1,15 @@
+# Patch profil DeepSeek Harness: hubungkan knowledge graph Graphify.
+# Dipakai lewat: dsh web --patch .dsh/graphify.cordis.yml
+- insert:
+    - id: mcp-graphify
+      name: '@deepseek-ai/dsh-mcp-client'
+      config:
+        serverName: graphify
+        transport: stdio
+        command: C:/Users/Admin/.local/bin/graphify-mcp.exe
+        args:
+          - --graph
+          - C:/laragon/www/cbt-sekolah/graphify-out/graph.json
+        cwd: C:/laragon/www/cbt-sekolah
+        startupTimeoutMs: 30000
+        toolLoading: on-demand

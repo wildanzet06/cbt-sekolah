@@ -48,7 +48,7 @@ class Akses_hook {
         'index', 'data', 'list', 'activate', 'deactivate',
         'aktifkansemua', 'nonaktifkansemua', 'delete', 'reset_login'
     );
-    private $khusus_admin = array('usersiswa', 'userguru', 'useradmin', 'datatahun', 'kas', 'pembayaran');
+    private $khusus_admin = array('usersiswa', 'userguru', 'useradmin', 'datatahun', 'kas', 'pembayaran', 'pengumuman');
 
     /**
      * Controller yang SELURUH method-nya hanya untuk admin.
@@ -158,7 +158,7 @@ class Akses_hook {
         $metode = strtolower((string) $CI->router->fetch_method());
         // B-5: halaman Data Siswa memakai script eksternal + nonce untuk
         // satu script menu sidebar. Script inline lain akan diblokir.
-        if (in_array(strtolower((string) $CI->router->fetch_class()), array('datasiswa', 'dataguru', 'datakelas', 'datamapel', 'dataekstra', 'usersiswa', 'userguru', 'useradmin', 'datatahun', 'kas', 'pembayaran'), true)) {
+        if (in_array(strtolower((string) $CI->router->fetch_class()), array('datasiswa', 'dataguru', 'datakelas', 'datamapel', 'dataekstra', 'usersiswa', 'userguru', 'useradmin', 'datatahun', 'kas', 'pembayaran', 'pengumuman'), true) || (strtolower((string) $CI->router->fetch_class()) === 'settings' && $metode === 'index')) {
             $__nonce = base64_encode(random_bytes(16));
             $CI->config->set_item('csp_nonce', $__nonce);
             header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-" . $__nonce . "'; script-src-attr 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; media-src 'self' blob:; frame-src 'self' blob: data:; object-src 'none'; frame-ancestors 'self'; base-uri 'none'; form-action 'self'", false);
