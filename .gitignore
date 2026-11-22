@@ -95,3 +95,6 @@ installer/TERPASANG
 # Kunci enkripsi khusus instalasi
 application/config/encryption.local.php
 /graphify-out/
+/.dsh/
+/.graphifyrc
+/dsh-graphify.bat
