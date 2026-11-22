@@ -23,8 +23,13 @@ $__host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : '';
 if (!preg_match('/^[A-Za-z0-9.\-]+(:\d{1,5})?$/', $__host)) {
     $__host = isset($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : 'localhost';
 }
-$config['base_url'] = "$scheme://" . $__host;
-$config['base_url'] .= preg_replace('@/+$@','',dirname($_SERVER['SCRIPT_NAME'])).'/';
+$__env_base = getenv('CBT_BASE_URL');
+if ($__env_base !== false && $__env_base !== '') {
+    $config['base_url'] = rtrim($__env_base, '/') . '/';
+} else {
+    $config['base_url'] = "$scheme://" . $__host;
+    $config['base_url'] .= preg_replace('@/+$@','',dirname($_SERVER['SCRIPT_NAME'])).'/';
+}
 
 $config['index_page'] = '';
 
