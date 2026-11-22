@@ -74,3 +74,35 @@ $dest="new.jpg";
 $desired_width="200";
 make_thumb($src, $dest, $desired_width);
 */
+if (!function_exists('db_upsert')) {
+    /**
+     * INSERT ... ON DUPLICATE KEY UPDATE (pengganti REPLACE agar ID/audit tidak hilang).
+     * Mengandalkan unique key yang sudah ada pada tabel.
+     */
+    function db_upsert($db, $table, $data)
+    {
+        if (!is_array($data) || count($data) === 0) {
+            return false;
+        }
+        if (!preg_match('/^[A-Za-z0-9_]+$/', (string) $table)) {
+            return false;
+        }
+        $kolom = array();
+        $nilai = array();
+        $update = array();
+        foreach ($data as $k => $v) {
+            if (!preg_match('/^[A-Za-z0-9_]+$/', (string) $k)) {
+                continue;
+            }
+            $kolom[] = '`' . $k . '`';
+            $nilai[] = $db->escape($v);
+            $update[] = '`' . $k . '` = VALUES(`' . $k . '`)';
+        }
+        if (count($kolom) === 0) {
+            return false;
+        }
+        $sql = 'INSERT INTO `' . $table . '` (' . implode(',', $kolom) . ') VALUES ('
+            . implode(',', $nilai) . ') ON DUPLICATE KEY UPDATE ' . implode(',', $update);
+        return $db->query($sql);
+    }
+}
