@@ -64,29 +64,11 @@ $route['404_override'] = ''; // pakai halaman 404 bawaan CodeIgniter (status 404
 $route['translate_uri_dashes'] = FALSE;
 
 /*
- * Alat instalasi / update / pembanding database hanya berguna di komputer
- * server sendiri. Dari akses jaringan luar, route-nya ditutup (404) agar
- * tidak bisa dipakai menimpa atau mengubah struktur database.
+ * Alat instalasi / update / pembanding database hanya untuk CLI (tools/pasang.php).
+ * Route web-nya ditutup total agar SQL dari POST tidak bisa dijalankan lewat web,
+ * termasuk dari komputer server sendiri.
  */
-$__remote = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
-$__lokal = ($__remote === '')
-    || in_array($__remote, ['127.0.0.1', '::1'], true);
-if (!$__lokal) {
-    foreach (['install', 'update', 'compare'] as $__alat) {
-        $route[$__alat] = 'blocked';
-        $route[$__alat . '/(:any)'] = 'blocked';
-        $route[$__alat . '/(:any)/(:any)'] = 'blocked';
-    }
-    unset($__alat);
-}
-unset($__remote, $__lokal);
-
-/*
- * 'compare' (pembanding database) bisa MENGHAPUS tabel yang tidak terdaftar di
- * assets/app/db/database.json. Alat ini hanya untuk pengembang, jadi ditutup
- * total — termasuk dari komputer server sendiri.
- */
-foreach (['compare'] as $__alat) {
+foreach (['install', 'update', 'compare'] as $__alat) {
     $route[$__alat] = 'blocked';
     $route[$__alat . '/(:any)'] = 'blocked';
     $route[$__alat . '/(:any)/(:any)'] = 'blocked';
