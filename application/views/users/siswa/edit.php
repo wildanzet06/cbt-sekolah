@@ -1,4 +1,9 @@
-<div class="content-wrapper bg-white">
+<?php $__pw = $this->session->flashdata('password_awal'); if ($__pw): ?>
+    <div class="alert alert-warning mx-3">
+        Password awal baru: <b><?= html_escape($__pw) ?></b><br>
+        <small>Tampilkan/berikan password ini sekali. Pengguna wajib menggantinya saat login.</small>
+    </div>
+<?php endif; ?><div class="content-wrapper bg-white">
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
@@ -51,6 +56,7 @@
                     <div class="card card-warning my-shadow">
                         <div class="card-header with-border">
                             <h3 class="card-title">Ubah Password & Username</h3>
+                    <a href="<?= base_url('usersiswa/reset_password_otomatis/' . (int) $siswa->id_siswa) ?>" class="btn btn-sm btn-outline-warning float-right ml-2" onclick="return confirm('Buat password acak baru? Password lama tidak berlaku.')"><i class="fas fa-key"></i> Reset Password Otomatis</a>
                         </div>
                         <div class="card-body">
                             <?= $this->session->flashdata('editsiswa') ?>

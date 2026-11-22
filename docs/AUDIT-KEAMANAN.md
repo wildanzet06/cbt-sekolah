@@ -615,3 +615,15 @@ diperbaiki sebelum audit ini; dua hal kecil baru ditambahkan.
   installer setelah aplikasi terpasang.
 - Folder `installer/` sebaiknya dihapus dari server setelah instalasi selesai
   (simpan salinannya di luar web root) sebagai lapisan tambahan.
+## Tindak lanjut PRD kredensial (C)
+
+- **C-1:** kolom `password` di `master_siswa`/`master_guru` dikosongkan dan dijaga trigger
+  `BEFORE INSERT/UPDATE`; login hanya memakai hash bcrypt di `users`.
+- **C-2:** admin punya aksi **Reset Password Otomatis** (`usersiswa/reset_password_otomatis/{id}`):
+  password acak 10 karakter, hash bcrypt, ditampilkan **sekali** lewat flash, dan
+  `must_change_password = 1`.
+- **C-3:** `Akses_hook` mengarahkan akun ber-flag ke `akun/password`; flag dibersihkan
+  setelah password berhasil diganti.
+- **C-5:** `tools/pindai_backup_password.php` menginventarisasi file `backups/*.sql`
+  yang berpotensi memuat password plaintext. Backup lama harus dipindah ke penyimpanan
+  terenkripsi atau dimusnahkan; password terkait dianggap bocor dan direset.
