@@ -506,3 +506,6 @@ SET @sql = (SELECT IF(COUNT(*) = 0,
 'SELECT ''must_change_password ada'' AS info')
 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'must_change_password');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+-- E-1: jadwal materi punya kolom jam_ke + unique key.
+-- Backfill otomatis: php tools/migrasi_jam_ke_materi.php
+-- (id_kjm lama = id_kelas . id_tp . id_smt . Ymd . jam_ke . jenis)
