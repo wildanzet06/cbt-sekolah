@@ -44,6 +44,9 @@ RewriteRule ^(.*)$ index.php/$1 [L]
     Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
     Header always set Content-Security-Policy "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://oss.maxcdn.com https://app.midtrans.com https://app.sandbox.midtrans.com; font-src 'self' data:; connect-src 'self' https://app.midtrans.com https://app.sandbox.midtrans.com https://api.midtrans.com https://api.sandbox.midtrans.com; media-src 'self' blob:; frame-src 'self' blob: data: https://app.midtrans.com https://app.sandbox.midtrans.com; object-src 'none'; frame-ancestors 'self'; base-uri 'none'; form-action 'self'"
     Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
-    # Tambahkan SameSite pada semua cookie yang dikirim aplikasi
-    Header edit Set-Cookie ^(.*)$ "$1; SameSite=Lax"
+    # Tambahkan SameSite HANYA pada cookie yang belum memilikinya.
+    # Tanpa syarat ini, cookie yang sudah dikirim aplikasi dengan
+    # SameSite=Strict/Lax jadi dobel dan bisa ditolak browser (mis. Edge),
+    # sehingga session login hilang dan halaman terlihat kosong.
+    Header edit Set-Cookie "^((?!.*(?i:samesite)).*)$" "$1; SameSite=Lax"
 </IfModule>
