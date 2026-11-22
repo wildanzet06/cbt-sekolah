@@ -60,9 +60,9 @@
                             <!-- /.col -->
                         </div>
                         <?= form_close(); ?>
-                        <!--
-				<a href="<?= base_url() ?>auth/forgot_password" class="text-center"><?= lang('login_forgot_password'); ?></a>
-				-->
+                        <div class="text-center small text-muted mt-3">
+                            Lupa password? Hubungi administrator atau wali kelas untuk reset.
+                        </div>
                     </div>
                 </div>
 
