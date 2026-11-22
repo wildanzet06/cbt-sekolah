@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Pengaturan Ujian — 1 halaman, 5 tab (PRD 4.3 / 5.3).
+ * Pengaturan Ujian â€” 1 halaman, 5 tab (PRD 4.3 / 5.3).
  * Semua tab dirender sekaligus; pindah tab tidak memuat ulang halaman
  * dan tidak membuka tab browser.
  */
@@ -96,34 +96,8 @@ $this->load->view('cbt/ujiansekolah/_style');
                 halaman dan tanpa membuka tab browser baru.
             </p>
         </div>
-    <script>
-    (function () {
-        var KUNCI = 'mode_sederhana_pengaturan';
-        var $ul = $('#tab-pengaturan');
-        var $sw = $('#mode-sederhana');
-        if (!$ul.length || !$sw.length) { return; }
-
-        function terapkan(sederhana) {
-            $ul.toggleClass('mode-sederhana', sederhana);
-            $sw.prop('checked', sederhana);
-            if (sederhana && $ul.find('li.tab-lanjutan a.active').length) {
-                $ul.find('a[href="#pane-peserta"]').tab('show');
-            }
-            try { localStorage.setItem(KUNCI, sederhana ? '1' : '0'); } catch (e) {}
-        }
-
-        var paksaRinci = <?= in_array($tab, array('sesi', 'pengawas', 'jenis'), true) ? 'true' : 'false' ?>;
-        var awal = true;
-        try {
-            var simpan = localStorage.getItem(KUNCI);
-            if (simpan !== null) { awal = simpan === '1'; }
-        } catch (e) {}
-        if (paksaRinci) { awal = false; }
-
-        $sw.on('change', function () { terapkan(this.checked); });
-        terapkan(awal);
-    })();
-</script>
+<div id="ujian-pengaturan-data" data-paksa="<?= in_array($tab, array('sesi', 'pengawas', 'jenis'), true) ? '1' : '0' ?>" hidden></div>
+<script src="<?= base_url() ?>assets/app/js/ujian-pengaturan.js"></script>
 <style>
     #tab-pengaturan.mode-sederhana .tab-lanjutan { display: none !important; }
 </style></section>
