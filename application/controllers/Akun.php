@@ -180,15 +180,19 @@ class Akun extends CI_Controller {
 
         if (ctype_digit($id_siswa) && (int) $id_siswa > 0) {
             $siswa = $this->db->get_where('master_siswa', array('id_siswa' => (int) $id_siswa))->row();
-            $password = $siswa ? (string) $siswa->password : '';
+            $password = $siswa ? trim((string) $siswa->password) : '';
             if ($siswa && $this->_sudah_diganti($siswa->username)) {
                 $password = 'Sudah diganti siswa';
+            } elseif ($password === '') {
+                $password = 'Password awal tidak tersimpan';
             }
         } elseif (ctype_digit($id_guru) && (int) $id_guru > 0) {
             $guru = $this->db->get_where('master_guru', array('id_guru' => (int) $id_guru))->row();
-            $password = $guru ? (string) $guru->password : '';
+            $password = $guru ? trim((string) $guru->password) : '';
             if ($guru && $this->_sudah_diganti($guru->username)) {
                 $password = 'Sudah diganti guru';
+            } elseif ($password === '') {
+                $password = 'Password awal tidak tersimpan';
             }
         } else {
             $this->output->set_status_header(400)
