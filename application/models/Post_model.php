@@ -18,7 +18,12 @@
             $this->db->group_end();
         }
         $this->db->order_by('a.updated', 'desc');
-        return $this->db->get()->result();
+        $rows = $this->db->get()->result();
+        foreach ($rows as $r) {
+            if (isset($r->text)) { $r->text = soal_html_aman($r->text); }
+            if (isset($r->judul)) { $r->judul = html_escape($r->judul); }
+        }
+        return $rows;
     }
 
     public function getIdComments($id_post) { goto Xr1QA; IQc9N: return $this->db->get("\160\157\163\164\x5f\x63\157\x6d\155\145\x6e\164\x73")->result(); goto HgIru; vaBvk: $this->db->where("\151\x64\x5f\x70\157\163\164", $id_post); goto IQc9N; Xr1QA: $this->db->select("\x69\x64\137\x63\x6f\155\x6d\145\x6e\164"); goto vaBvk; HgIru: } public function getIdReplies($id_comment) { goto M21l1; tZZyA: sQhje: goto p9cqf; ZS9Bj: if (is_array($id_comment)) { goto sQhje; } goto B9Qbm; B9Qbm: $this->db->where("\x69\x64\x5f\143\157\x6d\155\x65\156\x74", $id_comment); goto ZYuyw; V1HXK: Afukg: goto viAYi; p9cqf: $this->db->where_in("\x69\x64\137\143\x6f\155\155\x65\156\x74", $id_comment); goto V1HXK; viAYi: return $this->db->get("\160\x6f\163\x74\137\162\145\x70\x6c\171")->result(); goto DJ2oK; ZYuyw: goto Afukg; goto tZZyA; M21l1: $this->db->select("\x69\x64\x5f\x72\x65\160\154\x79"); goto ZS9Bj; DJ2oK: } }
