@@ -627,3 +627,11 @@ diperbaiki sebelum audit ini; dua hal kecil baru ditambahkan.
 - **C-5:** `tools/pindai_backup_password.php` menginventarisasi file `backups/*.sql`
   yang berpotensi memuat password plaintext. Backup lama harus dipindah ke penyimpanan
   terenkripsi atau dimusnahkan; password terkait dianggap bocor dan direset.
+## F-18 / F-20 (lanjutan)
+
+- **F-18 Kas:** nominal `1.500,50` sekarang diparse sebagai 1500.50
+  (koma desimal), bukan 150050; hapus transaksi kas dicatat ke `log_ujian`
+  lewat `Log_model` sebelum dihapus.
+- **F-20 Dependensi:** `composer audit` (PHP 8.3) melaporkan
+  **tidak ada advisory**. Versi terpasang: dompdf **3.1.6**,
+  phpspreadsheet **1.30.8** (lebih baru dari rentang rentan di audit awal).
