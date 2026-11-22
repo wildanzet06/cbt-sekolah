@@ -25,11 +25,11 @@ $ada_nilai = $logs != null && $logs->nilai != null && $logs->nilai != '0';
                                 <img class="img-circle media-left" src="<?= base_url($avatar) ?>" width="60"
                                      height="60"/>
                                 <div class="media-body ml-4">
-                                    <span class="text-lg"><b><?= $materi->nama_guru ?></b></span>
+                                    <span class="text-lg"><b><?= html_escape($materi->nama_guru) ?></b></span>
                                     <br/>
-                                    <span> <?= $materi->nama_mapel ?> </span>
+                                    <span> <?= html_escape($materi->nama_mapel) ?> </span>
                                     <br/>
-                                    <span>Kelas <?= $siswa->nama_kelas ?> </span>
+                                    <span>Kelas <?= html_escape($siswa->nama_kelas) ?> </span>
                                 </div>
                             </div>
                             <div class="card-tools pl-3 pr-3 pb-1 pt-1 text-center alert alert-default-info m-0"
@@ -66,7 +66,7 @@ $ada_nilai = $logs != null && $logs->nilai != null && $logs->nilai != '0';
                                     </div>
                                 </div>
                             <?php endif; ?>
-                            <h3 class="text-center"><?= $materi->judul_materi ?></h3>
+                            <h3 class="text-center"><?= html_escape($materi->judul_materi) ?></h3>
                             <div class="text-justify"><?= $isi_materi ?></div>
                         </div>
                     </div>
@@ -90,14 +90,14 @@ $ada_nilai = $logs != null && $logs->nilai != null && $logs->nilai != '0';
                                         <li>
                                             <img src="<?= base_url() . $file["src"] ?>" data-target="#view-modal"
                                                  data-toggle="modal" data-src="<?= base_url() . $file["src"] ?>"
-                                                 data-type="<?= $file["type"] ?>"/>
-                                            <div class="title-thumb"><?= $file["name"] ?></div>
+                                                 data-type="<?= html_escape($file["type"]) ?>"/>
+                                            <div class="title-thumb"><?= html_escape($file["name"]) ?></div>
                                         </li>
                                     <?php elseif ($extension == 'mpeg' || $extension == 'mpg' || $extension == 'mp4' || $extension == 'avi'): ?>
                                         <li>
                                             <img src="<?= base_url() . '/assets/app/img/icon_play_black.png' ?>"
                                                  onClick="parent.open('<?= base_url() . $file["src"] ?>')">
-                                            <div class="title-thumb"><?= $file["name"] ?></div>
+                                            <div class="title-thumb"><?= html_escape($file["name"]) ?></div>
                                         </li>
                                     <?php else: ?>
                                         <?php if ($extension == 'xls' || $extension == 'xlsx') : ?>
@@ -105,7 +105,7 @@ $ada_nilai = $logs != null && $logs->nilai != null && $logs->nilai != '0';
                                                 <a href="<?= base_url() . $file["src"] ?>">
                                                     <img src="<?= base_url() . '/assets/app/img/excel-icon.png' ?> "
                                                          onclick="dialogDownload()">
-                                                    <div class="title-thumb"><?= $file["name"] ?></div>
+                                                    <div class="title-thumb"><?= html_escape($file["name"]) ?></div>
                                                 </a>
                                             </li>
                                         <?php elseif ($extension == 'doc' || $extension == 'docx') : ?>
@@ -113,7 +113,7 @@ $ada_nilai = $logs != null && $logs->nilai != null && $logs->nilai != '0';
                                                 <a href="<?= base_url() . $file["src"] ?>">
                                                     <img src="<?= base_url() . '/assets/app/img/word-icon.png' ?> "
                                                          onclick="dialogDownload()">
-                                                    <div class="title-thumb"><?= $file["name"] ?></div>
+                                                    <div class="title-thumb"><?= html_escape($file["name"]) ?></div>
                                                 </a>
                                             </li>
                                         <?php elseif ($extension == 'pdf') : ?>
@@ -121,7 +121,7 @@ $ada_nilai = $logs != null && $logs->nilai != null && $logs->nilai != '0';
                                                 <a href="<?= base_url() . $file["src"] ?>">
                                                     <img src="<?= base_url() . '/assets/app/img/pdf-icon.png' ?> "
                                                          onclick="dialogDownload()">
-                                                    <div class="title-thumb"><?= $file["name"] ?></div>
+                                                    <div class="title-thumb"><?= html_escape($file["name"]) ?></div>
                                                 </a>
                                             </li>
                                         <?php else : ?>
@@ -129,7 +129,7 @@ $ada_nilai = $logs != null && $logs->nilai != null && $logs->nilai != '0';
                                                 <a href="<?= base_url() . $file["src"] ?>">
                                                     <img src="<?= base_url() . '/assets/app/img/document-icon.svg' ?> "
                                                          style="padding: 8px" onclick="dialogDownload()">
-                                                    <div class="title-thumb"><?= $file["name"] ?></div>
+                                                    <div class="title-thumb"><?= html_escape($file["name"]) ?></div>
                                                 </a>
                                             </li>
                                         <?php endif; ?>
