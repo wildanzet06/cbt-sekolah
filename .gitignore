@@ -94,3 +94,4 @@ installer/TERPASANG
 
 # Kunci enkripsi khusus instalasi
 application/config/encryption.local.php
+/graphify-out/
