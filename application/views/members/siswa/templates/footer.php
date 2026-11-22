@@ -31,29 +31,8 @@
 <!-- Required JS -->
 <!-- v3 -->
 <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
-<script>
-    $.widget.bridge('uibutton', $.ui.button);
-
-    var runningText = <?= json_encode($running_text, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT) ?>;
-    //console.log('runn', runningText);
-    var teks = '';
-    $.each(runningText, function (i, v) {
-        teks += '<span class="ml-3 mr-3">' + v.text + '</span> &bull; '
-    });
-
-    $('#running-text-siswa').html(teks);
-
-    $('.marquee').marquee({
-        duration: 15000,
-        //gap in pixels between the tickers
-        gap: 20,
-        delayBeforeStart: 1,
-        direction: 'left',
-        //true or false - should the marquee be duplicated to show an effect of continues flow
-        duplicated: true
-    });
-
-</script>
+<div id="running-text-data" data-running="<?= html_escape(json_encode($running_text, JSON_HEX_TAG|JSON_HEX_APOS|JSON_HEX_AMP|JSON_HEX_QUOT)) ?>" hidden></div>
+<script src="<?= base_url() ?>assets/app/js/siswa-footer.js"></script>
 <!-- DataTables -->
 <script src="<?= base_url() ?>/assets/plugins/datatables/jquery.dataTables.min.js"></script>
 <script src="<?= base_url() ?>/assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
@@ -92,56 +71,7 @@
 <script src="<?= base_url() ?>/assets/app/js/dashboard_guru.js"></script>
 
 <!-- Custom JS -->
-<script type="text/javascript">
-    $.fn.dataTableExt.oApi.fnPagingInfo = function (oSettings) {
-        return {
-            "iStart": oSettings._iDisplayStart,
-            "iEnd": oSettings.fnDisplayEnd(),
-            "iLength": oSettings._iDisplayLength,
-            "iTotal": oSettings.fnRecordsTotal(),
-            "iFilteredTotal": oSettings.fnRecordsDisplay(),
-            "iPage": Math.ceil(oSettings._iDisplayStart / oSettings._iDisplayLength),
-            "iTotalPages": Math.ceil(oSettings.fnRecordsDisplay() / oSettings._iDisplayLength)
-        };
-    };
-
-    function ajaxcsrf() {
-        var csrfname = '<?= $this->security->get_csrf_token_name() ?>';
-        var csrfhash = '<?= $this->security->get_csrf_hash() ?>';
-        var csrf = {};
-        csrf[csrfname] = csrfhash;
-        $.ajaxSetup({
-            "data": csrf
-        });
-    }
-
-    function reload_ajax() {
-        table.ajax.reload();
-    }
-
-    var initDestroyTimeOutPace = function () {
-        var counter = 0;
-
-        var refreshIntervalId = setInterval(function () {
-            var progress;
-
-            if (typeof $('.pace-progress').attr('data-progress-text') !== 'undefined') {
-                progress = Number($('.pace-progress').attr('data-progress-text').replace("%", ''));
-            }
-
-            if (progress === 99) {
-                counter++;
-            }
-
-            if (counter > 50) {
-                clearInterval(refreshIntervalId);
-                Pace.stop();
-            }
-        }, 100);
-    };
-    initDestroyTimeOutPace();
-
-</script>
+<script src="<?= base_url() ?>assets/app/js/app-datatables.js"></script>
 
 <script src="<?= base_url() ?>/assets/app/js/filter-auto.js"></script>
 </body>

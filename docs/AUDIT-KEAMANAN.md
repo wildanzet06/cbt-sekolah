@@ -615,3 +615,32 @@ diperbaiki sebelum audit ini; dua hal kecil baru ditambahkan.
   installer setelah aplikasi terpasang.
 - Folder `installer/` sebaiknya dihapus dari server setelah instalasi selesai
   (simpan salinannya di luar web root) sebagai lapisan tambahan.
+## Tindak lanjut PRD kredensial (C)
+
+- **C-1:** kolom `password` di `master_siswa`/`master_guru` dikosongkan dan dijaga trigger
+  `BEFORE INSERT/UPDATE`; login hanya memakai hash bcrypt di `users`.
+- **C-2:** admin punya aksi **Reset Password Otomatis** (`usersiswa/reset_password_otomatis/{id}`):
+  password acak 10 karakter, hash bcrypt, ditampilkan **sekali** lewat flash, dan
+  `must_change_password = 1`.
+- **C-3:** `Akses_hook` mengarahkan akun ber-flag ke `akun/password`; flag dibersihkan
+  setelah password berhasil diganti.
+- **C-5:** `tools/pindai_backup_password.php` menginventarisasi file `backups/*.sql`
+  yang berpotensi memuat password plaintext. Backup lama harus dipindah ke penyimpanan
+  terenkripsi atau dimusnahkan; password terkait dianggap bocor dan direset.
+## F-18 / F-20 (lanjutan)
+
+- **F-18 Kas:** nominal `1.500,50` sekarang diparse sebagai 1500.50
+  (koma desimal), bukan 150050; hapus transaksi kas dicatat ke `log_ujian`
+  lewat `Log_model` sebelum dihapus.
+- **F-20 Dependensi:** `composer audit` (PHP 8.3) melaporkan
+  **tidak ada advisory**. Versi terpasang: dompdf **3.1.6**,
+  phpspreadsheet **1.30.8** (lebih baru dari rentang rentan di audit awal).
+## E-1 lanjutan: unique key tabel rapor/CBT
+
+Tool: `php tools/migrasi_kunci_unik_rapor.php` (dry-run) lalu
+`--apply`. Menambahkan unique pada:
+`cbt_nilai(id_siswa,id_jadwal)`, `cbt_durasi_siswa(id_siswa,id_jadwal)`,
+`cbt_soal_siswa(id_siswa,id_jadwal,id_soal)`,
+`rapor_naik(id_siswa,id_tp,id_smt)`,
+`rapor_data_sikap` dan `rapor_data_catatan` (kombinasi alami).
+Tool menolak tabel yang masih memiliki duplikat. Backup dulu sebelum --apply.

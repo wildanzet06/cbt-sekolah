@@ -63,6 +63,7 @@
         $this->db->where('id', $user->id)->update('users', array(
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),
+            'must_change_password' => 1,
         ));
         $this->db->where('login', $siswa->username)->update('login_attempts', array('login' => $username));
     }
@@ -79,4 +80,31 @@
     );
     redirect('usersiswa/edit/' . (int) $id_siswa);
 }
- public function change_password() { goto M3lH2; zTq31: $data = ["\163\164\x61\x74\x75\x73" => false, "\x65\162\x72\157\162\163" => ["\157\154\144" => form_error("\157\154\144"), "\x6e\x65\x77" => form_error("\156\145\167"), "\x6e\145\167\x5f\143\157\156\146\x69\162\x6d" => form_error("\x6e\145\x77\137\143\157\x6e\146\x69\x72\x6d")]]; goto XmST6; Rz2B5: if ($change) { goto iPROx; } goto xW_es; emLUG: goto MAno3; goto P0K9H; IXQ9S: $this->form_validation->set_rules("\156\x65\167", $this->lang->line("\x63\x68\141\x6e\x67\145\x5f\160\x61\x73\163\x77\x6f\x72\x64\x5f\166\141\x6c\x69\144\141\x74\151\157\x6e\x5f\156\145\167\x5f\160\141\x73\x73\x77\x6f\x72\144\x5f\x6c\141\142\145\x6c"), "\x72\x65\161\x75\x69\x72\145\144\174\155\151\x6e\x5f\154\145\x6e\x67\x74\150\133" . $this->config->item("\155\151\156\x5f\x70\x61\x73\163\x77\x6f\x72\x64\x5f\154\145\x6e\x67\x74\x68", "\x69\157\156\137\141\165\x74\150") . "\135\x7c\x6d\141\164\143\x68\145\x73\x5b\x6e\x65\167\x5f\x63\x6f\156\x66\151\162\x6d\135"); goto nCVoD; v_aHa: GUk4N: goto zTq31; AmRLh: if ($this->form_validation->run() === FALSE) { goto GUk4N; } goto BW6rj; BW6rj: $identity = $this->session->userdata("\151\x64\145\156\x74\x69\x74\171"); goto TVRvO; KE1lF: $this->output_json($data); goto u3jDQ; TVRvO: $change = $this->ion_auth->change_password($identity, $this->input->post("\157\x6c\x64"), $this->input->post("\156\x65\x77")); goto Rz2B5; P0K9H: iPROx: goto g3Pil; hz8OB: MAno3: goto h0diP; h0diP: goto RInqS; goto v_aHa; xW_es: $data = ["\x73\x74\x61\164\x75\x73" => false, "\155\x73\147" => $this->ion_auth->errors()]; goto emLUG; nCVoD: $this->form_validation->set_rules("\x6e\x65\167\137\143\x6f\x6e\x66\151\162\x6d", $this->lang->line("\143\x68\x61\156\x67\x65\137\x70\141\163\163\x77\x6f\x72\x64\137\166\x61\x6c\x69\144\141\x74\x69\157\x6e\x5f\x6e\145\167\137\160\141\163\163\x77\x6f\162\x64\x5f\x63\x6f\x6e\x66\x69\x72\x6d\137\154\x61\x62\145\154"), "\x72\x65\x71\165\151\162\x65\144"); goto AmRLh; XmST6: RInqS: goto KE1lF; g3Pil: $data["\163\x74\x61\x74\165\x73"] = true; goto hz8OB; M3lH2: $this->form_validation->set_rules("\157\x6c\x64", $this->lang->line("\x63\x68\141\x6e\x67\145\x5f\160\141\x73\x73\167\157\162\x64\137\166\x61\154\151\x64\x61\x74\x69\157\x6e\x5f\x6f\154\x64\137\x70\141\x73\x73\x77\x6f\162\144\137\x6c\141\142\x65\154"), "\162\x65\x71\165\151\162\145\x64"); goto IXQ9S; u3jDQ: } public function delete($id) { goto nORhy; WzohH: $this->output_json($data); goto FohRg; nORhy: $this->is_has_access(); goto akqBq; akqBq: $data["\x73\164\141\164\x75\x73"] = $this->ion_auth->delete_user($id) ? true : false; goto WzohH; FohRg: } private function hash_password($password) { goto SFcUK; UBQLw: Iweyb: goto FNpNV; SFcUK: if (!(empty($password) || strpos($password, "\0") !== FALSE || strlen($password) > 4096)) { goto Iweyb; } goto ocUfd; FNpNV: return password_hash($password, PASSWORD_BCRYPT); goto thXWe; ocUfd: return FALSE; goto UBQLw; thXWe: } }
+ public function change_password() { goto M3lH2; zTq31: $data = ["\163\164\x61\x74\x75\x73" => false, "\x65\162\x72\157\162\163" => ["\157\154\144" => form_error("\157\154\144"), "\x6e\x65\x77" => form_error("\156\145\167"), "\x6e\145\167\x5f\143\157\156\146\x69\162\x6d" => form_error("\x6e\145\x77\137\143\157\x6e\146\x69\x72\x6d")]]; goto XmST6; Rz2B5: if ($change) { goto iPROx; } goto xW_es; emLUG: goto MAno3; goto P0K9H; IXQ9S: $this->form_validation->set_rules("\156\x65\167", $this->lang->line("\x63\x68\141\x6e\x67\145\x5f\160\x61\x73\163\x77\x6f\x72\x64\x5f\166\141\x6c\x69\144\141\x74\151\157\x6e\x5f\156\145\167\x5f\160\141\x73\x73\x77\x6f\x72\144\x5f\x6c\141\142\145\x6c"), "\x72\x65\161\x75\x69\x72\145\144\174\155\151\x6e\x5f\154\145\x6e\x67\x74\150\133" . $this->config->item("\155\151\156\x5f\x70\x61\x73\163\x77\x6f\x72\x64\x5f\154\145\x6e\x67\x74\x68", "\x69\157\156\137\141\165\x74\150") . "\135\x7c\x6d\141\164\143\x68\145\x73\x5b\x6e\x65\167\x5f\x63\x6f\156\x66\151\162\x6d\135"); goto nCVoD; v_aHa: GUk4N: goto zTq31; AmRLh: if ($this->form_validation->run() === FALSE) { goto GUk4N; } goto BW6rj; BW6rj: $identity = $this->session->userdata("\151\x64\145\156\x74\x69\x74\171"); goto TVRvO; KE1lF: $this->output_json($data); goto u3jDQ; TVRvO: $change = $this->ion_auth->change_password($identity, $this->input->post("\157\x6c\x64"), $this->input->post("\156\x65\x77")); goto Rz2B5; P0K9H: iPROx: goto g3Pil; hz8OB: MAno3: goto h0diP; h0diP: goto RInqS; goto v_aHa; xW_es: $data = ["\x73\x74\x61\164\x75\x73" => false, "\155\x73\147" => $this->ion_auth->errors()]; goto emLUG; nCVoD: $this->form_validation->set_rules("\x6e\x65\167\137\143\x6f\x6e\x66\151\162\x6d", $this->lang->line("\143\x68\x61\156\x67\x65\137\x70\141\163\163\x77\x6f\x72\x64\137\166\x61\x6c\x69\144\141\x74\x69\157\x6e\x5f\x6e\145\167\137\160\141\163\163\x77\x6f\162\x64\x5f\x63\x6f\x6e\x66\x69\x72\x6d\137\154\x61\x62\145\154"), "\x72\x65\x71\165\151\162\x65\144"); goto AmRLh; XmST6: RInqS: goto KE1lF; g3Pil: $data["\163\x74\x61\x74\165\x73"] = true; goto hz8OB; M3lH2: $this->form_validation->set_rules("\157\x6c\x64", $this->lang->line("\x63\x68\141\x6e\x67\145\x5f\160\141\x73\x73\167\157\162\x64\137\166\x61\154\151\x64\x61\x74\x69\157\x6e\x5f\x6f\154\x64\137\x70\141\x73\x73\x77\x6f\162\144\137\x6c\141\142\x65\154"), "\162\x65\x71\165\151\162\145\x64"); goto IXQ9S; u3jDQ: } public function delete($id) { goto nORhy; WzohH: $this->output_json($data); goto FohRg; nORhy: $this->is_has_access(); goto akqBq; akqBq: $data["\x73\164\141\164\x75\x73"] = $this->ion_auth->delete_user($id) ? true : false; goto WzohH; FohRg: } private function hash_password($password) { goto SFcUK; UBQLw: Iweyb: goto FNpNV; SFcUK: if (!(empty($password) || strpos($password, "\0") !== FALSE || strlen($password) > 4096)) { goto Iweyb; } goto ocUfd; FNpNV: return password_hash($password, PASSWORD_BCRYPT); goto thXWe; ocUfd: return FALSE; goto UBQLw; thXWe: }     public function reset_password_otomatis($id_siswa = 0)
+    {
+        if (!$this->ion_auth->logged_in() || !$this->ion_auth->is_admin()) {
+            show_error('Akses Ditolak', 403, 'Akses Ditolak');
+        }
+        $siswa = $this->db->get_where('master_siswa', array('id_siswa' => (int) $id_siswa))->row();
+        if (!$siswa) {
+            show_error('Data siswa tidak ditemukan', 404);
+        }
+        $user = $this->db->get_where('users', array('username' => $siswa->username))->row();
+        if (!$user) {
+            $this->session->set_flashdata('editsiswa', '<div class="alert alert-danger">Akun login siswa belum ada.</div>');
+            redirect('usersiswa/edit/' . (int) $id_siswa);
+            return;
+        }
+        $alfabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+        $baru = '';
+        for ($i = 0; $i < 10; $i++) {
+            $baru .= $alfabet[random_int(0, strlen($alfabet) - 1)];
+        }
+        $this->db->where('id', (int) $user->id)->update('users', array(
+            'password' => password_hash($baru, PASSWORD_BCRYPT),
+            'must_change_password' => 1,
+        ));
+        $this->session->set_flashdata('password_awal', $baru);
+        $this->session->set_flashdata('editsiswa', '<div class="alert alert-success">Password baru dibuat. Tampilkan/berikan sekali, lalu pengguna wajib menggantinya saat login.</div>');
+        redirect('usersiswa/edit/' . (int) $id_siswa);
+    }}

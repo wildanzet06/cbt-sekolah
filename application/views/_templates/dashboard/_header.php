@@ -226,91 +226,15 @@ if ($__embed || $__dari_hasil) {
             .content > .container-fluid { padding: 12px !important; }
         </style>
     <?php endif; ?>
+<meta name="cbt-base-url" content="<?= html_escape(base_url()) ?>">
+<meta name="cbt-tp" content="<?= html_escape($tp_active->tahun) ?>">
+<meta name="cbt-smt" content="<?= html_escape($smt_active->smt) ?>">
+<meta name="cbt-id-tp" content="<?= html_escape($tp_active->id_tp) ?>">
+<meta name="cbt-id-smt" content="<?= html_escape($smt_active->id_smt) ?>">
 </head>
-<script>
-    let base_url = '<?=base_url()?>';
-    let globalToken;
-    let adaJadwalUjian;
-</script>
+<script src="<?= base_url() ?>assets/app/js/app-config.js"></script>
 <script src="<?= base_url() ?>/assets/app/js/generate.js"></script>
-<script type="text/javascript">
-    let tp_active = '<?= $tp_active->tahun ?>';
-    let smt_active = '<?= $smt_active->smt ?>';
-    let id_tp_active = '<?= $tp_active->id_tp ?>';
-    let id_smt_active = '<?= $smt_active->id_smt ?>';
-
-    function startTime() {
-        var today = new Date();
-        var h = today.getHours();
-        var m = today.getMinutes();
-        var s = today.getSeconds();
-        m = checkTime(m);
-        s = checkTime(s);
-
-        $('#live-clock').html('<span class="text-lg">' + h + ':' + m + '</span>:' + s);
-        setTimeout(startTime, 1000);
-    }
-
-    function checkTime(i) {
-        if (i < 10) {
-            i = "0" + i
-        }
-        return i;
-    }
-
-    function buat_tanggal_indonesia(str) {
-        str = str.replace("Jan", "Januari");
-        str = str.replace("Feb", "Februari");
-        str = str.replace("Mar", "Maret");
-        str = str.replace("Apr", "April");
-        str = str.replace("May", "Mei");
-        str = str.replace("Jun", "Juni");
-        str = str.replace("Jul", "Juli");
-        str = str.replace("Aug", "Agustus");
-        str = str.replace("Sep", "September");
-        str = str.replace("Oct", "Oktober");
-        str = str.replace("Nov", "Nopember");
-        str = str.replace("Dec", "Desember");
-        str = str.replace("Mon", "Senin");
-        str = str.replace("Tue", "Selasa");
-        str = str.replace("Wed", "Rabu");
-        str = str.replace("Thu", "Kamis");
-        str = str.replace("Fri", "Jumat");
-        str = str.replace("Sat", "Sabtu");
-        str = str.replace("Sun", "Minggu");
-        return str;
-    }
-
-    function sanitizeJSON(unsanitized) {
-        return unsanitized.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t").replace(/\f/g, "\\f").replace(/"/g, "\\\"").replace(/'/g, "\\\'").replace(/\&/g, "\\&");
-    }
-
-    var bulans = ['Januari', 'Februari', 'Maret', 'April',
-        'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-    var arrhari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jum\'at', 'Sabtu'];
-
-    function stringToDate(dateStr) {
-        var parts = dateStr.split("-");
-        return new Date(parts[0], parts[1] - 1, parts[2])
-    }
-
-    function dateToString(date) {
-        let year = date.getFullYear();
-        //let month = (1 + date.getMonth()).toString().padStart(2, '0');
-        const month = date.getMonth();
-        let day = date.getDate().toString().padStart(2, '0');
-        return day + ' ' + bulans[month] + ' ' + year;
-    }
-
-    function dateToStringDay(date) {
-        let year = date.getFullYear();
-        //let month = (1 + date.getMonth()).toString().padStart(2, '0');
-        const month = date.getMonth();
-        let day = date.getDate().toString().padStart(2, '0');
-        return arrhari[date.getDay()] + ', ' + day + ' ' + bulans[month] + ' ' + year;
-    }
-
-</script>
+<script src="<?= base_url() ?>assets/app/js/app-helpers.js"></script>
 
 <?php
 

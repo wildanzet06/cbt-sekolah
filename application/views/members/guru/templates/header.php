@@ -158,113 +158,14 @@ if ($__embed || $__dari_hasil) {
             body { background: #fff !important; }
         </style>
     <?php endif; ?>
+<meta name="cbt-base-url" content="<?= html_escape(base_url()) ?>">
+<meta name="cbt-csrf-name" content="<?= html_escape($this->security->get_csrf_token_name()) ?>">
+<meta name="cbt-csrf-hash" content="<?= html_escape($this->security->get_csrf_hash()) ?>">
 </head>
 
-<script>
-    let reloadCOunt = 0;
-    let base_url = '<?=base_url()?>';
-
-    let globalToken;
-    var adaJadwalUjian;
-
-    function getToken(func) {
-        $.ajax({
-            url: base_url + "dashboard/checktokenjadwal",
-            type: "GET",
-            success: function (response) {
-                console.log('getToken', response.token);
-                globalToken = response.token;
-                adaJadwalUjian = response.ada_jadwal;
-                if (reloadCOunt > 0) {
-                    showSuccessToast('Token: <b>' + globalToken.token + '</b>');
-                }
-                reloadCOunt ++;
-
-                if (func && (typeof func == "function")) {
-                    func(response);
-                }
-            },
-            error: function (xhr, status, error) {
-                console.log(xhr);
-            }
-        });
-    }
-</script>
-
-<script type="text/javascript">
-    function startTime() {
-        var today = new Date();
-        var h = today.getHours();
-        var m = today.getMinutes();
-        var s = today.getSeconds();
-        m = checkTime(m);
-        s = checkTime(s);
-
-        //document.getElementById('live-clock').innerHTML = h + ":" + m + ":" + s;
-        $('#live-clock').html('<span class="text-lg">' + h + ':' + m + '</span>:' + s);
-        setTimeout(startTime, 500);
-    }
-
-    function checkTime(i) {
-        if (i < 10) {
-            i = "0" + i
-        }
-        ;  // add zero in front of numbers < 10
-        return i;
-    }
-
-    function buat_tanggal_indonesia(str) {
-        str = str.replace("Jan", "Januari");
-        str = str.replace("Feb", "Februari");
-        str = str.replace("Mar", "Maret");
-        str = str.replace("Apr", "April");
-        str = str.replace("May", "Mei");
-        str = str.replace("Jun", "Juni");
-        str = str.replace("Jul", "Juli");
-        str = str.replace("Aug", "Agustus");
-        str = str.replace("Sep", "September");
-        str = str.replace("Oct", "Oktober");
-        str = str.replace("Nov", "Nopember");
-        str = str.replace("Dec", "Desember");
-        str = str.replace("Mon", "Senin");
-        str = str.replace("Tue", "Selasa");
-        str = str.replace("Wed", "Rabu");
-        str = str.replace("Thu", "Kamis");
-        str = str.replace("Fri", "Jumat");
-        str = str.replace("Sat", "Sabtu");
-        str = str.replace("Sun", "Minggu");
-        return str;
-    }
-
-    function sanitizeJSON(unsanitized) {
-        return unsanitized.replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t").replace(/\f/g, "\\f").replace(/"/g, "\\\"").replace(/'/g, "\\\'").replace(/\&/g, "\\&");
-    }
-
-    var bulans = ['Januari', 'Februari', 'Maret', 'April',
-        'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-    var arrhari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jum\'at', 'Sabtu'];
-
-    function stringToDate(dateStr) {
-        var parts = dateStr.split("-");
-        return new Date(parts[0], parts[1] - 1, parts[2])
-    }
-
-    function dateToString(date) {
-        let year = date.getFullYear();
-        //let month = (1 + date.getMonth()).toString().padStart(2, '0');
-        const month = date.getMonth();
-        let day = date.getDate().toString().padStart(2, '0');
-        return day + ' ' + bulans[month] + ' ' + year;
-    }
-
-    function dateToStringDay(date) {
-        let year = date.getFullYear();
-        //let month = (1 + date.getMonth()).toString().padStart(2, '0');
-        const month = date.getMonth();
-        let day = date.getDate().toString().padStart(2, '0');
-        return arrhari[date.getDay()] + ', ' + day + ' ' + bulans[month] + ' ' + year;
-    }
-</script>
+<script src="<?= base_url() ?>assets/app/js/app-config.js"></script>
+<script src="<?= base_url() ?>assets/app/js/guru-header.js"></script>
+<script src="<?= base_url() ?>assets/app/js/app-helpers.js"></script>
 
 <?php
 

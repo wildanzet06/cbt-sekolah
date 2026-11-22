@@ -98,7 +98,12 @@ class Kas extends CI_Controller {
         $jenis   = $this->input->post('jenis') === 'masuk' ? 'masuk' : 'keluar';
         $kategori = trim((string) $this->input->post('kategori', true));
         $keterangan = trim((string) $this->input->post('keterangan', true));
-        $nominal = (float) str_replace(array('.', ','), '', (string) $this->input->post('nominal'));
+        $__nom = trim((string) $this->input->post('nominal'));
+        if (strpos($__nom, ',') !== false) {
+            $nominal = (float) str_replace(',', '.', str_replace('.', '', $__nom));
+        } else {
+            $nominal = (float) $__nom;
+        }
 
         if (!$this->_tanggal_valid($tanggal)) {
             $this->session->set_flashdata('error', 'Tanggal tidak valid.');
@@ -138,6 +143,13 @@ class Kas extends CI_Controller {
     public function hapus() {
         $this->_harus_post();
         $id = (int) $this->input->post('id');
+        if ($id) {
+            $row = $this->db->select('tanggal, jenis, nominal, keterangan')->where('id', $id)->get('cbt_kas')->row();
+            if ($row) {
+                $this->load->model('Log_model', 'logging');
+                $this->logging->saveLog(5, 'menghapus kas id ' . $id . ' nominal ' . $row->nominal . ' tanggal ' . $row->tanggal);
+            }
+        }
         if ($id && $this->Kas_model->hapus($id)) {
             $this->session->set_flashdata('success', 'Transaksi kas dihapus.');
         } else {

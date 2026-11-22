@@ -46,7 +46,7 @@ if (!file_exists(FCPATH . $siswa->foto)) {
                                         <img src="<?= base_url($fotoSiswa) ?>"
                                              class="img-circle profile-avatar mt-2" alt="User avatar">
                                     <?php endif; ?>
-                                    <h4 class="mt-5 mb-5"><?= $siswa->nama ?></h4>
+                                    <h4 class="mt-5 mb-5"><?= html_escape($siswa->nama) ?></h4>
                                     <div class="user-button">
                                         <div class="row">
                                             <div class="col-6">
@@ -418,7 +418,7 @@ if (!file_exists(FCPATH . $siswa->foto)) {
                     <div class="input-group-prepend w-40">
                         <span class="input-group-text">Username</span>
                     </div>
-                    <input type="text" class="form-control" name="username" value="<?= $siswa->username ?>"
+                    <input type="text" class="form-control" name="username" value="<?= html_escape($siswa->username) ?>"
                            placeholder="Username">
                 </div>
                 <div class="input-group mb-3">

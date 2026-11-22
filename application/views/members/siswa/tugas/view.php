@@ -24,16 +24,16 @@ $dataFileAttach = $log_selesai != null && $log_selesai->file != null ? unseriali
                                 <img class="img-circle media-left" src="<?= base_url($avatar) ?>" width="60"
                                      height="60"/>
                                 <div class="media-body ml-4">
-                                    <span class="text-lg"><b><?= $tugas->nama_guru ?></b></span>
+                                    <span class="text-lg"><b><?= html_escape($tugas->nama_guru) ?></b></span>
                                     <br/>
-                                    <span> <?= $tugas->nama_mapel ?> </span>
+                                    <span> <?= html_escape($tugas->nama_mapel) ?> </span>
                                     <br/>
-                                    <span>Kelas <?= $siswa->nama_kelas ?> </span>
+                                    <span>Kelas <?= html_escape($siswa->nama_kelas) ?> </span>
                                 </div>
                             </div>
                         </div>
                         <div class="card-body">
-                            <h3 class="text-center"><?= $tugas->judul_materi ?></h3>
+                            <h3 class="text-center"><?= html_escape($tugas->judul_materi) ?></h3>
                             <div class="text-justify"><?= soal_html_aman($tugas->isi_materi) ?></div>
                         </div>
                     </div>

@@ -1,4 +1,9 @@
-<div class="content-wrapper bg-white">
+<?php $__pw = $this->session->flashdata('password_awal'); if ($__pw): ?>
+    <div class="alert alert-warning mx-3">
+        Password awal baru: <b><?= html_escape($__pw) ?></b><br>
+        <small>Tampilkan/berikan password ini sekali. Pengguna wajib menggantinya saat login.</small>
+    </div>
+<?php endif; ?><div class="content-wrapper bg-white">
     <section class="content-header">
         <div class="container-fluid">
             <div class="row mb-2">
@@ -37,11 +42,11 @@
                                                  class="img-circle profile-avatar mt-2" alt="User avatar">
                                         <?php endif; ?>
                                     <?php else: ?>
-                                        <img src="<?= base_url() ?>/assets/img/<?= $siswa->foto ?>"
+                                        <img src="<?= html_escape(base_url() . 'assets/img/' . $siswa->foto) ?>"
                                              class="img-circle profile-avatar mt-2" alt="User avatar">
                                     <?php endif; ?>
-                                    <h4 class="mt-5"><?= $siswa->nama ?></h4>
-                                    Kelas <?= $siswa->nama_kelas ?>
+                                    <h4 class="mt-5"><?= html_escape($siswa->nama) ?></h4>
+                                    Kelas <?= html_escape($siswa->nama_kelas) ?>
                                 </div>
                             </div>
                         </div>
@@ -51,6 +56,7 @@
                     <div class="card card-warning my-shadow">
                         <div class="card-header with-border">
                             <h3 class="card-title">Ubah Password & Username</h3>
+                    <a href="<?= base_url('usersiswa/reset_password_otomatis/' . (int) $siswa->id_siswa) ?>" class="btn btn-sm btn-outline-warning float-right ml-2" onclick="return confirm('Buat password acak baru? Password lama tidak berlaku.')"><i class="fas fa-key"></i> Reset Password Otomatis</a>
                         </div>
                         <div class="card-body">
                             <?= $this->session->flashdata('editsiswa') ?>
@@ -59,7 +65,7 @@
                                 <div class="input-group-prepend w-40">
                                     <span class="input-group-text">Username</span>
                                 </div>
-                                <input type="text" class="form-control" name="username" value="<?= $siswa->username ?>"
+                                <input type="text" class="form-control" name="username" value="<?= html_escape($siswa->username) ?>"
                                        placeholder="Username" required>
                             </div>
                             <div class="input-group mb-3">

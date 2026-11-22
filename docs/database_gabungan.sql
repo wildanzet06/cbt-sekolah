@@ -488,3 +488,27 @@ CREATE TABLE IF NOT EXISTS ekstra_siswa (
   UNIQUE KEY uk_ekstra_siswa (id_siswa, id_tp, id_smt),
   KEY idx_ekstra (id_ekstra)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- C-1: hentikan penyimpanan password plaintext di master_siswa/master_guru.
+-- Login memakai hash bcrypt di tabel users.
+DROP TRIGGER IF EXISTS trg_master_siswa_password;
+DROP TRIGGER IF EXISTS trg_master_siswa_password_upd;
+DROP TRIGGER IF EXISTS trg_master_guru_password;
+DROP TRIGGER IF EXISTS trg_master_guru_password_upd;
+CREATE TRIGGER trg_master_siswa_password BEFORE INSERT ON master_siswa FOR EACH ROW SET NEW.password = '';
+CREATE TRIGGER trg_master_siswa_password_upd BEFORE UPDATE ON master_siswa FOR EACH ROW SET NEW.password = '';
+CREATE TRIGGER trg_master_guru_password BEFORE INSERT ON master_guru FOR EACH ROW SET NEW.password = '';
+CREATE TRIGGER trg_master_guru_password_upd BEFORE UPDATE ON master_guru FOR EACH ROW SET NEW.password = '';
+UPDATE master_siswa SET password = '' WHERE password IS NOT NULL AND password <> '';
+UPDATE master_guru SET password = '' WHERE password IS NOT NULL AND password <> '';
+-- C-3: wajib ganti password pada login pertama/reset admin.
+SET @sql = (SELECT IF(COUNT(*) = 0,
+'ALTER TABLE users ADD COLUMN must_change_password TINYINT(1) NOT NULL DEFAULT 0',
+'SELECT ''must_change_password ada'' AS info')
+FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'must_change_password');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+-- E-1: jadwal materi punya kolom jam_ke + unique key.
+-- Backfill otomatis: php tools/migrasi_jam_ke_materi.php
+-- (id_kjm lama = id_kelas . id_tp . id_smt . Ymd . jam_ke . jenis)
+-- F-19: aturan is_unique Dataguru memakai tabel `guru` yang tidak ada.
+-- Buat view baca-saja agar validasi NIP/email guru berfungsi.
+CREATE OR REPLACE VIEW guru AS SELECT * FROM master_guru;

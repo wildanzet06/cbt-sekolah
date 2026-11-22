@@ -176,11 +176,5 @@ $rp = function ($n) { return 'Rp ' . number_format((float) $n, 0, ',', '.'); };
     </section>
 </div>
 
-<script>
-    // Kotak pencarian pada pilihan siswa (jika plugin select2 tersedia)
-    $(function () {
-        if ($.fn.select2) {
-            $('#siswa_id').select2({theme: 'bootstrap4'});
-        }
-    });
+<script src="<?= base_url() ?>assets/app/js/tagihan-keringanan.js"></script>
 </script>

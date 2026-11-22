@@ -1,4 +1,4 @@
-# Folder cadangan database: jangan diakses lewat web.
+# Berkas backup tidak boleh diakses lewat web (Apache langsung).
 <IfModule mod_authz_core.c>
     Require all denied
 </IfModule>

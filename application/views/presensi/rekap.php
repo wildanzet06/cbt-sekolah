@@ -104,20 +104,12 @@
                 </div>
             </div>
             <?php else: ?>
-                <div class="callout callout-info">Pilih kelas dan bulan — rekap langsung tampil.</div>
+                <div class="callout callout-info">Pilih kelas dan bulan â€” rekap langsung tampil.</div>
             <?php endif; ?>
 
         </div>
     </section>
 </div>
 
-<script>
-    $(function () {
-        if ($('#tableRekap').length) {
-            $('#tableRekap').DataTable({
-                'paging': false, 'searching': true, 'ordering': true, 'info': false, 'autoWidth': false,
-                'language': {'emptyTable': 'Tidak ada data.'}
-            });
-        }
-    });
+<script src="<?= base_url() ?>assets/app/js/presensi-rekap.js"></script>
 </script>

@@ -74,7 +74,7 @@
                                                             <?= $no ?>
                                                         </td>
                                                         <td class="text-center">
-                                                            <?= $kls['nama_kelas'] ?>
+                                                            <?= html_escape($kls['nama_kelas']) ?>
                                                         </td>
                                                         <td class="text-center w-25">
                                                             <a href="<?= $kls['url_harian'] ?>" type="button"
@@ -130,7 +130,7 @@
                                                             <?= $no ?>
                                                         </td>
                                                         <td class="text-center">
-                                                            <?= $kls['nama_kelas'] ?>
+                                                            <?= html_escape($kls['nama_kelas']) ?>
                                                         </td>
                                                         <td class="text-center w-25">
                                                             <a href="<?= base_url('rapor/inputekstra/' . $k . '/' . $kls['id_kelas']) ?>"

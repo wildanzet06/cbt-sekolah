@@ -34,15 +34,5 @@ $psb_kelas = isset($siswa->nama_kelas) ? trim((string) $siswa->nama_kelas) : '';
     </div>
 </div>
 
-<script>
-    $(`.avatar`).each(function () {
-        $(this).on("error", function () {
-            var src = $(this).attr('src').replace('profiles', 'foto_siswa');
-            $(this).attr("src", src);
-            $(this).on("error", function () {
-                $(this).attr("src", base_url + 'assets/img/siswa.png');
-            });
-
-        });
-    });
+<script src="<?= base_url() ?>assets/app/js/avatar-fallback.js"></script>
 </script>

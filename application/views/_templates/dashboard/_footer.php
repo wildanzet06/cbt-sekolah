@@ -21,9 +21,7 @@
 <!-- Required JS -->
 <!-- v3 -->
 <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
-<script>
-    $.widget.bridge('uibutton', $.ui.button)
-</script>
+<script src="<?= base_url() ?>assets/app/js/app-footer.js"></script>
 <!-- DataTables -->
 <script src="<?= base_url() ?>/assets/plugins/datatables/jquery.dataTables.min.js"></script>
 <script src="<?= base_url() ?>/assets/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
@@ -101,72 +99,7 @@
 <script src="<?= base_url() ?>/assets/app/js/jquery-thumbnail-cut.js"></script>
 
 <!-- Custom JS -->
-<script type="text/javascript">
-    $.fn.dataTableExt.oApi.fnPagingInfo = function (oSettings) {
-        return {
-            "iStart": oSettings._iDisplayStart,
-            "iEnd": oSettings.fnDisplayEnd(),
-            "iLength": oSettings._iDisplayLength,
-            "iTotal": oSettings.fnRecordsTotal(),
-            "iFilteredTotal": oSettings.fnRecordsDisplay(),
-            "iPage": Math.ceil(oSettings._iDisplayStart / oSettings._iDisplayLength),
-            "iTotalPages": Math.ceil(oSettings.fnRecordsDisplay() / oSettings._iDisplayLength)
-        };
-    };
-
-    function ajaxcsrf() {
-        var csrfname = '<?= $this->security->get_csrf_token_name() ?>';
-        var csrfhash = '<?= $this->security->get_csrf_hash() ?>';
-        var csrf = {};
-        csrf[csrfname] = csrfhash;
-        $.ajaxSetup({
-            "data": csrf
-        });
-    }
-
-    function reload_ajax() {
-        table.ajax.reload();
-    }
-
-    var initDestroyTimeOutPace = function () {
-        var counter = 0;
-
-        var refreshIntervalId = setInterval(function () {
-            var progress;
-
-            if (typeof $('.pace-progress').attr('data-progress-text') !== 'undefined') {
-                progress = Number($('.pace-progress').attr('data-progress-text').replace("%", ''));
-            }
-
-            if (progress === 99) {
-                counter++;
-            }
-
-            if (counter > 50) {
-                clearInterval(refreshIntervalId);
-                Pace.stop();
-            }
-        }, 100);
-    };
-    initDestroyTimeOutPace();
-
-    function logout() {
-        swal.fire({
-            title: "Logout",
-            text: "Anda yakin ingin logout?",
-            icon: "question",
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Logout!'
-        }).then((result) => {
-            if (result.value) {
-                location.href = base_url + "logout";
-            }
-        });
-    }
-
-</script>
+<script src="<?= base_url() ?>assets/app/js/app-datatables.js"></script>
 
 <script src="<?= base_url() ?>/assets/app/js/filter-auto.js"></script>
 </body>

@@ -77,9 +77,9 @@ function sortByPosition($a, $b)
                                                     <img class="d-flex mr-3 rounded-circle img-thumbnail thumb-lg"
                                                          src="<?= base_url() . $foto_guru ?>" alt="foto"/>
                                                     <div class="media-body overflow-hidden">
-                                                        <p class="card-text mb-0 text-xs"><?= $guru->nip ?></p>
-                                                        <h6 class="card-text mb-0"><?= $guru->nama_guru ?></h6>
-                                                        <p class="card-text"><?= $guru->level . ' ' . $guru->nama_kelas ?></p>
+                                                        <p class="card-text mb-0 text-xs"><?= html_escape($guru->nip) ?></p>
+                                                        <h6 class="card-text mb-0"><?= html_escape($guru->nama_guru) ?></h6>
+                                                        <p class="card-text"><?= html_escape($guru->level . ' ' . $guru->nama_kelas) ?></p>
                                                         <?php
                                                         $stts = '';
                                                         $badge = '';
@@ -108,12 +108,12 @@ function sortByPosition($a, $b)
                                                                 $all_kelas_mapel = $mapel->kelas_mapel;
                                                                 $kls_guru_mapel = '';
                                                                 foreach ($all_kelas_mapel as $kls_mpl) {
-                                                                    if (isset($kelass[$kls_mpl->kelas])) $kls_guru_mapel .= '<span class="badge badge-light border">' . $kelass[$kls_mpl->kelas]->nama_kelas . '</span> ';
+                                                                    if (isset($kelass[$kls_mpl->kelas])) $kls_guru_mapel .= '<span class="badge badge-light border">' . html_escape($kelass[$kls_mpl->kelas]->nama_kelas) . '</span> ';
                                                                 }
                                                                 ?>
                                                                 <tr>
                                                                     <td class="text-center"><?= $nn ?></td>
-                                                                    <td><?= $mapel->nama_mapel ?></td>
+                                                                    <td><?= html_escape($mapel->nama_mapel) ?></td>
                                                                     <td class="text-center">
                                                                         <?= $kls_guru_mapel ?>
                                                                     </td>
@@ -124,12 +124,12 @@ function sortByPosition($a, $b)
                                                                 $all_kelas_ekstra = $ekstra->kelas_ekstra;
                                                                 $kls_guru_ekstra = '';
                                                                 foreach ($all_kelas_ekstra as $kls_eks) {
-                                                                    if (isset($kelass[$kls_eks->kelas])) $kls_guru_ekstra .= '<span class="badge badge-light border">' . $kelass[$kls_eks->kelas]->nama_kelas . '</span> ';
+                                                                    if (isset($kelass[$kls_eks->kelas])) $kls_guru_ekstra .= '<span class="badge badge-light border">' . html_escape($kelass[$kls_eks->kelas]->nama_kelas) . '</span> ';
                                                                 }
                                                                 ?>
                                                                 <tr>
                                                                     <td class="text-center"><?= $nn ?></td>
-                                                                    <td><?= $ekstra->nama_ekstra ?></td>
+                                                                    <td><?= html_escape($ekstra->nama_ekstra) ?></td>
                                                                     <td class="text-center">
                                                                         <?= $kls_guru_ekstra ?>
                                                                     </td>
@@ -169,73 +169,5 @@ function sortByPosition($a, $b)
 <?= form_open('', array('id' => 'hapus-guru')) ?>
 <?= form_close() ?>
 
-<script>
-    $('.thumb-lg').css({'width': '6rem', 'height': '6rem'});
-
-    function hapus(idGuru) {
-        swal.fire({
-            title: "Anda yakin?",
-            text: "Data guru akan dihapus!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Hapus!"
-        }).then(result => {
-            if (result.value) {
-                $.ajax({
-                    url: base_url + 'dataguru/deleteguru',
-                    data: $('#hapus-guru').serialize() + '&id_guru=' + idGuru,
-                    type: "POST",
-                    success: function (respon) {
-                        console.log(respon);
-                        if (respon.status) {
-                            swal.fire({
-                                title: "Berhasil",
-                                text: "Data guru berhasil dihapus",
-                                icon: "success"
-                            }).then(result => {
-                                if (result.value) {
-                                    window.location.reload(true);
-                                }
-                            });
-                        } else {
-                            if (respon.count > 0) {
-                                window.location.href = base_url + 'dataguru/detail/' + idGuru
-                            } else {
-                                swal.fire({
-                                    title: "Gagal",
-                                    html: respon.message,
-                                    icon: "error"
-                                });
-                            }
-                        }
-                    },
-                    error: function () {
-                        swal.fire({
-                            title: "Gagal",
-                            text: "Ada data yang sedang digunakan",
-                            icon: "error"
-                        });
-                    }
-                });
-            }
-        });
-    }
-
-    $(document).ready(function () {
-        $("#list-guru").DataTable({
-            paging: false,
-            ordering: false,
-            info: false,
-        });
-        /*
-        $(`img.avatar`).each(function () {
-            $(this).on("error", function () {
-                console.log('foto', $(this).attr('src'));
-                $(this).attr("src", base_url + '/assets/img/siswa.png'); // default foto
-            });
-        });
-         */
-    });
+<script src="<?= base_url() ?>assets/app/js/master-guru-data.js"></script>
 </script>

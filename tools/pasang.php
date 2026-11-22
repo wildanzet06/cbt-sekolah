@@ -215,10 +215,11 @@ $db['default'] = array(
 PHPTPL;
 $isi = str_replace(
     array('{HOST}', '{USER}', '{PASS}', '{DB}', '{PORT}'),
-    array($opt['host'], $opt['user'], $opt['pass'], $opt['db'], (int) $opt['port']),
+    array(addslashes($opt['host']), addslashes($opt['user']), addslashes($opt['pass']), addslashes($opt['db']), (int) $opt['port']),
     $tpl
 );
 file_put_contents($config_path, $isi . "\n");
+@chmod($config_path, 0640);
 echo "[4/7] application/config/database.php ditulis.\n";
 
 // ---------------------------------------------------------------------

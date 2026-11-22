@@ -2,8 +2,8 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Tab "Sesi & Jam" — menggantikan Sesi + Alokasi Waktu.
- * PRD 5.3 (tab Sesi & Jam): Sesi 1 aktif, Sesi 2–3 disembunyikan,
+ * Tab "Sesi & Jam" â€” menggantikan Sesi + Alokasi Waktu.
+ * PRD 5.3 (tab Sesi & Jam): Sesi 1 aktif, Sesi 2â€“3 disembunyikan,
  * urutan jam (jam_ke) hanya bila perlu.
  */
 $lain = [];
@@ -178,7 +178,7 @@ foreach ($ujian as $u) {
                         <?= html_escape(trim((!empty($u->kode_jenis) ? $u->kode_jenis : 'Ujian') . ' '
                             . (!empty($u->nama_mapel) ? $u->nama_mapel : '-'))) ?>
                         <?php if (!empty($u->label_kelas)): ?>
-                            <small class="text-muted">· Kelas <?= html_escape($u->label_kelas) ?></small>
+                            <small class="text-muted">Â· Kelas <?= html_escape($u->label_kelas) ?></small>
                         <?php endif; ?>
                     </td>
                     <td class="align-middle">
@@ -195,63 +195,6 @@ foreach ($ujian as $u) {
     </button>
 <?php endif; ?>
 
-<script>
-    (function () {
-        var CSRF = <?= json_encode($csrf) ?>;
-        var URL_SESI = '<?= base_url('ujiansekolah/sesisimpan') ?>';
-        var URL_JAM = '<?= base_url('ujiansekolah/jamsimpan') ?>';
-
-        function toast(ok, msg) {
-            if (ok && typeof showSuccessToast === 'function') { showSuccessToast(msg); return; }
-            if (!ok && typeof showDangerToast === 'function') { showDangerToast(msg); return; }
-            window.alert(msg);
-        }
-
-        function post(url, data, cb) {
-            data[CSRF.name] = CSRF.hash;
-            $.ajax({
-                type: 'POST', url: url, data: data, dataType: 'json',
-                success: cb,
-                error: function (xhr) {
-                    var msg = 'Terjadi kesalahan pada server.';
-                    try { msg = JSON.parse(xhr.responseText).msg || msg; } catch (e) {}
-                    cb({status: false, msg: msg});
-                }
-            });
-        }
-
-        $('#tampil-sesi-lain').on('change', function () {
-            $('#sesi-lain').toggleClass('d-none', !$(this).is(':checked'));
-        });
-
-        $('#pane-sesi .btn-simpan-sesi').on('click', function () {
-            var $b = $(this).prop('disabled', true);
-            var id = $b.data('sesi');
-            var data = {id_sesi: id};
-            $('#pane-sesi .sesi-input[data-sesi="' + id + '"]').each(function () {
-                data[$(this).data('field')] = $(this).val();
-            });
-            data.aktif = $('#aktif-' + id).is(':checked') ? 1 : 0;
-
-            post(URL_SESI, data, function (r) {
-                $b.prop('disabled', false);
-                toast(r.status, r.msg);
-                if (r.status) {
-                    window.setTimeout(function () { window.location.reload(); }, 700);
-                }
-            });
-        });
-
-        $('#btn-simpan-jam').on('click', function () {
-            var data = {};
-            $('#pane-sesi .jam-input').each(function () {
-                data['jam[' + $(this).data('jadwal') + ']'] = $(this).val();
-            });
-            var $b = $(this).prop('disabled', true);
-            post(URL_JAM, data, function (r) {
-                $b.prop('disabled', false);
-                toast(r.status, r.msg);
-            });
-        });
-    })();
+<div id="ujian-tab-sesi" data-csrf="<?= html_escape(json_encode($csrf)) ?>" data-url-sesi="<?= html_escape(base_url('ujiansekolah/sesisimpan')) ?>" data-url-jam="<?= html_escape(base_url('ujiansekolah/jamsimpan')) ?>" hidden></div>
+<script src="<?= base_url() ?>assets/app/js/ujian-tab-sesi.js"></script>
 </script>

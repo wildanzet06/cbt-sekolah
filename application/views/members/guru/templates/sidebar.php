@@ -34,7 +34,7 @@
     <!-- /.sidebar -->
 </aside>
 
-<script>
+<script nonce="<?= html_escape((string) $this->config->item('csp_nonce')) ?>">
     const page = '<?= $this->uri->segment(1)?>';
     const jabatan = '<?=$guru->id_jabatan?>';
     const pageact = '<?= $this->uri->segment(2); ?>';

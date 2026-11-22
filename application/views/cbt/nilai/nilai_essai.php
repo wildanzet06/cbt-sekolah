@@ -60,7 +60,7 @@
                                     <tr>
                                         <td>Kelas</td>
                                         <td> :</td>
-                                        <td><span class="text-bold"><?= $nama_kelas ?></span></td>
+                                        <td><span class="text-bold"><?= html_escape($nama_kelas) ?></span></td>
                                     </tr>
                                     <tr>
                                         <td>Pengampu</td>
@@ -185,7 +185,7 @@
                             <tr class="nilai" data-idsiswa="<?= $idSiswa ?>">
                                 <td class="text-center align-middle"> <?= $no ?> </td>
                                 <td class="text-center align-middle"> <?= $siswa->nomor_peserta ?> </td>
-                                <td class="align-middle"> <?= $siswa->nama ?> </td>
+                                <td class="align-middle"> <?= html_escape($siswa->nama) ?> </td>
                                 <?php if ($jadwal->tampil_pg != '0') : ?>
                                     <td class="text-center text-success align-middle">
                                         <?= $siswa->skor_pg ?>

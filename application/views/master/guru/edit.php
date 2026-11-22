@@ -30,8 +30,8 @@
                                 ?>
                                 <img id="foto-guru" src="<?= base_url() . $foto ?>"
                                      class="img-circle profile-avatar mt-2" alt="User avatar">
-                                <h4 class="mt-5"><?= $guru->nama_guru ?></h4>
-                                <h5 class="mb-5"><?= $guru->level . ' ' . $guru->nama_kelas ?></h5>
+                                <h4 class="mt-5"><?= html_escape($guru->nama_guru) ?></h4>
+                                <h5 class="mb-5"><?= html_escape($guru->level . ' ' . $guru->nama_kelas) ?></h5>
                                 <div class="user-button">
                                     <div class="row">
                                         <div class="col-6">
@@ -245,7 +245,7 @@
                     <div class="input-group-prepend w-40">
                         <span class="input-group-text">Username</span>
                     </div>
-                    <input type="text" class="form-control" name="username" value="<?= $guru->username ?>"
+                    <input type="text" class="form-control" name="username" value="<?= html_escape($guru->username) ?>"
                            placeholder="Username">
                 </div>
                 <div class="input-group mb-3">

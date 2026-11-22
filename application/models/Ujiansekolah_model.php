@@ -1345,7 +1345,7 @@ class Ujiansekolah_model extends CI_Model
             return false;
         }
         return $this->db->where('id_durasi', (int)$row->id_durasi)
-            ->update('cbt_durasi_siswa', ['mulai' => date('Y-m-d H:i:s', $mulai - ($menit * 60))]);
+            ->update('cbt_durasi_siswa', ['mulai' => date('Y-m-d H:i:s', $mulai + ($menit * 60))]);
     }
 
     /* ==================================================================

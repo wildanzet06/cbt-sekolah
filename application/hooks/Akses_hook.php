@@ -48,7 +48,7 @@ class Akses_hook {
         'index', 'data', 'list', 'activate', 'deactivate',
         'aktifkansemua', 'nonaktifkansemua', 'delete', 'reset_login'
     );
-    private $khusus_admin = array('usersiswa', 'userguru', 'useradmin');
+    private $khusus_admin = array('usersiswa', 'userguru', 'useradmin', 'datatahun', 'kas', 'pembayaran', 'pengumuman', 'backup');
 
     /**
      * Controller yang SELURUH method-nya hanya untuk admin.
@@ -60,7 +60,7 @@ class Akses_hook {
     /**
      * Pengecualian dari aturan "controller khusus admin" di atas:
      * ganti password sendiri (usersiswa/change_password) tetap boleh untuk
-     * semua pengguna yang login — nilainya diambil dari sesi, bukan dari input.
+     * semua pengguna yang login Ã¢â‚¬â€ nilainya diambil dari sesi, bukan dari input.
      */
     private $dikecualikan_admin_semua = array('usersiswa/change_password');
 
@@ -88,7 +88,7 @@ class Akses_hook {
 
     /**
      * Aksi yang mengubah data. Boleh dipanggil lewat AJAX (header
-     * X-Requested-With) atau POST, tetapi TIDAK lewat tautan/GET biasa —
+     * X-Requested-With) atau POST, tetapi TIDAK lewat tautan/GET biasa Ã¢â‚¬â€
      * supaya tidak bisa dipicu dari halaman lain (CSRF) atau prefetch browser.
      */
     private $metode_mutasi = array(
@@ -128,11 +128,56 @@ class Akses_hook {
             return; // belum login: biarkan controller yang menangani
         }
 
+        // C-3: akun dengan password hasil reset admin wajib mengganti password.
+        static $__punya_flag = null;
+        if ($__punya_flag === null) {
+            $__punya_flag = $CI->db->field_exists('must_change_password', 'users');
+        }
+        if ($__punya_flag) {
+            $__u = $CI->ion_auth->user()->row();
+            if ($__u && (int) $__u->must_change_password === 1) {
+                $__uri = strtolower(trim((string) $CI->uri->uri_string(), '/'));
+                $__boleh = in_array($__uri, array('akun/password', 'auth/logout', 'auth/cek_login'), true)
+                    || strpos($__uri, 'akun/password') === 0;
+                if (!$__boleh) {
+                    if ($CI->input->is_ajax_request()) {
+                        http_response_code(403);
+                        header('Content-Type: application/json');
+                        echo json_encode(array('status' => false, 'msg' => 'Ganti password terlebih dahulu.'));
+                        exit;
+                    }
+                    redirect('akun/password');
+                }
+            }
+        }
+
         $nama = array_unique(array(
             strtolower((string) $CI->router->fetch_class()),
             strtolower((string) $CI->uri->segment(1))
         ));
         $metode = strtolower((string) $CI->router->fetch_method());
+        // B-5: halaman Data Siswa memakai script eksternal + nonce untuk
+        // satu script menu sidebar. Script inline lain akan diblokir.
+        if (in_array(strtolower((string) $CI->router->fetch_class()), array('datasiswa', 'dataguru', 'datakelas', 'datamapel', 'dataekstra', 'usersiswa', 'userguru', 'useradmin', 'datatahun', 'kas', 'pembayaran', 'pengumuman', 'backup'), true) || (strtolower((string) $CI->router->fetch_class()) === 'settings' && $metode === 'index') || (strtolower((string) $CI->router->fetch_class()) === 'statistik' && $metode === 'index') || (strtolower((string) $CI->router->fetch_class()) === 'ujiansekolah' && $metode === 'pengaturan') || (strtolower((string) $CI->router->fetch_class()) === 'cbtbanksoal' && $metode === 'index') || (strtolower((string) $CI->router->fetch_class()) === 'tagihan' && in_array($metode, array('index', 'jenis', 'keringanan', 'buat'), true)) || (strtolower((string) $CI->router->fetch_class()) === 'presensi' && in_array($metode, array('index', 'detail', 'rekap'), true)) || (strtolower((string) $CI->router->fetch_class()) === 'pelanggaran' && in_array($metode, array('index', 'riwayat', 'surat', 'cetak_sp', 'rekap'), true))) {
+            $__nonce = base64_encode(random_bytes(16));
+            $CI->config->set_item('csp_nonce', $__nonce);
+            header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-" . $__nonce . "'; script-src-attr 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; media-src 'self' blob:; frame-src 'self' blob: data:; object-src 'none'; frame-ancestors 'self'; base-uri 'none'; form-action 'self'", false);
+        }
+        // B-5: dashboard siswa memakai script eksternal; beri CSP ketat.
+        // Dashboard admin masih punya script inline, jadi tetap longgar.
+        if (strtolower((string) $CI->router->fetch_class()) === 'dashboard') {
+            if ($CI->ion_auth->in_group('siswa')) {
+                header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; script-src-attr 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; media-src 'self' blob:; frame-src 'self' blob: data:; object-src 'none'; frame-ancestors 'self'; base-uri 'none'; form-action 'self'", true);
+            } else {
+                header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://oss.maxcdn.com https://app.midtrans.com https://app.sandbox.midtrans.com https://static.cloudflareinsights.com; font-src 'self' data:; connect-src 'self' https://app.midtrans.com https://app.sandbox.midtrans.com https://api.midtrans.com https://api.sandbox.midtrans.com https://cloudflareinsights.com https://static.cloudflareinsights.com; media-src 'self' blob:; frame-src 'self' blob: data: https://app.midtrans.com https://app.sandbox.midtrans.com; object-src 'none'; frame-ancestors 'self'; base-uri 'none'; form-action 'self'", true);
+            }
+        }
+        // B-5 pilot: halaman login memakai script eksternal, jadi bisa memakai
+        // CSP script-src 'self' tanpa unsafe-inline. Header ini berlaku bersama
+        // CSP global (irisan kebijakan), hanya untuk halaman login.
+        if (strtolower((string) $CI->router->fetch_class()) === 'auth' && $metode === 'index') {
+            header("Content-Security-Policy: script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'", false);
+        }
 
         // 0) Upload gambar soal: batasi nama file, ukuran, dan jenisnya.
         //    Tanpa ini, $_POST['name'] bisa dipakai untuk menimpa file sistem.
@@ -142,6 +187,14 @@ class Akses_hook {
         }
 
         $admin = $CI->ion_auth->is_admin();
+
+        // File proteksi folder tidak boleh dihapus lewat endpoint apa pun.
+        if (in_array($metode, array('deletefile', 'deletefoto'), true)) {
+            $__src = urldecode((string) $CI->input->post('src'));
+            if (stripos($__src, '.htaccess') !== false || stripos($__src, 'web.config') !== false) {
+                $this->tolak($CI, 'mencoba menghapus file proteksi');
+            }
+        }
         $siswa = !$admin && $CI->ion_auth->in_group(array(3, 'siswa'));
 
         // 10) Guru hanya boleh mengelola bank soalnya sendiri.
@@ -496,6 +549,15 @@ class Akses_hook {
             return;
         }
         $metode = strtolower((string) $CI->router->fetch_method());
+        // B-5: dashboard siswa memakai script eksternal; beri CSP ketat.
+        // Dashboard admin masih punya script inline, jadi tetap longgar.
+        if (strtolower((string) $CI->router->fetch_class()) === 'dashboard') {
+            if ($CI->ion_auth->in_group('siswa')) {
+                header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; script-src-attr 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; media-src 'self' blob:; frame-src 'self' blob: data:; object-src 'none'; frame-ancestors 'self'; base-uri 'none'; form-action 'self'", true);
+            } else {
+                header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://oss.maxcdn.com https://app.midtrans.com https://app.sandbox.midtrans.com https://static.cloudflareinsights.com; font-src 'self' data:; connect-src 'self' https://app.midtrans.com https://app.sandbox.midtrans.com https://api.midtrans.com https://api.sandbox.midtrans.com https://cloudflareinsights.com https://static.cloudflareinsights.com; media-src 'self' blob:; frame-src 'self' blob: data: https://app.midtrans.com https://app.sandbox.midtrans.com; object-src 'none'; frame-ancestors 'self'; base-uri 'none'; form-action 'self'", true);
+            }
+        }
 
         // Admin tidak dibatasi kepemilikan bank.
         if ($CI->ion_auth->is_admin()) {
