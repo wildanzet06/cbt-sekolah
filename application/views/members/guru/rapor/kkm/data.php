@@ -41,7 +41,7 @@
                                         if ($kls['id_kelas'] != null) :?>
                                             <button class="btn btn-outline-success btn-kelas m<?= $key ?>"
                                                     data-mapel="<?= $key ?>"
-                                                    data-kelas="<?= $kls['id_kelas'] ?>"><?= $kls['nama_kelas'] ?></button>
+                                                    data-kelas="<?= $kls['id_kelas'] ?>"><?= html_escape($kls['nama_kelas']) ?></button>
                                         <?php endif; endforeach; endif; ?>
                                     <div id="alert<?= $key ?>"
                                          class="mt-3 alert alert-default-warning align-content-center"
@@ -88,7 +88,7 @@
                                             if ($kls['id_kelas'] != null) :?>
                                                 <button class="btn btn-outline-success btn-kelas-ekstra e<?= $key ?>"
                                                         data-ekstra="<?= $key ?>"
-                                                        data-kelas="<?= $kls['id_kelas'] ?>"><?= $kls['nama_kelas'] ?></button>
+                                                        data-kelas="<?= $kls['id_kelas'] ?>"><?= html_escape($kls['nama_kelas']) ?></button>
                                             <?php endif; endforeach; ?>
                                         <div id="alert-ekstra<?= $key ?>"
                                              class="mt-3 alert alert-default-warning align-content-center"
