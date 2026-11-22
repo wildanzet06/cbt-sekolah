@@ -31,12 +31,28 @@ $(document).ready(function() {
             { data: "last_name" },
             { data: "username" },
             { data: "email" },
+            { data: "password" },
             { data: "level" },
-            { data: "created_on" }
+            { data: "created_on" },
+            { data: "active" },
+            { data: "id" }
         ],
         columnDefs: [
             {
+                searchable: false,
+                orderable: false,
+                className: "text-center",
                 targets: 5,
+                render: function(data, type, row, meta) {
+                    return `<div class="td-password" data-username="${row.username}">
+                            <button type="button" class="btn btn-lihat-password btn-default btn-xs"
+                                data-id="${row.id}" data-toggle="tooltip" title="Lihat password awal"><i class="fa fa-eye m-1"></i></button>
+                            <span class="pw-awal d-none"></span>
+                        </div>`;
+                }
+            },
+            {
+                targets: 6,
                 data: "level",
                 render: function(data, type, row, meta) {
                     return `<div class="text-center">
@@ -45,7 +61,7 @@ $(document).ready(function() {
                 }
             },
             {
-                targets: 7,
+                targets: 8,
                 orderable: false,
                 searchable: false,
                 title: "Status",
@@ -63,7 +79,7 @@ $(document).ready(function() {
                 }
             },
             {
-                targets: 8,
+                targets: 9,
                 data: "id",
                 render: function(data, type, row, meta) {
                     if (data === user_id) {
@@ -106,6 +122,25 @@ $(document).ready(function() {
         .buttons()
         .container()
         .appendTo("#users_wrapper .col-md-6:eq(0)");
+
+    // Password tidak dikirim bersama daftar. Admin memintanya satu per satu.
+    $("#users").on("click", ".btn-lihat-password", function() {
+        let tombol = $(this);
+        let sel = tombol.closest(".td-password");
+        $.ajax({
+            url: base_url + "akun/lihat_password",
+            type: "POST",
+            dataType: "json",
+            data: {id_admin: tombol.attr("data-id")},
+            success: function(res) {
+                sel.find(".pw-awal").text(res && res.password ? res.password : "-").removeClass("d-none");
+                tombol.remove();
+            },
+            error: function() {
+                swal.fire({title: "Gagal", text: "Password tidak dapat ditampilkan.", icon: "error"});
+            }
+        });
+    });
 
     $("#show_me").on("change", function() {
         let src = base_url + "useradmin/data";

@@ -28,7 +28,11 @@
         return $this->output_json(array('status' => false, 'text' => 'Data guru tidak ditemukan.'));
     }
 
-    $this->form_validation->set_rules('old', $this->lang->line('change_password_validation_old_password_label'), 'required');
+    // Admin boleh mengganti password guru tanpa mengetahui password lama.
+    // Guru yang mengganti passwordnya sendiri tetap wajib mengisi password lama.
+    if (!$admin) {
+        $this->form_validation->set_rules('old', $this->lang->line('change_password_validation_old_password_label'), 'required');
+    }
     $this->form_validation->set_rules('new', $this->lang->line('change_password_validation_new_password_label'), 'required|min_length[' . $this->config->item('min_password_length', 'ion_auth') . ']|matches[new_confirm]');
     $this->form_validation->set_rules('new_confirm', $this->lang->line('change_password_validation_new_password_confirm_label'), 'required');
 
@@ -43,21 +47,23 @@
         ));
     }
 
-    // Verifikasi kata sandi lama akun guru yang bersangkutan.
-    $akun_target = $guru_target->id_user
-        ? $this->db->get_where('users', array('id' => $guru_target->id_user))->row()
-        : null;
-    $sandi_valid = false;
-    if ($akun_target && password_verify($old, $akun_target->password)) {
-        $sandi_valid = true;
-    } elseif (hash_equals((string) $guru_target->password, (string) $old)) {
-        $sandi_valid = true;
-    }
-    if (!$sandi_valid) {
-        return $this->output_json(array(
-            'status' => false,
-            'errors' => array('old' => 'Password lama tidak sesuai.'),
-        ));
+    // Verifikasi kata sandi lama hanya untuk guru yang mengubah akunnya sendiri.
+    if (!$admin) {
+        $akun_target = $guru_target->id_user
+            ? $this->db->get_where('users', array('id' => $guru_target->id_user))->row()
+            : null;
+        $sandi_valid = false;
+        if ($akun_target && password_verify($old, $akun_target->password)) {
+            $sandi_valid = true;
+        } elseif (hash_equals((string) $guru_target->password, (string) $old)) {
+            $sandi_valid = true;
+        }
+        if (!$sandi_valid) {
+            return $this->output_json(array(
+                'status' => false,
+                'errors' => array('old' => 'Password lama tidak sesuai.'),
+            ));
+        }
     }
 
     $nama = explode(' ', (string) $guru_target->nama_guru);

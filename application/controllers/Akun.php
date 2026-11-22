@@ -99,6 +99,9 @@ class Akun extends CI_Controller {
 
         if ($berhasil) {
             $this->_catat_password_diganti($user->username);
+            if ($this->ion_auth->is_admin($user->id)) {
+                $this->_simpan_password_admin($user->id, $user->username, $baru);
+            }
             $this->session->unset_userdata(array('pw_gagal', 'pw_kunci_sampai'));
             $this->session->set_flashdata('success', 'Password berhasil diubah.');
         } else {
@@ -135,6 +138,17 @@ class Akun extends CI_Controller {
         $user = $this->db->select('created_on')->get_where('users', array('username' => $username))->row();
         if (!$user) return true;
         return (int) $catatan->diganti_pada >= (int) $user->created_on;
+    }
+
+    // Menyimpan password awal/current admin untuk keperluan tombol mata.
+    private function _simpan_password_admin($user_id, $username, $password) {
+        if (!$this->db->table_exists('cbt_password_awal_admin')) return;
+        $this->db->replace('cbt_password_awal_admin', array(
+            'user_id'    => (int) $user_id,
+            'username'   => (string) $username,
+            'password'   => (string) $password,
+            'updated_on' => time(),
+        ));
     }
 
     // Dipakai halaman User Management (admin): dari daftar username yang dikirim,
@@ -177,6 +191,7 @@ class Akun extends CI_Controller {
 
         $id_siswa = (string) $this->input->post('id_siswa', true);
         $id_guru  = (string) $this->input->post('id_guru', true);
+        $id_admin = (string) $this->input->post('id_admin', true);
 
         if (ctype_digit($id_siswa) && (int) $id_siswa > 0) {
             $siswa = $this->db->get_where('master_siswa', array('id_siswa' => (int) $id_siswa))->row();
@@ -193,6 +208,18 @@ class Akun extends CI_Controller {
                 $password = 'Sudah diganti guru';
             } elseif ($password === '') {
                 $password = 'Password awal tidak tersimpan';
+            }
+        } elseif (ctype_digit($id_admin) && (int) $id_admin > 0) {
+            $admin = $this->db->get_where('users', array('id' => (int) $id_admin))->row();
+            $password = '';
+            if ($admin && $this->db->table_exists('cbt_password_awal_admin')) {
+                $simpan = $this->db->get_where('cbt_password_awal_admin', array('user_id' => (int) $id_admin))->row();
+                $password = $simpan ? trim((string) $simpan->password) : '';
+            }
+            if ($password === '') {
+                $password = $admin && $this->_sudah_diganti($admin->username)
+                    ? 'Sudah diganti admin'
+                    : 'Password awal tidak tersimpan';
             }
         } else {
             $this->output->set_status_header(400)

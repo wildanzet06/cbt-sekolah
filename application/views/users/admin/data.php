@@ -38,6 +38,7 @@
                             <th>Last Name</th>
                             <th>Username</th>
                             <th>Email</th>
+                            <th class="text-center">Password</th>
                             <th>Level</th>
                             <th>Created On</th>
                             <th class="text-center">Status</th>
