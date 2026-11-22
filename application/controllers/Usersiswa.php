@@ -63,6 +63,7 @@
         $this->db->where('id', $user->id)->update('users', array(
             'username' => $username,
             'password' => password_hash($password, PASSWORD_BCRYPT),
+            'must_change_password' => 1,
         ));
         $this->db->where('login', $siswa->username)->update('login_attempts', array('login' => $username));
     }

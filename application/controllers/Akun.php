@@ -99,6 +99,11 @@ class Akun extends CI_Controller {
 
         if ($berhasil) {
             $this->_catat_password_diganti($user->username);
+
+        // C-3: password sudah diganti sendiri; kewajiban ganti selesai.
+        if ($this->db->field_exists('must_change_password', 'users')) {
+            $this->db->where('id', (int) $user->id)->update('users', array('must_change_password' => 0));
+        }
             $this->session->unset_userdata(array('pw_gagal', 'pw_kunci_sampai'));
             $this->session->set_flashdata('success', 'Password berhasil diubah.');
         } else {

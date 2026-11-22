@@ -128,6 +128,29 @@ class Akses_hook {
             return; // belum login: biarkan controller yang menangani
         }
 
+        // C-3: akun dengan password hasil reset admin wajib mengganti password.
+        static $__punya_flag = null;
+        if ($__punya_flag === null) {
+            $__punya_flag = $CI->db->field_exists('must_change_password', 'users');
+        }
+        if ($__punya_flag) {
+            $__u = $CI->ion_auth->user()->row();
+            if ($__u && (int) $__u->must_change_password === 1) {
+                $__uri = strtolower(trim((string) $CI->uri->uri_string(), '/'));
+                $__boleh = in_array($__uri, array('akun/password', 'auth/logout', 'auth/cek_login'), true)
+                    || strpos($__uri, 'akun/password') === 0;
+                if (!$__boleh) {
+                    if ($CI->input->is_ajax_request()) {
+                        http_response_code(403);
+                        header('Content-Type: application/json');
+                        echo json_encode(array('status' => false, 'msg' => 'Ganti password terlebih dahulu.'));
+                        exit;
+                    }
+                    redirect('akun/password');
+                }
+            }
+        }
+
         $nama = array_unique(array(
             strtolower((string) $CI->router->fetch_class()),
             strtolower((string) $CI->uri->segment(1))

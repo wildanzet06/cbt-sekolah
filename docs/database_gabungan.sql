@@ -500,3 +500,9 @@ CREATE TRIGGER trg_master_guru_password BEFORE INSERT ON master_guru FOR EACH RO
 CREATE TRIGGER trg_master_guru_password_upd BEFORE UPDATE ON master_guru FOR EACH ROW SET NEW.password = '';
 UPDATE master_siswa SET password = '' WHERE password IS NOT NULL AND password <> '';
 UPDATE master_guru SET password = '' WHERE password IS NOT NULL AND password <> '';
+-- C-3: wajib ganti password pada login pertama/reset admin.
+SET @sql = (SELECT IF(COUNT(*) = 0,
+'ALTER TABLE users ADD COLUMN must_change_password TINYINT(1) NOT NULL DEFAULT 0',
+'SELECT ''must_change_password ada'' AS info')
+FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'must_change_password');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
