@@ -48,7 +48,7 @@
     <!-- /.sidebar -->
 </aside>
 
-<script>
+<script nonce="<?= html_escape((string) $this->config->item('csp_nonce')) ?>">
 (function() {
     try {
         // base_url: pakai yang global jika ada, kalau tidak pakai dari PHP

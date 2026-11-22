@@ -156,6 +156,13 @@ class Akses_hook {
             strtolower((string) $CI->uri->segment(1))
         ));
         $metode = strtolower((string) $CI->router->fetch_method());
+        // B-5: halaman Data Siswa memakai script eksternal + nonce untuk
+        // satu script menu sidebar. Script inline lain akan diblokir.
+        if (strtolower((string) $CI->router->fetch_class()) === 'datasiswa') {
+            $__nonce = base64_encode(random_bytes(16));
+            $CI->config->set_item('csp_nonce', $__nonce);
+            header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-" . $__nonce . "'; script-src-attr 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; media-src 'self' blob:; frame-src 'self' blob: data:; object-src 'none'; frame-ancestors 'self'; base-uri 'none'; form-action 'self'", false);
+        }
         // B-5: dashboard siswa memakai script eksternal; beri CSP ketat.
         // Dashboard admin masih punya script inline, jadi tetap longgar.
         if (strtolower((string) $CI->router->fetch_class()) === 'dashboard') {
@@ -542,6 +549,13 @@ class Akses_hook {
             return;
         }
         $metode = strtolower((string) $CI->router->fetch_method());
+        // B-5: halaman Data Siswa memakai script eksternal + nonce untuk
+        // satu script menu sidebar. Script inline lain akan diblokir.
+        if (strtolower((string) $CI->router->fetch_class()) === 'datasiswa') {
+            $__nonce = base64_encode(random_bytes(16));
+            $CI->config->set_item('csp_nonce', $__nonce);
+            header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-" . $__nonce . "'; script-src-attr 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; media-src 'self' blob:; frame-src 'self' blob: data:; object-src 'none'; frame-ancestors 'self'; base-uri 'none'; form-action 'self'", false);
+        }
         // B-5: dashboard siswa memakai script eksternal; beri CSP ketat.
         // Dashboard admin masih punya script inline, jadi tetap longgar.
         if (strtolower((string) $CI->router->fetch_class()) === 'dashboard') {
