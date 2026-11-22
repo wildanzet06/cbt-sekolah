@@ -270,6 +270,10 @@
     var halaman = 0;
     var idSiswa = "<?=$siswa->id_siswa?>";
 
+    function escHtml(s) {
+        return $('<div>').text(s == null ? '' : String(s)).html();
+    }
+
     function createTime(d) {
         var date = new Date(d);
 
@@ -331,8 +335,8 @@
                 + avatar +
                 '    <div class="w-100 ml-2">' +
                 '        <div class="media-body border pl-3 bg-light" style="border-radius: 20px">' +
-                '            <span class="text-xs text-muted"><b>' + dari + '</b></span>' +
-                '            <div class="comment-text pb-1">' + v.text + '</div>' +
+                '            <span class="text-xs text-muted"><b>' + escHtml(dari) + '</b></span>' +
+                '            <div class="comment-text pb-1">' + escHtml(v.text) + '</div>' +
                 '        </div>' +
                 '        <div class="ml-2">' +
                 '            <span class="btn-sm mr-2 text-muted">' + createTime(v.tanggal) + '</span>' +
@@ -437,8 +441,8 @@
                     + avatar +
                     '    <div class="w-100">' +
                     '        <div class="media-body border pl-3" style="border-radius: 17px; background-color: #dee2e6">' +
-                    '            <span class="text-xs text-muted"><b>' + dari + '</b></span>' +
-                    '            <div class="comment-text">' + v.text +
+                    '            <span class="text-xs text-muted"><b>' + escHtml(dari) + '</b></span>' +
+                    '            <div class="comment-text">' + escHtml(v.text) +
                     '            </div>' +
                     '        </div>' +
                     '        <div class="ml-2">' +
