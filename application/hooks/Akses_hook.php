@@ -60,7 +60,7 @@ class Akses_hook {
     /**
      * Pengecualian dari aturan "controller khusus admin" di atas:
      * ganti password sendiri (usersiswa/change_password) tetap boleh untuk
-     * semua pengguna yang login — nilainya diambil dari sesi, bukan dari input.
+     * semua pengguna yang login â€” nilainya diambil dari sesi, bukan dari input.
      */
     private $dikecualikan_admin_semua = array('usersiswa/change_password');
 
@@ -88,7 +88,7 @@ class Akses_hook {
 
     /**
      * Aksi yang mengubah data. Boleh dipanggil lewat AJAX (header
-     * X-Requested-With) atau POST, tetapi TIDAK lewat tautan/GET biasa —
+     * X-Requested-With) atau POST, tetapi TIDAK lewat tautan/GET biasa â€”
      * supaya tidak bisa dipicu dari halaman lain (CSRF) atau prefetch browser.
      */
     private $metode_mutasi = array(
@@ -156,6 +156,12 @@ class Akses_hook {
             strtolower((string) $CI->uri->segment(1))
         ));
         $metode = strtolower((string) $CI->router->fetch_method());
+        // B-5 pilot: halaman login memakai script eksternal, jadi bisa memakai
+        // CSP script-src 'self' tanpa unsafe-inline. Header ini berlaku bersama
+        // CSP global (irisan kebijakan), hanya untuk halaman login.
+        if (strtolower((string) $CI->router->fetch_class()) === 'auth' && $metode === 'index') {
+            header("Content-Security-Policy: script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'", false);
+        }
 
         // 0) Upload gambar soal: batasi nama file, ukuran, dan jenisnya.
         //    Tanpa ini, $_POST['name'] bisa dipakai untuk menimpa file sistem.
