@@ -635,3 +635,12 @@ diperbaiki sebelum audit ini; dua hal kecil baru ditambahkan.
 - **F-20 Dependensi:** `composer audit` (PHP 8.3) melaporkan
   **tidak ada advisory**. Versi terpasang: dompdf **3.1.6**,
   phpspreadsheet **1.30.8** (lebih baru dari rentang rentan di audit awal).
+## E-1 lanjutan: unique key tabel rapor/CBT
+
+Tool: `php tools/migrasi_kunci_unik_rapor.php` (dry-run) lalu
+`--apply`. Menambahkan unique pada:
+`cbt_nilai(id_siswa,id_jadwal)`, `cbt_durasi_siswa(id_siswa,id_jadwal)`,
+`cbt_soal_siswa(id_siswa,id_jadwal,id_soal)`,
+`rapor_naik(id_siswa,id_tp,id_smt)`,
+`rapor_data_sikap` dan `rapor_data_catatan` (kombinasi alami).
+Tool menolak tabel yang masih memiliki duplikat. Backup dulu sebelum --apply.
