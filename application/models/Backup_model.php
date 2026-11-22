@@ -65,18 +65,24 @@ class Backup_model extends CI_Model {
     /** Cari executable mysqldump. */
     private function mysqldump() {
         $pola = array(
+            '/usr/bin/mysqldump',
+            '/usr/local/bin/mysqldump',
+            '/usr/local/mysql/bin/mysqldump',
+            '/opt/homebrew/bin/mysqldump',
             'C:/laragon/bin/mysql/mysql-*/bin/mysqldump.exe',
             'C:/laragon/bin/mysql/mariadb-*/bin/mysqldump.exe',
             'C:/xampp/mysql/bin/mysqldump.exe',
             'C:/wamp64/bin/mysql/*/bin/mysqldump.exe'
         );
         foreach ($pola as $p) {
+            if (strpos($p, '*') === false && is_file($p)) return $p;
             foreach ((array) glob($p) as $bin) {
                 if (is_file($bin)) return $bin;
             }
         }
-        // PATH
-        $cek = trim((string) @shell_exec('where mysqldump 2>NUL'));
+        // PATH (Windows: where, Unix: command -v)
+        $cmd = (PHP_OS_FAMILY === 'Windows') ? 'where mysqldump 2>NUL' : 'command -v mysqldump 2>/dev/null';
+        $cek = trim((string) @shell_exec($cmd));
         if ($cek !== '') {
             $baris = preg_split('/\r?\n/', $cek);
             if (!empty($baris[0]) && is_file(trim($baris[0]))) return trim($baris[0]);

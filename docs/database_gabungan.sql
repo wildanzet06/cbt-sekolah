@@ -509,3 +509,6 @@ PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 -- E-1: jadwal materi punya kolom jam_ke + unique key.
 -- Backfill otomatis: php tools/migrasi_jam_ke_materi.php
 -- (id_kjm lama = id_kelas . id_tp . id_smt . Ymd . jam_ke . jenis)
+-- F-19: aturan is_unique Dataguru memakai tabel `guru` yang tidak ada.
+-- Buat view baca-saja agar validasi NIP/email guru berfungsi.
+CREATE OR REPLACE VIEW guru AS SELECT * FROM master_guru;
