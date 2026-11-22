@@ -505,14 +505,16 @@
                 success: function (data) {
                     console.log('result', data);
                     $('#table-info').removeClass('d-none')
+                    var detail = data.detail || {};
+                    var waktu = detail.waktu || {};
                     $('#label-jenis').text(label.toUpperCase())
-                    $('#info-judul').text(': '+data.detail.judul)
-                    $('#info-mapel').text(': '+data.detail.mapel || '-')
-                    $('#info-guru').text(': '+data.detail.guru || '-')
-                    $('#info-kelas').text(': '+data.detail.kelas || '-')
-                    $('#info-jam').text(': '+data.detail.jam_ke || '-')
-                    $('#info-dari').text(': '+data.detail.waktu.dari || '-')
-                    $('#info-sampai').text(': '+data.detail.waktu.sampai || '-')
+                    $('#info-judul').text(': ' + (detail.judul || '-'))
+                    $('#info-mapel').text(': ' + (detail.mapel || '-'))
+                    $('#info-guru').text(': ' + (detail.guru || '-'))
+                    $('#info-kelas').text(': ' + (detail.kelas || '-'))
+                    $('#info-jam').text(': ' + (detail.jam_ke || '-'))
+                    $('#info-dari').text(': ' + (waktu.dari || '-'))
+                    $('#info-sampai').text(': ' + (waktu.sampai || '-'))
 
                     resultAll = data.log;
                     var table = $('#log');
