@@ -156,6 +156,15 @@ class Akses_hook {
             strtolower((string) $CI->uri->segment(1))
         ));
         $metode = strtolower((string) $CI->router->fetch_method());
+        // B-5: dashboard siswa memakai script eksternal; beri CSP ketat.
+        // Dashboard admin masih punya script inline, jadi tetap longgar.
+        if (strtolower((string) $CI->router->fetch_class()) === 'dashboard') {
+            if ($CI->ion_auth->in_group('siswa')) {
+                header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; script-src-attr 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; media-src 'self' blob:; frame-src 'self' blob: data:; object-src 'none'; frame-ancestors 'self'; base-uri 'none'; form-action 'self'", true);
+            } else {
+                header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://oss.maxcdn.com https://app.midtrans.com https://app.sandbox.midtrans.com https://static.cloudflareinsights.com; font-src 'self' data:; connect-src 'self' https://app.midtrans.com https://app.sandbox.midtrans.com https://api.midtrans.com https://api.sandbox.midtrans.com https://cloudflareinsights.com https://static.cloudflareinsights.com; media-src 'self' blob:; frame-src 'self' blob: data: https://app.midtrans.com https://app.sandbox.midtrans.com; object-src 'none'; frame-ancestors 'self'; base-uri 'none'; form-action 'self'", true);
+            }
+        }
         // B-5 pilot: halaman login memakai script eksternal, jadi bisa memakai
         // CSP script-src 'self' tanpa unsafe-inline. Header ini berlaku bersama
         // CSP global (irisan kebijakan), hanya untuk halaman login.
@@ -533,6 +542,15 @@ class Akses_hook {
             return;
         }
         $metode = strtolower((string) $CI->router->fetch_method());
+        // B-5: dashboard siswa memakai script eksternal; beri CSP ketat.
+        // Dashboard admin masih punya script inline, jadi tetap longgar.
+        if (strtolower((string) $CI->router->fetch_class()) === 'dashboard') {
+            if ($CI->ion_auth->in_group('siswa')) {
+                header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; script-src-attr 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; media-src 'self' blob:; frame-src 'self' blob: data:; object-src 'none'; frame-ancestors 'self'; base-uri 'none'; form-action 'self'", true);
+            } else {
+                header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' https://oss.maxcdn.com https://app.midtrans.com https://app.sandbox.midtrans.com https://static.cloudflareinsights.com; font-src 'self' data:; connect-src 'self' https://app.midtrans.com https://app.sandbox.midtrans.com https://api.midtrans.com https://api.sandbox.midtrans.com https://cloudflareinsights.com https://static.cloudflareinsights.com; media-src 'self' blob:; frame-src 'self' blob: data: https://app.midtrans.com https://app.sandbox.midtrans.com; object-src 'none'; frame-ancestors 'self'; base-uri 'none'; form-action 'self'", true);
+            }
+        }
 
         // Admin tidak dibatasi kepemilikan bank.
         if ($CI->ion_auth->is_admin()) {

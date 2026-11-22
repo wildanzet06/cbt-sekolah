@@ -102,11 +102,12 @@
         }
     </style>
     <link rel="stylesheet" href="<?= base_url() ?>/assets/app/css/blue-gray-theme.css">
+<meta name="cbt-base-url" content="<?= html_escape(base_url()) ?>">
+<meta name="cbt-csrf-name" content="<?= html_escape($this->security->get_csrf_token_name()) ?>">
+<meta name="cbt-csrf-hash" content="<?= html_escape($this->security->get_csrf_hash()) ?>">
 </head>
 
-<script type="text/javascript">
-    let base_url = '<?=base_url()?>';
-</script>
+<script src="<?= base_url() ?>assets/app/js/app-config.js"></script>
 
 <?php
 
@@ -245,13 +246,6 @@ if ($tampil_tab) {
         </ul>
     </nav>
 
-    <script type="text/javascript">
-        const isLogin = localStorage.getItem('garudaCBT.login')
-        const isCbtMode = isLogin ? isLogin === '1' : false
-        if (isCbtMode) {
-            $("a#url-back").attr("href", base_url + 'siswa/cbt');
-            if ('<?= $cbt ?>' === 'cbt') {
-                $('#back').addClass('d-none')
-            }
-        }
+<div id="siswa-header-config" data-cbt="<?= html_escape($cbt) ?>" hidden></div>
+<script src="<?= base_url() ?>assets/app/js/siswa-header.js"></script>
     </script>
