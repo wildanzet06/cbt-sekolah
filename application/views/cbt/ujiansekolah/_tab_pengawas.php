@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Tab "Pengawas" — menggantikan menu Pengawas.
+ * Tab "Pengawas" â€” menggantikan menu Pengawas.
  * PRD 5.3 (tab Pengawas): satu pengawas per ruang per tanggal, dipakai bersama
  * semua ujian pada tanggal itu; tombol "Salin ke semua ruang".
  */
@@ -30,7 +30,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <span class="badge badge-light border ml-1">
                             <?= html_escape(trim((!empty($u->kode_jenis) ? $u->kode_jenis : 'Ujian') . ' '
                                 . (!empty($u->nama_mapel) ? $u->nama_mapel : '-'))) ?>
-                            <?php if (!empty($u->label_kelas)): ?>· <?= html_escape($u->label_kelas) ?><?php endif; ?>
+                            <?php if (!empty($u->label_kelas)): ?>Â· <?= html_escape($u->label_kelas) ?><?php endif; ?>
                         </span>
                     <?php endforeach; ?>
                 </div>
@@ -59,7 +59,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 <td class="align-middle">
                                     <select class="form-control form-control-sm pengawas-select"
                                             data-ruang="<?= $rid ?>">
-                                        <option value="">— Belum dipilih —</option>
+                                        <option value="">â€” Belum dipilih â€”</option>
                                         <?php foreach ($guru_list as $g): ?>
                                             <option value="<?= (int)$g->id_guru ?>"
                                                 <?= $dipilih === (int)$g->id_guru ? 'selected' : '' ?>>
@@ -78,52 +78,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
     <?php endforeach; ?>
 <?php endif; ?>
 
-<script>
-    (function () {
-        var CSRF = <?= json_encode($csrf) ?>;
-        var URL_SIMPAN = '<?= base_url('ujiansekolah/pengawassimpan') ?>';
-
-        function toast(ok, msg) {
-            if (ok && typeof showSuccessToast === 'function') { showSuccessToast(msg); return; }
-            if (!ok && typeof showDangerToast === 'function') { showDangerToast(msg); return; }
-            window.alert(msg);
-        }
-
-        $('#pane-pengawas .btn-salin').on('click', function () {
-            var $card = $(this).closest('.pengawas-card');
-            var $first = $card.find('.pengawas-select').first();
-            var nilai = $first.val();
-            if (!nilai) {
-                toast(false, 'Pilih pengawas pada ruang pertama dulu.');
-                return;
-            }
-            $card.find('.pengawas-select').val(nilai);
-        });
-
-        $('#pane-pengawas .btn-simpan-pengawas').on('click', function () {
-            var $card = $(this).closest('.pengawas-card');
-            var data = {tanggal: $card.data('tanggal')};
-            $card.find('.pengawas-select').each(function () {
-                if ($(this).val()) {
-                    data['pengawas[' + $(this).data('ruang') + ']'] = $(this).val();
-                }
-            });
-            data[CSRF.name] = CSRF.hash;
-
-            var $b = $(this).prop('disabled', true);
-            $.ajax({
-                type: 'POST', url: URL_SIMPAN, data: data, dataType: 'json',
-                success: function (r) {
-                    $b.prop('disabled', false);
-                    toast(r.status, r.msg);
-                },
-                error: function (xhr) {
-                    $b.prop('disabled', false);
-                    var msg = 'Terjadi kesalahan pada server.';
-                    try { msg = JSON.parse(xhr.responseText).msg || msg; } catch (e) {}
-                    toast(false, msg);
-                }
-            });
-        });
-    })();
+<div id="ujian-tab-pengawas" data-csrf="<?= html_escape(json_encode($csrf)) ?>" data-url-simpan="<?= html_escape(base_url('ujiansekolah/pengawassimpan')) ?>" hidden></div>
+<script src="<?= base_url() ?>assets/app/js/ujian-tab-pengawas.js"></script>
 </script>

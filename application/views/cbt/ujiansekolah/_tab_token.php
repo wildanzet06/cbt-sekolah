@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Tab "Token" — menggantikan menu Token.
+ * Tab "Token" â€” menggantikan menu Token.
  * PRD 5.3 (tab Token): token per ujian + acak ulang; token global sebagai cadangan.
  */
 $hariIni = date('Y-m-d');
@@ -111,63 +111,6 @@ $globalToken = $token_global ? $token_global->token : '';
     </div>
 <?php endif; ?>
 
-<script>
-    (function () {
-        var CSRF = <?= json_encode($csrf) ?>;
-        var URL_UJIAN = '<?= base_url('ujiansekolah/tokenujian') ?>';
-        var URL_ACAK = '<?= base_url('ujiansekolah/tokenacak') ?>';
-        var URL_GLOBAL = '<?= base_url('ujiansekolah/tokensimpan') ?>';
-
-        function toast(ok, msg) {
-            if (ok && typeof showSuccessToast === 'function') { showSuccessToast(msg); return; }
-            if (!ok && typeof showDangerToast === 'function') { showDangerToast(msg); return; }
-            window.alert(msg);
-        }
-
-        function post(url, data, cb) {
-            data[CSRF.name] = CSRF.hash;
-            $.ajax({
-                type: 'POST', url: url, data: data, dataType: 'json',
-                success: cb,
-                error: function (xhr) {
-                    var msg = 'Terjadi kesalahan pada server.';
-                    try { msg = JSON.parse(xhr.responseText).msg || msg; } catch (e) {}
-                    cb({status: false, msg: msg});
-                }
-            });
-        }
-
-        $('#btn-simpan-global').on('click', function () {
-            var $b = $(this).prop('disabled', true);
-            post(URL_GLOBAL, {token: $('#f-token-global').val()}, function (r) {
-                $b.prop('disabled', false);
-                toast(r.status, r.msg);
-            });
-        });
-
-        $('#pane-token .btn-acak').on('click', function () {
-            var $b = $(this).prop('disabled', true);
-            var id = $b.data('id');
-            post(URL_ACAK, {id_jadwal: id}, function (r) {
-                $b.prop('disabled', false);
-                toast(r.status, r.msg);
-                if (r.status) {
-                    $('#pane-token tr[data-jadwal="' + id + '"] .token-input').val(r.token);
-                }
-            });
-        });
-
-        $('#pane-token .btn-simpan-token').on('click', function () {
-            var $b = $(this).prop('disabled', true);
-            var id = $b.data('id');
-            var $input = $('#pane-token tr[data-jadwal="' + id + '"] .token-input');
-            post(URL_UJIAN, {id_jadwal: id, token: $input.val()}, function (r) {
-                $b.prop('disabled', false);
-                toast(r.status, r.msg);
-                if (r.status) {
-                    $input.val(r.token);
-                }
-            });
-        });
-    })();
+<div id="ujian-tab-token" data-csrf="<?= html_escape(json_encode($csrf)) ?>" data-url-ujian="<?= html_escape(base_url('ujiansekolah/tokenujian')) ?>" data-url-acak="<?= html_escape(base_url('ujiansekolah/tokenacak')) ?>" data-url-global="<?= html_escape(base_url('ujiansekolah/tokensimpan')) ?>" hidden></div>
+<script src="<?= base_url() ?>assets/app/js/ujian-tab-token.js"></script>
 </script>

@@ -2,7 +2,7 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 /**
- * Tab "Peserta & Ruang" — menggantikan Sesi/Ruang/Atur Ruang-Sesi/Nomor Peserta.
+ * Tab "Peserta & Ruang" â€” menggantikan Sesi/Ruang/Atur Ruang-Sesi/Nomor Peserta.
  * PRD 5.3 (tab Peserta & Ruang).
  */
 
@@ -41,7 +41,7 @@ $sesiNama = !empty($d['sesi']) ? $d['sesi']->nama_sesi : 'Sesi belum diatur';
 
 <div class="d-flex flex-wrap align-items-center justify-content-between mb-3">
     <div class="text-muted small">
-        Pembagian dipakai <b>semua ujian</b> pada semester ini — cukup diatur sekali.
+        Pembagian dipakai <b>semua ujian</b> pada semester ini â€” cukup diatur sekali.
     </div>
     <div>
         <div class="custom-control custom-switch d-inline-block mr-3">
@@ -112,7 +112,7 @@ $sesiNama = !empty($d['sesi']) ? $d['sesi']->nama_sesi : 'Sesi belum diatur';
                         <tbody>
                         <?php $n = 0; foreach ($pk['siswa'] as $s): $n++;
                             $rid = (int)$s->ruang_id;
-                            $namaRuang = '—';
+                            $namaRuang = 'â€”';
                             foreach ($ruangList as $r) {
                                 if ((int)$r->id_ruang === $rid) {
                                     $namaRuang = $r->kode_ruang;
@@ -127,7 +127,7 @@ $sesiNama = !empty($d['sesi']) ? $d['sesi']->nama_sesi : 'Sesi belum diatur';
                                 <td><?= html_escape($namaRuang) ?></td>
                                 <td><?= !empty($s->nomor_peserta)
                                     ? html_escape($s->nomor_peserta)
-                                    : '<span class="text-muted">—</span>' ?></td>
+                                    : '<span class="text-muted">â€”</span>' ?></td>
                             </tr>
                         <?php endforeach; ?>
                         </tbody>
@@ -216,60 +216,6 @@ $sesiNama = !empty($d['sesi']) ? $d['sesi']->nama_sesi : 'Sesi belum diatur';
     </div>
 </div>
 
-<script>
-    (function () {
-        var CSRF = <?= json_encode($csrf) ?>;
-        var URL_BAGI = '<?= base_url('ujiansekolah/bagiproses') ?>';
-        var URL_RUANG = '<?= base_url('ujiansekolah/simpanruang') ?>';
-
-        function toast(ok, msg) {
-            if (ok && typeof showSuccessToast === 'function') { showSuccessToast(msg); return; }
-            if (!ok && typeof showDangerToast === 'function') { showDangerToast(msg); return; }
-            window.alert(msg);
-        }
-
-        function post(url, data, cb) {
-            data[CSRF.name] = CSRF.hash;
-            $.ajax({
-                type: 'POST', url: url, data: data, dataType: 'json',
-                success: cb,
-                error: function (xhr) {
-                    var msg = 'Terjadi kesalahan pada server.';
-                    try { msg = JSON.parse(xhr.responseText).msg || msg; } catch (e) {}
-                    cb({status: false, msg: msg});
-                }
-            });
-        }
-
-        $('#pane-peserta .btn-lihat').on('click', function () {
-            $('#siswa-' + $(this).data('kelas')).toggleClass('d-none');
-        });
-
-        $('#btn-bagi').on('click', function () {
-            if (!window.confirm('Pembagian peserta akan diganti. Lanjut?')) { return; }
-            var $b = $(this).prop('disabled', true);
-            post(URL_BAGI, {semua_ruang: $('#f-semua-ruang').is(':checked') ? 1 : 0}, function (r) {
-                $b.prop('disabled', false);
-                toast(r.status !== undefined ? r.status : r.ok, r.msg);
-                if (r.ok || r.status) {
-                    window.setTimeout(function () {
-                        window.location.href = r.redirect || window.location.href;
-                    }, 900);
-                }
-            });
-        });
-
-        $('#pane-peserta .btn-simpan-kapasitas').on('click', function () {
-            var $b = $(this).prop('disabled', true);
-            var id = $b.data('id');
-            var $input = $('#pane-peserta .kapasitas-input[data-id="' + id + '"]');
-            post(URL_RUANG, {id_ruang: id, kapasitas: $input.val()}, function (r) {
-                $b.prop('disabled', false);
-                toast(r.status, r.msg);
-                if (r.status) {
-                    window.setTimeout(function () { window.location.reload(); }, 700);
-                }
-            });
-        });
-    })();
+<div id="ujian-tab-peserta" data-csrf="<?= html_escape(json_encode($csrf)) ?>" data-url-bagi="<?= html_escape(base_url('ujiansekolah/bagiproses')) ?>" data-url-ruang="<?= html_escape(base_url('ujiansekolah/simpanruang')) ?>" hidden></div>
+<script src="<?= base_url() ?>assets/app/js/ujian-tab-peserta.js"></script>
 </script>
