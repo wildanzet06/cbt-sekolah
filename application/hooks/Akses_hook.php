@@ -60,7 +60,7 @@ class Akses_hook {
     /**
      * Pengecualian dari aturan "controller khusus admin" di atas:
      * ganti password sendiri (usersiswa/change_password) tetap boleh untuk
-     * semua pengguna yang login â€” nilainya diambil dari sesi, bukan dari input.
+     * semua pengguna yang login Ã¢â‚¬â€ nilainya diambil dari sesi, bukan dari input.
      */
     private $dikecualikan_admin_semua = array('usersiswa/change_password');
 
@@ -88,7 +88,7 @@ class Akses_hook {
 
     /**
      * Aksi yang mengubah data. Boleh dipanggil lewat AJAX (header
-     * X-Requested-With) atau POST, tetapi TIDAK lewat tautan/GET biasa â€”
+     * X-Requested-With) atau POST, tetapi TIDAK lewat tautan/GET biasa Ã¢â‚¬â€
      * supaya tidak bisa dipicu dari halaman lain (CSRF) atau prefetch browser.
      */
     private $metode_mutasi = array(
@@ -158,7 +158,7 @@ class Akses_hook {
         $metode = strtolower((string) $CI->router->fetch_method());
         // B-5: halaman Data Siswa memakai script eksternal + nonce untuk
         // satu script menu sidebar. Script inline lain akan diblokir.
-        if (strtolower((string) $CI->router->fetch_class()) === 'datasiswa') {
+        if (in_array(strtolower((string) $CI->router->fetch_class()), array('datasiswa', 'dataguru'), true)) {
             $__nonce = base64_encode(random_bytes(16));
             $CI->config->set_item('csp_nonce', $__nonce);
             header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-" . $__nonce . "'; script-src-attr 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; media-src 'self' blob:; frame-src 'self' blob: data:; object-src 'none'; frame-ancestors 'self'; base-uri 'none'; form-action 'self'", false);
@@ -549,13 +549,6 @@ class Akses_hook {
             return;
         }
         $metode = strtolower((string) $CI->router->fetch_method());
-        // B-5: halaman Data Siswa memakai script eksternal + nonce untuk
-        // satu script menu sidebar. Script inline lain akan diblokir.
-        if (strtolower((string) $CI->router->fetch_class()) === 'datasiswa') {
-            $__nonce = base64_encode(random_bytes(16));
-            $CI->config->set_item('csp_nonce', $__nonce);
-            header("Content-Security-Policy: default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self' 'nonce-" . $__nonce . "'; script-src-attr 'unsafe-inline'; font-src 'self' data:; connect-src 'self'; media-src 'self' blob:; frame-src 'self' blob: data:; object-src 'none'; frame-ancestors 'self'; base-uri 'none'; form-action 'self'", false);
-        }
         // B-5: dashboard siswa memakai script eksternal; beri CSP ketat.
         // Dashboard admin masih punya script inline, jadi tetap longgar.
         if (strtolower((string) $CI->router->fetch_class()) === 'dashboard') {
