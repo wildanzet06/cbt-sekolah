@@ -77,9 +77,9 @@ function sortByPosition($a, $b)
                                                     <img class="d-flex mr-3 rounded-circle img-thumbnail thumb-lg"
                                                          src="<?= base_url() . $foto_guru ?>" alt="foto"/>
                                                     <div class="media-body overflow-hidden">
-                                                        <p class="card-text mb-0 text-xs"><?= $guru->nip ?></p>
-                                                        <h6 class="card-text mb-0"><?= $guru->nama_guru ?></h6>
-                                                        <p class="card-text"><?= $guru->level . ' ' . $guru->nama_kelas ?></p>
+                                                        <p class="card-text mb-0 text-xs"><?= html_escape($guru->nip) ?></p>
+                                                        <h6 class="card-text mb-0"><?= html_escape($guru->nama_guru) ?></h6>
+                                                        <p class="card-text"><?= html_escape($guru->level . ' ' . $guru->nama_kelas) ?></p>
                                                         <?php
                                                         $stts = '';
                                                         $badge = '';
@@ -108,12 +108,12 @@ function sortByPosition($a, $b)
                                                                 $all_kelas_mapel = $mapel->kelas_mapel;
                                                                 $kls_guru_mapel = '';
                                                                 foreach ($all_kelas_mapel as $kls_mpl) {
-                                                                    if (isset($kelass[$kls_mpl->kelas])) $kls_guru_mapel .= '<span class="badge badge-light border">' . $kelass[$kls_mpl->kelas]->nama_kelas . '</span> ';
+                                                                    if (isset($kelass[$kls_mpl->kelas])) $kls_guru_mapel .= '<span class="badge badge-light border">' . html_escape($kelass[$kls_mpl->kelas]->nama_kelas) . '</span> ';
                                                                 }
                                                                 ?>
                                                                 <tr>
                                                                     <td class="text-center"><?= $nn ?></td>
-                                                                    <td><?= $mapel->nama_mapel ?></td>
+                                                                    <td><?= html_escape($mapel->nama_mapel) ?></td>
                                                                     <td class="text-center">
                                                                         <?= $kls_guru_mapel ?>
                                                                     </td>
@@ -124,12 +124,12 @@ function sortByPosition($a, $b)
                                                                 $all_kelas_ekstra = $ekstra->kelas_ekstra;
                                                                 $kls_guru_ekstra = '';
                                                                 foreach ($all_kelas_ekstra as $kls_eks) {
-                                                                    if (isset($kelass[$kls_eks->kelas])) $kls_guru_ekstra .= '<span class="badge badge-light border">' . $kelass[$kls_eks->kelas]->nama_kelas . '</span> ';
+                                                                    if (isset($kelass[$kls_eks->kelas])) $kls_guru_ekstra .= '<span class="badge badge-light border">' . html_escape($kelass[$kls_eks->kelas]->nama_kelas) . '</span> ';
                                                                 }
                                                                 ?>
                                                                 <tr>
                                                                     <td class="text-center"><?= $nn ?></td>
-                                                                    <td><?= $ekstra->nama_ekstra ?></td>
+                                                                    <td><?= html_escape($ekstra->nama_ekstra) ?></td>
                                                                     <td class="text-center">
                                                                         <?= $kls_guru_ekstra ?>
                                                                     </td>
