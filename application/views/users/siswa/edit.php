@@ -42,11 +42,11 @@
                                                  class="img-circle profile-avatar mt-2" alt="User avatar">
                                         <?php endif; ?>
                                     <?php else: ?>
-                                        <img src="<?= base_url() ?>/assets/img/<?= $siswa->foto ?>"
+                                        <img src="<?= html_escape(base_url() . 'assets/img/' . $siswa->foto) ?>"
                                              class="img-circle profile-avatar mt-2" alt="User avatar">
                                     <?php endif; ?>
-                                    <h4 class="mt-5"><?= $siswa->nama ?></h4>
-                                    Kelas <?= $siswa->nama_kelas ?>
+                                    <h4 class="mt-5"><?= html_escape($siswa->nama) ?></h4>
+                                    Kelas <?= html_escape($siswa->nama_kelas) ?>
                                 </div>
                             </div>
                         </div>
@@ -65,7 +65,7 @@
                                 <div class="input-group-prepend w-40">
                                     <span class="input-group-text">Username</span>
                                 </div>
-                                <input type="text" class="form-control" name="username" value="<?= $siswa->username ?>"
+                                <input type="text" class="form-control" name="username" value="<?= html_escape($siswa->username) ?>"
                                        placeholder="Username" required>
                             </div>
                             <div class="input-group mb-3">
