@@ -167,7 +167,7 @@
 <script type="text/javascript" src="<?= base_url() ?>/assets/app/js/excel/exceljs.js"></script>
 <script type="text/javascript" src="<?= base_url() ?>/assets/app/js/excel/js-excel-template.min.js"></script>
 <script src="<?= base_url() ?>/assets/app/js/jquery.htmlparser.min.js"></script>
-<script>
+<script nonce="<?= html_escape((string) $this->config->item('csp_nonce')) ?>">
     let formDataGuru;
 
     $(document).ready(function () {

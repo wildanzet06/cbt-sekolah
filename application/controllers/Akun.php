@@ -175,22 +175,99 @@ class Akun extends CI_Controller {
             return;
         }
 
-        $id = (string) $this->input->post('id_siswa', true);
-        if (!ctype_digit($id) || (int) $id <= 0) {
+        $id_siswa = (string) $this->input->post('id_siswa', true);
+        $id_guru  = (string) $this->input->post('id_guru', true);
+
+        if (ctype_digit($id_siswa) && (int) $id_siswa > 0) {
+            $siswa = $this->db->get_where('master_siswa', array('id_siswa' => (int) $id_siswa))->row();
+            $password = $siswa ? (string) $siswa->password : '';
+            if ($siswa && $this->_sudah_diganti($siswa->username)) {
+                $password = 'Sudah diganti siswa';
+            }
+        } elseif (ctype_digit($id_guru) && (int) $id_guru > 0) {
+            $guru = $this->db->get_where('master_guru', array('id_guru' => (int) $id_guru))->row();
+            $password = $guru ? (string) $guru->password : '';
+            if ($guru && $this->_sudah_diganti($guru->username)) {
+                $password = 'Sudah diganti guru';
+            }
+        } else {
             $this->output->set_status_header(400)
                 ->set_content_type('application/json')
                 ->set_output(json_encode($kosong));
             return;
         }
 
-        $siswa = $this->db->get_where('master_siswa', array('id_siswa' => (int) $id))->row();
-        $password = $siswa ? (string) $siswa->password : '';
-        if ($siswa && $this->_sudah_diganti($siswa->username)) {
-            $password = 'Sudah diganti siswa';
-        }
-
         $this->output->set_content_type('application/json')
             ->set_output(json_encode(array('password' => $password)));
+    }
+
+    // Dipanggil form Tambah Siswa setelah data tersimpan: akun login langsung aktif
+    // memakai username/password yang diisi di form, tanpa menunggu klik "Aktifkan".
+    public function aktifkan_siswa_baru() {
+        $gagal = array('status' => false, 'msg' => '');
+
+        if (!$this->ion_auth->is_admin() || $this->input->method() !== 'post') {
+            $this->output->set_status_header(403)
+                ->set_content_type('application/json')
+                ->set_output(json_encode($gagal));
+            return;
+        }
+
+        $username = trim((string) $this->input->post('username', true));
+        if ($username === '') {
+            $this->output->set_status_header(400)
+                ->set_content_type('application/json')
+                ->set_output(json_encode(array('status' => false, 'msg' => 'Username kosong.')));
+            return;
+        }
+
+        $siswa = $this->db->get_where('master_siswa', array('username' => $username))->row();
+        if (!$siswa) {
+            $this->output->set_status_header(404)
+                ->set_content_type('application/json')
+                ->set_output(json_encode(array('status' => false, 'msg' => 'Siswa tidak ditemukan.')));
+            return;
+        }
+
+        if ($this->ion_auth->username_check($username)) {
+            $this->output->set_content_type('application/json')
+                ->set_output(json_encode(array('status' => true, 'msg' => 'Akun sudah aktif.')));
+            return;
+        }
+
+        $password = trim((string) $siswa->password);
+        if ($password === '') {
+            $this->output->set_content_type('application/json')
+                ->set_output(json_encode(array('status' => false, 'msg' => 'Password belum diisi.')));
+            return;
+        }
+
+        // Email mengikuti aturan Usersiswa::aktifkan agar akun lama yang mengambang
+        // tidak menghalangi pendaftaran siswa dengan NIS yang sama.
+        $email = $siswa->nis . '@siswa.com';
+        $lama = $this->db->get_where('users', array('email' => $email))->row();
+        if ($lama && !$this->ion_auth->delete_user($lama->id)) {
+            $this->output->set_content_type('application/json')
+                ->set_output(json_encode(array('status' => false, 'msg' => 'Akun lama tidak dapat dihapus.')));
+            return;
+        }
+
+        $nama = preg_split('/\s+/', trim((string) $siswa->nama));
+        $first_name = isset($nama[0]) ? $nama[0] : '';
+        $last_name  = count($nama) > 1 ? end($nama) : '';
+
+        $reg = $this->ion_auth->register(
+            $username,
+            $password,
+            $email,
+            array('first_name' => $first_name, 'last_name' => $last_name),
+            array('3')
+        );
+
+        $this->output->set_content_type('application/json')->set_output(json_encode(array(
+            'status' => $reg !== false,
+            'msg'    => $reg !== false ? 'Akun langsung aktif.' : 'Akun gagal dibuat otomatis.'
+        )));
     }
 
     // Halaman siswa: melihat kehadirannya sendiri (hadir/izin/sakit/alpa)

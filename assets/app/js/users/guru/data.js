@@ -31,42 +31,46 @@ $(document).ready(function() {
 			{ data: "nama_guru" },
 			{ data: "username" },
 			{ data: "level"},
+			{ data: "password" },
+			{ data: "reset" },
+			{ data: "aktif" }
 		],
 		columnDefs: [
 			{
 				searchable: false,
+				orderable: false,
 				className: "text-center",
 				targets: 4,
-				data: {
-					id : "id",
-					username: "username",
-					nama_guru: "nama_guru",
-					reset: "reset"
-				},
 				render: function(data, type, row, meta) {
-					return `<button type="button" class="btn btn-reset btn-default btn-xs ${data.reset == 0 ? 'btn-disabled' : ''}"
- 								data-username="${data.username}" data-nama="${data.nama_guru}" data-toggle="tooltip" title="Reset Login"
-								 ${data.reset == 0 ? 'disabled' : ''}><i class="fa fa-sync m-1"></i></button>`;
+					return `<div class="td-password" data-username="${row.username}">
+								<button type="button" class="btn btn-lihat-password btn-default btn-xs"
+									data-id="${row.id_guru}" data-toggle="tooltip" title="Lihat password awal"><i class="fa fa-eye m-1"></i></button>
+								<span class="pw-awal d-none"></span>
+							</div>`;
 				}
 			},
 			{
 				searchable: false,
 				className: "text-center",
 				targets: 5,
-				data: {
-					id : "id",
-					id_guru: "id_guru",
-					nama_guru: "nama_guru",
-					aktif: "aktif"
-				},
+				render: function(data, type, row, meta) {
+					return `<button type="button" class="btn btn-reset btn-default btn-xs ${row.reset == 0 ? 'btn-disabled' : ''}"
+ 								data-username="${row.username}" data-nama="${row.nama_guru}" data-toggle="tooltip" title="Reset Login"
+								 ${row.reset == 0 ? 'disabled' : ''}><i class="fa fa-sync m-1"></i></button>`;
+				}
+			},
+			{
+				searchable: false,
+				className: "text-center",
+				targets: 6,
 				render: function(data, type, row, meta) {
 					let btn;
-					if (data.aktif > 0) {
-						btn = `<button type="button" class="btn btn-nonaktif btn-danger btn-xs" data-id="${data.id}" data-nama="${data.nama_guru}" data-toggle="tooltip" title="Nonaktifkan">
+					if (row.aktif > 0) {
+						btn = `<button type="button" class="btn btn-nonaktif btn-danger btn-xs" data-id="${row.id}" data-nama="${row.nama_guru}" data-toggle="tooltip" title="Nonaktifkan">
 								<i class="fa fa-ban m-1"></i>
 							</button>`;
 					} else {
-						btn = `<button type="button" class="btn btn-aktif btn-success btn-xs" data-id="${data.id_guru}" data-toggle="tooltip" title="Aktifkan">
+						btn = `<button type="button" class="btn btn-aktif btn-success btn-xs" data-id="${row.id_guru}" data-toggle="tooltip" title="Aktifkan">
 								<i class="fa fa-user-plus m-1"></i>
 							</button>`;
 					}
@@ -94,6 +98,25 @@ $(document).ready(function() {
 		.buttons()
 		.container()
 		.appendTo("#users_wrapper .col-md-6:eq(0)");
+
+	// Password tidak dikirim bersama daftar. Admin memintanya satu per satu.
+	$("#users").on("click", ".btn-lihat-password", function() {
+		let tombol = $(this);
+		let sel = tombol.closest(".td-password");
+		$.ajax({
+			url: base_url + "akun/lihat_password",
+			type: "POST",
+			dataType: "json",
+			data: {id_guru: tombol.attr("data-id")},
+			success: function(res) {
+				sel.find(".pw-awal").text(res && res.password ? res.password : "-").removeClass("d-none");
+				tombol.remove();
+			},
+			error: function() {
+				swal.fire({title: "Gagal", text: "Password tidak dapat ditampilkan.", icon: "error"});
+			}
+		});
+	});
 
 	$("#users").on("click", ".btn-aktif", function() {
 		let id = $(this).data("id");

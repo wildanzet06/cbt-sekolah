@@ -39,6 +39,7 @@
                                 <th>Nama</th>
                                 <th>Username</th>
                                 <th>Jabatan</th>
+                                <th class="text-center">Password Awal</th>
                                 <th class="text-center">Reset Login</th>
                                 <th class="text-center">Aksi</th>
                             </tr>

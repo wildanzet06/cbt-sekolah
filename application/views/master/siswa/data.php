@@ -480,6 +480,8 @@
         $('#formsiswa').on('submit', function (e) {
             e.preventDefault();
             e.stopImmediatePropagation();
+            var usernameBaru = $('#username').val();
+            var passwordBaru = $('#password').val();
             console.log($(this).serialize());
             $.ajax({
                 url: base_url + "datasiswa/create",
@@ -494,8 +496,31 @@
                     });
 
                     if (response.insert) {
-                        showSuccessToast(response.text);
-                        loadSiswa();
+                        // Password terisi -> langsung buat akun login (status aktif).
+                        if (usernameBaru && passwordBaru) {
+                            $.ajax({
+                                url: base_url + "akun/aktifkan_siswa_baru",
+                                type: 'POST',
+                                dataType: 'JSON',
+                                data: {username: usernameBaru},
+                                success: function (aktif) {
+                                    if (aktif && aktif.status) {
+                                        showSuccessToast(response.text + ' Akun langsung aktif.');
+                                    } else {
+                                        showDangerToast(response.text + ' Akun belum aktif: ' +
+                                            ((aktif && aktif.msg) ? aktif.msg : 'silakan aktifkan di User Management.'));
+                                    }
+                                    loadSiswa();
+                                },
+                                error: function () {
+                                    showDangerToast(response.text + ' Akun belum aktif, silakan aktifkan di User Management.');
+                                    loadSiswa();
+                                }
+                            });
+                        } else {
+                            showSuccessToast(response.text);
+                            loadSiswa();
+                        }
                     } else {
                         showDangerToast(response.text);
                     }
