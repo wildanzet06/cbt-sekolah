@@ -258,39 +258,6 @@ $qs_filter = http_build_query(array_filter($filter));
     </section>
 </div>
 
-<script>
-    $(function () {
-        $('#tableTagihan').DataTable({
-            'paging': true, 'lengthChange': true, 'searching': true,
-            'ordering': true, 'info': true, 'autoWidth': false,
-            'language': {'emptyTable': 'Belum ada tagihan. Klik "Buat Tagihan" untuk membuatnya.'}
-        });
-    });
-
-    // Ubah diskon satu tagihan: isi sama dengan nominal tagihan = gratis
-    function ubahDiskon(id, nominal, diskon, nama) {
-        var teks = 'Diskon untuk ' + nama + ' (Rp)\n' +
-                   'Nominal tagihan: Rp ' + nominal.toLocaleString('id-ID') + '\n' +
-                   'Isi ' + nominal + ' untuk GRATIS, atau 0 untuk menghapus diskon.';
-        var nilai = prompt(teks, diskon);
-        if (nilai === null) return;
-        nilai = String(nilai).replace(/\D/g, '');
-        if (nilai === '') { alert('Isi angka diskon.'); return; }
-
-        var form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '<?= site_url('tagihan/ubah_diskon/'); ?>' + id;
-
-        function tambah(nama, isi) {
-            var el = document.createElement('input');
-            el.type = 'hidden'; el.name = nama; el.value = isi;
-            form.appendChild(el);
-        }
-        tambah('diskon', nilai);
-        tambah('qs', '<?= $qs_filter; ?>');
-        tambah('<?= $this->security->get_csrf_token_name(); ?>', '<?= $this->security->get_csrf_hash(); ?>');
-
-        document.body.appendChild(form);
-        form.submit();
-    }
+<div id="tagihan-data" data-qs="<?= html_escape($qs_filter) ?>" hidden></div>
+<script src="<?= base_url() ?>assets/app/js/tagihan-index.js"></script>
 </script>
